@@ -1,14 +1,14 @@
 package ms.joinsounds.joinsounds_backend.controller;
 
 import ms.joinsounds.joinsounds_backend.dto.ReqRes;
+import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.service.UserManagementService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
@@ -40,10 +40,26 @@ public class UserManagementController {
         return ResponseEntity.ok(userManagementService.getAllUsers());
     }
 
-    @GetMapping("/admin/getUsers/{userId}")
+    @GetMapping("/admin/getUsers/{uuid}")
     public ResponseEntity<ReqRes> getUserById(@PathVariable UUID uuid) {
         return ResponseEntity.ok(userManagementService.getUserById(uuid));
     }
 
+    @PutMapping("/admin/update/{uuid}")
+    public ResponseEntity<ReqRes> updateUser(@PathVariable UUID uuid, @RequestBody User user) {
+        return ResponseEntity.ok(userManagementService.updateUser(uuid, user));
+    }
 
+    @GetMapping("/adminuser/get-profile")
+    public ResponseEntity<ReqRes> getUserProfile() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String email = authentication.getName();
+        ReqRes reqRes = userManagementService.getMyInfo(email);
+        return ResponseEntity.status(reqRes.getStatusCode()).body(reqRes);
+    }
+
+    @DeleteMapping("/admin/delete/{uuid}")
+    public ResponseEntity<ReqRes> deleteUser(@PathVariable UUID uuid) {
+        return ResponseEntity.ok(userManagementService.deleteUser(uuid));
+    }
 }

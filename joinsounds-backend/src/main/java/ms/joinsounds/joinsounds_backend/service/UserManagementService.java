@@ -192,10 +192,10 @@ public class UserManagementService {
         return reqRes;
     }
 
-    public ReqRes getMyInfo(){
+    public ReqRes getMyInfo(String email){
         ReqRes reqRes = new ReqRes();
         try {
-            Optional<User> result = userRepository.findById(reqRes.getUser().getId());
+            Optional<User> result = userRepository.findByEmail(email);
             if (result.isPresent()) {
                 reqRes.setUser(result.get());
                 reqRes.setStatusCode(200);

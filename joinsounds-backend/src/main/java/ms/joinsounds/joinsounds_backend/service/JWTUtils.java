@@ -2,26 +2,31 @@ package ms.joinsounds.joinsounds_backend.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.security.Keys;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
-import java.util.Base64;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.function.Function;
 
 @Component
-public class JWTUtils { // Z poradnika
-    private SecretKey secretKey;
-    private static final Long EXPIRATION_TIME = 86400000L; // 1 day
+public class JWTUtils {
+    private final SecretKey secretKey;
+    private static final long EXPIRATION_TIME = 86400000L; // 1 day in milliseconds
+
     public JWTUtils() {
-        // Tu zamienić potem na coś bezpieczniejszego xd
-        String secretString = "5667150134671034675134513510457081934561095781364518345013489560134";
-        byte[] decodedKey = Base64.getDecoder().decode(secretString.getBytes(StandardCharsets.UTF_8));
-        this.secretKey = new SecretKeySpec(decodedKey, 0, decodedKey.length, "AES");
+        // Generate a secure HMAC-SHA key
+        // In production, you should store this securely in environment variables
+//        this.secretKey = Keys.secretKeyFor(SignatureAlgorithm.HS256);
+
+//         Alternative: If you want to use your own secret string (must be at least 256 bits/32 chars for HS256)
+         String secretString = "your-very-long-and-secure-secret-at-least-32-chars";
+         this.secretKey = new SecretKeySpec(secretString.getBytes(StandardCharsets.UTF_8), "HmacSHA256");
     }
 
     public String generateToken(UserDetails userDetails) {
@@ -29,7 +34,7 @@ public class JWTUtils { // Z poradnika
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey)
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -38,8 +43,8 @@ public class JWTUtils { // Z poradnika
                 .setClaims(claims)
                 .setSubject(userDetails.getUsername())
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME))
-                .signWith(secretKey)
+                .setExpiration(new Date(System.currentTimeMillis() + EXPIRATION_TIME * 7)) // 7 days
+                .signWith(secretKey, SignatureAlgorithm.HS256)
                 .compact();
     }
 
@@ -48,8 +53,9 @@ public class JWTUtils { // Z poradnika
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
-        return claimsTFunction.apply(Jwts.parser()
+        return claimsTFunction.apply(Jwts.parserBuilder()
                 .setSigningKey(secretKey)
+                .build()
                 .parseClaimsJws(token)
                 .getBody());
     }
