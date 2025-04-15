@@ -1,9 +1,9 @@
-package ms.joinsounds.joinsounds_backend.dto;
+package com.phegondev.usersmanagementsystem.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.phegondev.usersmanagementsystem.entity.OurUsers;
 import lombok.Data;
-import ms.joinsounds.joinsounds_backend.entity.User;
 
 import java.util.List;
 
@@ -23,7 +23,7 @@ public class ReqRes {
     private String role;
     private String email;
     private String password;
-    private User user;
-    private List<User> userList;
+    private OurUsers ourUsers;
+    private List<OurUsers> ourUsersList;
 
 }

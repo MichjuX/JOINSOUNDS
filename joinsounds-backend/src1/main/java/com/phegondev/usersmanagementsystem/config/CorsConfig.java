@@ -1,4 +1,5 @@
-package ms.joinsounds.joinsounds_backend.config;
+package com.phegondev.usersmanagementsystem.config;
+
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

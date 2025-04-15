@@ -1,26 +1,21 @@
-package ms.joinsounds.joinsounds_backend.controller;
+package com.phegondev.usersmanagementsystem.controller;
 
-import ms.joinsounds.joinsounds_backend.dto.ReqRes;
-import ms.joinsounds.joinsounds_backend.entity.User;
-import ms.joinsounds.joinsounds_backend.service.UsersManagementService;
+import com.phegondev.usersmanagementsystem.dto.ReqRes;
+import com.phegondev.usersmanagementsystem.entity.OurUsers;
+import com.phegondev.usersmanagementsystem.service.UsersManagementService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 @RestController
 public class UserManagementController {
-    private final UsersManagementService usersManagementService;
-
-    public UserManagementController(UsersManagementService usersManagementService) {
-        this.usersManagementService = usersManagementService;
-    }
+    @Autowired
+    private UsersManagementService usersManagementService;
 
     @PostMapping("/auth/register")
-    public ResponseEntity<ReqRes> register(@RequestBody ReqRes reg){
+    public ResponseEntity<ReqRes> regeister(@RequestBody ReqRes reg){
         return ResponseEntity.ok(usersManagementService.register(reg));
     }
 
@@ -37,15 +32,17 @@ public class UserManagementController {
     @GetMapping("/admin/get-all-users")
     public ResponseEntity<ReqRes> getAllUsers(){
         return ResponseEntity.ok(usersManagementService.getAllUsers());
+
     }
 
     @GetMapping("/admin/get-users/{userId}")
-    public ResponseEntity<ReqRes> getUserByID(@PathVariable UUID userId){
+    public ResponseEntity<ReqRes> getUSerByID(@PathVariable Integer userId){
         return ResponseEntity.ok(usersManagementService.getUsersById(userId));
+
     }
 
     @PutMapping("/admin/update/{userId}")
-    public ResponseEntity<ReqRes> updateUser(@PathVariable UUID userId, @RequestBody User reqres){
+    public ResponseEntity<ReqRes> updateUser(@PathVariable Integer userId, @RequestBody OurUsers reqres){
         return ResponseEntity.ok(usersManagementService.updateUser(userId, reqres));
     }
 
@@ -54,11 +51,13 @@ public class UserManagementController {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String email = authentication.getName();
         ReqRes response = usersManagementService.getMyInfo(email);
-        return ResponseEntity.status(response.getStatusCode()).body(response);
+        return  ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     @DeleteMapping("/admin/delete/{userId}")
-    public ResponseEntity<ReqRes> deleteUser(@PathVariable UUID userId){
+    public ResponseEntity<ReqRes> deleteUSer(@PathVariable Integer userId){
         return ResponseEntity.ok(usersManagementService.deleteUser(userId));
     }
+
+
 }
