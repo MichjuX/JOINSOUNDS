@@ -1,6 +1,7 @@
-package ms.joinsounds.joinsounds_backend.config;
+package com.phegondev.usersmanagementsystem.config;
 
-import ms.joinsounds.joinsounds_backend.service.UserDetailsService;
+
+import com.phegondev.usersmanagementsystem.service.OurUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,13 +23,10 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private final JWTAuthFilter jwtAuthFilter;
-
-    public SecurityConfig(UserDetailsService userDetailsService, JWTAuthFilter jwtAuthFilter) {
-        this.userDetailsService = userDetailsService;
-        this.jwtAuthFilter = jwtAuthFilter;
-    }
+    @Autowired
+    private OurUserDetailsService ourUserDetailsService;
+    @Autowired
+    private JWTAuthFilter jwtAuthFilter;
 
 
     @Bean
@@ -49,7 +47,7 @@ public class SecurityConfig {
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
+        daoAuthenticationProvider.setUserDetailsService(ourUserDetailsService);
         daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
         return daoAuthenticationProvider;
     }
@@ -65,5 +63,3 @@ public class SecurityConfig {
     }
 
 }
-
-

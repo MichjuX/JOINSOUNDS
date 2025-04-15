@@ -1,11 +1,12 @@
-package ms.joinsounds.joinsounds_backend.config;
+package com.phegondev.usersmanagementsystem.config;
 
+
+import com.phegondev.usersmanagementsystem.service.JWTUtils;
+import com.phegondev.usersmanagementsystem.service.OurUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import ms.joinsounds.joinsounds_backend.service.JWTUtils;
-import ms.joinsounds.joinsounds_backend.service.UserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -20,13 +21,11 @@ import java.io.IOException;
 @Component
 public class JWTAuthFilter extends OncePerRequestFilter {
 
-    private final JWTUtils jwtUtils;
-    private final UserDetailsService userDetailsService;
+    @Autowired
+    private JWTUtils jwtUtils;
 
-    public JWTAuthFilter(UserDetailsService userDetailsService, JWTUtils jwtUtils) {
-        this.userDetailsService = userDetailsService;
-        this.jwtUtils = jwtUtils;
-    }
+    @Autowired
+    private OurUserDetailsService ourUserDetailsService;
 
 
     @Override
@@ -45,7 +44,7 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         userEmail = jwtUtils.extractUsername(jwtToken);
 
         if (userEmail != null && SecurityContextHolder.getContext().getAuthentication() == null) {
-            UserDetails userDetails = userDetailsService.loadUserByUsername(userEmail);
+            UserDetails userDetails = ourUserDetailsService.loadUserByUsername(userEmail);
 
             if (jwtUtils.isTokenValid(jwtToken, userDetails)) {
                 SecurityContext securityContext = SecurityContextHolder.createEmptyContext();

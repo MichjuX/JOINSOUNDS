@@ -1,4 +1,4 @@
-package ms.joinsounds.joinsounds_backend.service;
+package com.phegondev.usersmanagementsystem.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
