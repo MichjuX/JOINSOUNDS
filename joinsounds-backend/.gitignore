@@ -31,3 +31,9 @@ build/
 
 ### VS Code ###
 .vscode/
+
+# Pliki konfiguracyjne z hasłami i danymi wrażliwymi
+**/application.properties
+**/application.yml
+**/application-*.properties
+**/application-*.yml
