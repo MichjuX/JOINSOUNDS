@@ -2,7 +2,8 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Navbar from './components/common/navbar';
 import LoginPage from './components/auth/LoginPage';
-import RegistrationPage from './components/auth/RegistrationPage';
+import UserRegistrationPage from './components/auth/UserRegistrationPage';
+import AdminRegistrationPage from './components/auth/AdminRegistrationPage';
 import FooterComponent from './components/common/footer';
 import UserService from './components/service/UserService';
 import UpdateUser from './components/userspage/UpdateUser';
@@ -19,12 +20,12 @@ function App() {
             <Route path="/" element={<LoginPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/register" element={<RegistrationPage />} />
+            <Route path="/register" element={<UserRegistrationPage />} />
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}
             {UserService.adminOnly() && (
               <>
-                
+                <Route path="/admin/register" element={<AdminRegistrationPage />} />
                 <Route path="/admin/user-management" element={<UserManagementPage />} />
                 <Route path="/update-user/:userId" element={<UpdateUser />} />
               </>

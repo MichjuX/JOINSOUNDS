@@ -33,6 +33,19 @@ class UserService {
             throw error;
         }
     }
+
+    static async adminRegister(userData, token) {
+        try{
+            const response = await axios.post(`${UserService.BASE_URL}/admin/register`, userData, 
+            {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            return response.data;
+        }catch(err){
+            throw err;
+        }
+    }
+
     static async getAllUsers(token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/admin/get-all-users`, {
