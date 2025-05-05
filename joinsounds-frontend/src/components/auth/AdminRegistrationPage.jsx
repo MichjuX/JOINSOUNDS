@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import UserService from '../service/UserService';
 import { useNavigate } from 'react-router-dom';
 
-function RegistrationPage() {
+function AdminRegistrationPage() {
     const navigate = useNavigate();
 
     const [formData, setFormData] = useState({
@@ -19,20 +19,30 @@ function RegistrationPage() {
     };
 
     const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-        const token = localStorage.getItem('token'); // może być null
-        await UserService.register(formData, token); // teraz można wysłać null
-
-        // Czyszczenie formularza i przekierowanie
-        setFormData({ name: '', email: '', password: '', role: '', city: '' });
-        alert('User registered successfully');
-        navigate(token ? '/admin/user-management' : '/login');
-    } catch (error) {
-        console.error('Error:', error.response);
-        alert(error.response?.data?.message || 'Registration failed');
-    }
-};
+        e.preventDefault();
+        try {
+            const token = localStorage.getItem('token');
+            const response = await UserService.register(formData, token);
+            
+            // Jeśli dotarliśmy tutaj, to znaczy że rejestracja się powiodła
+            setFormData({ name: '', email: '', password: '', role: '', city: '' });
+            alert('User registered successfully');
+            navigate(token ? '/admin/user-management' : '/login');
+            
+        } catch (error) {
+            if (error.response) {
+                // Błąd z odpowiedzi serwera
+                if (error.response.status === 400) {
+                    alert(error.response.data.error || 'User with this email or username already exists');
+                } else {
+                    alert('Registration failed: ' + (error.response.data.message || error.message));
+                }
+            } else {
+                // Błąd sieciowy lub inny
+                alert('Registration failed: ' + error.message);
+            }
+        }
+    };
 
     return (
         <div className="auth-container">
@@ -52,7 +62,17 @@ function RegistrationPage() {
                 </div>
                 <div className="form-group">
                     <label>Role:</label>
-                    <input type="text" name="role" value={formData.role} onChange={handleInputChange} placeholder="Enter your role" required />
+                    <select 
+                        name="role" 
+                        value={formData.role} 
+                        onChange={handleInputChange} 
+                        required
+                    >
+                        <option value="">-- Select your role --</option>
+                        <option value="ADMIN">Administrator</option>
+                        <option value="MODERATOR">Moderator</option>
+                        <option value="USER">User</option>
+                    </select>
                 </div>
                 <div className="form-group">
                     <label>City:</label>
@@ -64,4 +84,4 @@ function RegistrationPage() {
     );
 }
 
-export default RegistrationPage;
+export default AdminRegistrationPage;

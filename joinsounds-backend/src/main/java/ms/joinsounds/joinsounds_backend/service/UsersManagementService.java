@@ -29,22 +29,31 @@ public class UsersManagementService {
         this.passwordEncoder = passwordEncoder;
     }
 
+    // Tu ustalamy zawsze rolę USER
     public ReqRes register(ReqRes registrationRequest){
         ReqRes resp = new ReqRes();
 
         try {
+            // Sprawdź czy email już istnieje
+            if (usersRepository.existsByEmail(registrationRequest.getEmail())) {
+                resp.setStatusCode(400);
+                resp.setError("Email already in use");
+                System.out.println("Email already in use\n\n\n\n\n\n\n\n\n\n\nA");
+                return resp;
+            }
+
+            // Sprawdź czy nazwa użytkownika już istnieje
+            if (usersRepository.existsByName(registrationRequest.getName())) {
+                resp.setStatusCode(400);
+                resp.setError("Username already taken");
+                return resp;
+            }
             User ourUser = new User();
             ourUser.setEmail(registrationRequest.getEmail());
             ourUser.setCity(registrationRequest.getCity());
-            ourUser.setRole(registrationRequest.getRole());
-            ourUser.setName(registrationRequest.getName());
-            ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-            User userResult = usersRepository.save(ourUser);
-            if (userResult.getId()!=null) {
-                resp.setUser((userResult));
-                resp.setMessage("User Saved Successfully");
-                resp.setStatusCode(200);
-            }
+            ourUser.setRole("USER");
+//            ourUser.setRole(registrationRequest.getRole());
+            registerBase(registrationRequest, resp, ourUser);
 
         }catch (Exception e){
             resp.setStatusCode(500);
@@ -52,6 +61,51 @@ public class UsersManagementService {
         }
         return resp;
     }
+
+    // Tu ustawiamy role jaką chcemy
+    public ReqRes adminRegister(ReqRes registrationRequest){
+        ReqRes resp = new ReqRes();
+
+        try {
+            // Sprawdź czy email już istnieje
+            if (usersRepository.existsByEmail(registrationRequest.getEmail())) {
+                resp.setStatusCode(400);
+                resp.setError("Email already in use");
+                return resp;
+            }
+
+            // Sprawdź czy nazwa użytkownika już istnieje
+            if (usersRepository.existsByName(registrationRequest.getName())) {
+                resp.setStatusCode(400);
+                resp.setError("Username already taken");
+                return resp;
+            }
+            User ourUser = new User();
+            ourUser.setEmail(registrationRequest.getEmail());
+            ourUser.setCity(registrationRequest.getCity());
+            ourUser.setRole(registrationRequest.getRole());
+            registerBase(registrationRequest, resp, ourUser);
+
+        }catch (Exception e){
+            resp.setStatusCode(500);
+            resp.setError(e.getMessage());
+        }
+        return resp;
+    }
+
+    // Powielony kodzik z rejestracji
+    private void registerBase(ReqRes registrationRequest, ReqRes resp, User ourUser) {
+        ourUser.setName(registrationRequest.getName());
+        ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
+        User userResult = usersRepository.save(ourUser);
+        if (userResult.getId()!=null) {
+            resp.setUser((userResult));
+            resp.setMessage("User Saved Successfully");
+            resp.setStatusCode(200);
+        }
+    }
+
+
 
     public ReqRes login(ReqRes loginRequest){
         ReqRes response = new ReqRes();

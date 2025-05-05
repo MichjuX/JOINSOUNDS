@@ -68,10 +68,24 @@ function UpdateUser() {
           <label>Email:</label>
           <input type="email" name="email" value={userData.email} onChange={handleInputChange} />
         </div>
-        <div className="form-group">
+        {/* <div className="form-group">
           <label>Role:</label>
           <input type="text" name="role" value={userData.role} onChange={handleInputChange} />
-        </div>
+        </div> */}
+        <div className="form-group">
+                    <label>Role:</label>
+                    <select 
+                        name="role" 
+                        value={userData.role} 
+                        onChange={handleInputChange} 
+                        required
+                    >
+                        <option value="">-- Select your role --</option>
+                        <option value="ADMIN">Administrator</option>
+                        <option value="MODERATOR">Moderator</option>
+                        <option value="USER">User</option>
+                    </select>
+                </div>
         <div className="form-group">
           <label>City:</label>
           <input type="text" name="city" value={userData.city} onChange={handleInputChange} />

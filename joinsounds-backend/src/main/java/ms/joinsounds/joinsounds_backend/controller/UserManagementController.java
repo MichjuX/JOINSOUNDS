@@ -20,8 +20,15 @@ public class UserManagementController {
     }
 
     @PostMapping("/auth/register")
-    public ResponseEntity<ReqRes> register(@RequestBody ReqRes reg){
-        return ResponseEntity.ok(usersManagementService.register(reg));
+    public ResponseEntity<ReqRes> register(@RequestBody ReqRes req) {
+        ReqRes response = usersManagementService.register(req);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
+    }
+
+    @PostMapping("/admin/register")
+    public ResponseEntity<ReqRes> adminRegister(@RequestBody ReqRes req) {
+        ReqRes response = usersManagementService.adminRegister(req);
+        return ResponseEntity.status(response.getStatusCode()).body(response);
     }
 
     @PostMapping("/auth/login")
