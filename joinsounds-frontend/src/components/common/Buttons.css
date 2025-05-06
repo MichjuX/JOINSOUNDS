@@ -1,0 +1,44 @@
+button {
+    padding: 10px;
+    background-color: #ff5e00;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+    text-decoration: none;
+}
+button a{
+    color: white;
+    text-decoration: none;
+}
+button:hover {
+    background-color: #ff8c00;
+    color: white;
+    text-decoration: none;
+}
+.transparent-btn{
+    background-color: transparent ;
+    color: blue;
+}
+.transparent-btn:hover{
+    background-color: transparent;
+    color: #000;
+
+}
+.delete-btn {
+    background-color: rgb(255, 9, 9);
+    color: white;
+    margin-bottom: 10px;
+    font-weight: 400;
+}
+.confirm-btn {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    margin-bottom: 10px;
+    font-weight: 400;
+    text-decoration: none;
+}
+.confirm-btn a{
+    color: white;
+    text-decoration: none;
+}

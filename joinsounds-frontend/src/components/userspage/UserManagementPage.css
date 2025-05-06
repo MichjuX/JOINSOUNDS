@@ -1,0 +1,51 @@
+/*USER MANAGEMENT PAGE*/
+.user-management-container {
+    max-width: 800px;
+    margin: 0px auto 60px auto;
+    padding: 20px;
+    
+    }
+    
+    h2 {
+    text-align: center;
+    margin-bottom: 30px;
+    color: #ebebeb;
+    }
+    
+    table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: "Sansation", sans-serif;
+    }
+    
+    th, td {
+    border: 1px solid #535353;
+    padding: 8px;
+    text-align: left;
+    color: #f7f7f7;
+    }
+    
+    th {
+        background-color: #1f1f1f;
+    }
+
+    tr {
+        background-color: #242424;
+    }
+    
+    tr:nth-child(even) {
+    background-color: #252525;
+    }
+    
+    tr:hover {
+    background-color: #1b1b1b;
+    }
+    
+
+    .register-btn {
+    padding: 15px;
+    margin: 10px auto;
+    }
+    
+
+    

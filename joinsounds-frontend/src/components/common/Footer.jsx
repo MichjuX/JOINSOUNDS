@@ -4,7 +4,8 @@ const FooterComponent = () => {
     return (
         <div>
             <footer className='footer'>
-                <span>Phegon Dev | All Right Reserved &copy; {new Date().getFullYear()} </span>
+                <span>JoinSounds | All Right Reserved &copy; {new Date().getFullYear()} </span> <br />
+                <span>Font "Sansation" used on this website is licensed under the SIL Open Font License.</span>
             </footer>
         </div>
     )
