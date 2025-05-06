@@ -2,6 +2,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import UserService from '../service/UserService';
+import './UserManagementPage.css';
+import '../common/Buttons.css'
 
 function UserManagementPage() {
   const [users, setUsers] = useState([]);
@@ -43,14 +45,14 @@ function UserManagementPage() {
   return (
     <div className="user-management-container">
       <h2>Users Management Page</h2>
-      <button className='reg-button'> <Link to="/admin/register">Add User</Link></button>
+      <button className='register-btn'> <Link to="/admin/register">Add User</Link></button>
       <table>
         <thead>
           <tr>
             <th>ID</th>
             <th>Name</th>
             <th>Email</th>
-            <td>Role</td>
+            <th>Role</th>
             <th>Actions</th>
           </tr>
         </thead>
@@ -62,8 +64,8 @@ function UserManagementPage() {
               <td>{user.email}</td>
               <td>{user.role}</td>
               <td>
-                <button className='delete-button' onClick={() => deleteUser(user.id)}>Delete</button>
-                <button><Link to={`/update-user/${user.id}`}>
+                <button className='delete-btn' onClick={() => deleteUser(user.id)}>Delete</button>
+                <button className='confirm-btn'><Link to={`/update-user/${user.id}`}>
                   Update
                 </Link>
                 </button>

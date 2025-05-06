@@ -9,6 +9,7 @@ import UserService from './components/service/UserService';
 import UpdateUser from './components/userspage/UpdateUser';
 import UserManagementPage from './components/userspage/UserManagementPage';
 import ProfilePage from './components/userspage/ProfilePage';
+import HomePage from './components/Pages/HomePage';
 
 function App() {
   return (
@@ -17,10 +18,10 @@ function App() {
         <Navbar />
         <div className="content" style={{ minHeight: 'calc(100vh - 120px)' }}>
           <Routes>
-            <Route path="/" element={<LoginPage />} />
-            <Route path="/login" element={<LoginPage />} />
+            <Route path="/" element={<HomePage />} />
+            {/* <Route path="/login" element={<LoginPage />} /> */}
             <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/register" element={<UserRegistrationPage />} />
+            {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}
             {UserService.adminOnly() && (
@@ -30,10 +31,18 @@ function App() {
                 <Route path="/update-user/:userId" element={<UpdateUser />} />
               </>
             )}
-            <Route path="*" element={<Navigate to="/login" />} />
+            
+            <Route path="*" element={<Navigate to="/profile" />} />
+            {!UserService.isAuthenticated() && (
+              <>
+                <Route path="/login" element={<LoginPage />} />
+                <Route path="/register" element={<UserRegistrationPage />} />
+              </>
+            )}
+            {/* Redirect to login if not authenticated */}
           </Routes>
         </div>
-        <FooterComponent />
+        {/* <FooterComponent /> */}
       </div>
     </BrowserRouter>
   );

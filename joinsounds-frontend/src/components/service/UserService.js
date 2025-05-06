@@ -123,6 +123,11 @@ class UserService {
         return role === "ADMIN";
     }
 
+    static isModerator() {
+        const role = localStorage.getItem("role");
+        return role === "MODERATOR";
+    }
+
     static isUser() {
         const role = localStorage.getItem("role");
         return role === "USER";
