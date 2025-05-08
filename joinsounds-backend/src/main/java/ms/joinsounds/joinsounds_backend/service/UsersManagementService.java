@@ -38,7 +38,6 @@ public class UsersManagementService {
             if (usersRepository.existsByEmail(registrationRequest.getEmail())) {
                 resp.setStatusCode(400);
                 resp.setError("Email already in use");
-                System.out.println("Email already in use\n\n\n\n\n\n\n\n\n\n\nA");
                 return resp;
             }
 
