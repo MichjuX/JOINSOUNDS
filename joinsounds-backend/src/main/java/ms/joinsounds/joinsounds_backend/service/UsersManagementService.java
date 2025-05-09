@@ -3,7 +3,6 @@ package ms.joinsounds.joinsounds_backend.service;
 import ms.joinsounds.joinsounds_backend.dto.ReqRes;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
