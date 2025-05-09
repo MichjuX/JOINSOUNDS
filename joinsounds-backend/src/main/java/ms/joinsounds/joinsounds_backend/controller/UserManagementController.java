@@ -3,7 +3,6 @@ package ms.joinsounds.joinsounds_backend.controller;
 import ms.joinsounds.joinsounds_backend.dto.ReqRes;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.service.UsersManagementService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
