@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 class UserService {
-    static BASE_URL = "http://localhost:8080"
+    // static BASE_URL = "http://localhost:8080"
+    static BASE_URL = "http://172.24.188.59:8080"
 
     static async login(email, password) {
         try {
@@ -60,7 +61,7 @@ class UserService {
 
     static async getYourProfile(token) {
         try {
-            const response = await axios.get(`${this.BASE_URL}/adminuser/get-profile`, {
+            const response = await axios.get(`${this.BASE_URL}/authenticated/get-profile`, {
                 headers: {Authorization: `Bearer ${token}`}
             });
             return response.data;
