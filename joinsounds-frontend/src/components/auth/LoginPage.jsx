@@ -18,7 +18,7 @@ function LoginPage() {
                 localStorage.setItem('token', userData.token);
                 localStorage.setItem('role', userData.role);
                 window.location.reload();
-                navigate('/profile');
+                navigate('/');
             } else {
                 setError("Invalid credentials. Please try again.");
                 setTimeout(() => setError(''), 5000);

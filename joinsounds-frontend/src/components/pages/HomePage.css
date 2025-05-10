@@ -41,3 +41,15 @@ audio {
     color: #666;
     font-size: 0.9em;
 }
+.error{
+    color: #ff5100;
+    font-size: 30px;
+    font-family: "Sansation", sans-serif;
+    font-weight: 700;
+    font-style: italic;
+    letter-spacing: 5px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    padding-top: 20vh;;
+}

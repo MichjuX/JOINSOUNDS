@@ -25,8 +25,8 @@ function HomePage() {
         fetchPosts();
     }, [token]);
 
-    if (loading) return <div>Loading posts...</div>;
-    if (error) return <div>Error: {error}</div>;
+    if (loading) return <div className="error">Loading posts...</div>;
+    if (error) return <div className="error">Error: {error}</div>;
 
     const getAudioType = (filename) => {
         const ext = filename.split('.').pop().toLowerCase();
@@ -36,8 +36,8 @@ function HomePage() {
             m4a: 'audio/mp4',
             ogg: 'audio/ogg',
             wav: 'audio/wav',
-            flac: 'audio/flac', // Tylko dla nowoczesnych przeglądarek
-            opus: 'audio/ogg; codecs=opus' // Specjalna składnia dla OPUS
+            flac: 'audio/flac', 
+            opus: 'audio/ogg; codecs=opus' 
         };
         return types[ext] || 'audio/mpeg';
     };
@@ -77,20 +77,6 @@ function HomePage() {
                                         />
                                         Your browser does not support the audio element.
                                     </audio>
-                                    {/* <audio controls>
-                                        <source 
-                                            src={`${PostService.BASE_URL}/authenticated/file/${post.audioFilePath}?token=${token}`}
-                                            type={getAudioType(post.audioFilePath)}
-                                            onError={(e) => {
-                                            console.error('Audio load failed:', {
-                                                error: e.target.error,
-                                                src: e.target.src,
-                                                type: e.target.type
-                                            });
-                                            }}
-                                        />
-                                        Twoja przeglądarka nie obsługuje tego formatu audio.
-                                        </audio> */}
                                 </div>
                             )}
                         

@@ -61,9 +61,6 @@ class PostService {
     static async getAllPosts(token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
             });
             return response.data;
         } catch (error) {
