@@ -4,6 +4,27 @@ class PostService {
     // static BASE_URL = "http://localhost:8080"
     static BASE_URL = "http://172.24.188.59:8080"
 
+    static getAuthorizedFileUrl(filename, token) {
+        if (!filename) return '';
+        return `${this.BASE_URL}/public/file/${encodeURIComponent(filename)}`;
+        // Token NIE jest już w URL!
+    }
+
+    static async getFile(filename, token) {
+        try {
+            const response = await axios.get(this.getAuthorizedFileUrl(filename), {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'ResponseType': 'blob' // Ważne dla plików binarnych
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching file:", error);
+            throw error;
+        }
+    }
+
     static async createPost(postData, token) {
         try {
             const response = await axios.post(`${this.BASE_URL}/authenticated/post/create`, postData, {
@@ -39,7 +60,7 @@ class PostService {
 
     static async getAllPosts(token) {
         try {
-            const response = await axios.get(`${this.BASE_URL}/posts/all`, {
+            const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }
