@@ -17,4 +17,7 @@ public class Post {
     private String content;
     private String audioFilePath;
     private String waveformFilePath;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 }

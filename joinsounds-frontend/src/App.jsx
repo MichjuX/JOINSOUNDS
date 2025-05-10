@@ -9,7 +9,8 @@ import UserService from './components/service/UserService';
 import UpdateUser from './components/userspage/UpdateUser';
 import UserManagementPage from './components/userspage/UserManagementPage';
 import ProfilePage from './components/userspage/ProfilePage';
-import HomePage from './components/Pages/HomePage';
+import HomePage from './components/pages/HomePage';
+import FullPostPage from './components/pages/FullPostPage';
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
             <Route path="/" element={<HomePage />} />
             {/* <Route path="/login" element={<LoginPage />} /> */}
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/post/:id" element={<FullPostPage />} />
             {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}
