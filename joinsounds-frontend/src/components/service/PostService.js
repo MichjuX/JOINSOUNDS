@@ -58,7 +58,7 @@ class PostService {
         }
     }
 
-    static async getAllPosts(token) {
+    static async getAllPosts() {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
             });
@@ -71,11 +71,7 @@ class PostService {
 
     static async getPostById(postId, token) {
         try {
-            const response = await axios.get(`${this.BASE_URL}/posts/${postId}`, {
-                headers: {
-                    'Authorization': `Bearer ${token}`
-                }
-            });
+            const response = await axios.get(`${this.BASE_URL}/public/post/${postId}`);
             return response.data;
         } catch (error) {
             console.error("Error getting post:", error);
