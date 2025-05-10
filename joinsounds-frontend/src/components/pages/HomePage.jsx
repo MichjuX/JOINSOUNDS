@@ -1,21 +1,105 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import PostForm from "../forms/PostForm";
+import PostService from "../service/PostService";
+import "./HomePage.css";
 
 function HomePage() {
     const token = localStorage.getItem('token');
+    const [posts, setPosts] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            try {
+                const postsData = await PostService.getAllPosts(token);
+                setPosts(postsData);
+                setLoading(false);
+            } catch (err) {
+                setError(err.message);
+                setLoading(false);
+                console.error("Error fetching posts:", err);
+            }
+        };
+
+        fetchPosts();
+    }, [token]);
+
+    if (loading) return <div>Loading posts...</div>;
+    if (error) return <div>Error: {error}</div>;
+
+    const getAudioType = (filename) => {
+        const ext = filename.split('.').pop().toLowerCase();
+        const types = {
+            mp3: 'audio/mpeg',
+            aac: 'audio/aac',
+            m4a: 'audio/mp4',
+            ogg: 'audio/ogg',
+            wav: 'audio/wav',
+            flac: 'audio/flac', // Tylko dla nowoczesnych przeglądarek
+            opus: 'audio/ogg; codecs=opus' // Specjalna składnia dla OPUS
+        };
+        return types[ext] || 'audio/mpeg';
+    };
+
     return (
-        <>
-            <div className="home-page-container">
-                <h1>Welcome to Gibon Agent</h1>
-                <p>Your one-stop solution for all your needs.</p>
-                <p>Explore our features and services.</p>
+        <div className="home-page-container">
+            <h1>Welcome to JoinSounds</h1>
+            
+            <div className="post-form-section">
+                <h2>Create new post</h2>
+                <PostForm token={token} onPostCreated={() => window.location.reload()} />
             </div>
 
-            <div>
-                <h2>Dodaj nowy post</h2>
-                <PostForm token={token} />
+            <div className="posts-list">
+                <h2>Recent Posts</h2>
+                {posts.length === 0 ? (
+                    <p>No posts available. Be the first to post!</p>
+                ) : (
+                    posts.map(post => (
+                        <div key={post.id} className="post-card">
+                            <h3>{post.title}</h3>
+                            <p>{post.content}</p>
+                            
+                            {post.audioFilePath && (
+                                <div className="audio-player">
+                                    <audio controls>
+                                        <source 
+                                            src={PostService.getAuthorizedFileUrl(post.audioFilePath, token)} 
+                                            type={getAudioType(post.audioFilePath)}
+                                            onError={(e) => {
+                                            console.error('Audio load failed:', {
+                                                error: e.target.error,
+                                                src: e.target.src,
+                                                type: e.target.type
+                                            });
+                                            }}
+                                        />
+                                        Your browser does not support the audio element.
+                                    </audio>
+                                    {/* <audio controls>
+                                        <source 
+                                            src={`${PostService.BASE_URL}/authenticated/file/${post.audioFilePath}?token=${token}`}
+                                            type={getAudioType(post.audioFilePath)}
+                                            onError={(e) => {
+                                            console.error('Audio load failed:', {
+                                                error: e.target.error,
+                                                src: e.target.src,
+                                                type: e.target.type
+                                            });
+                                            }}
+                                        />
+                                        Twoja przeglądarka nie obsługuje tego formatu audio.
+                                        </audio> */}
+                                </div>
+                            )}
+                        
+                        </div>
+                    ))
+                )}
             </div>
-        </>
+        </div>
     );
 }
+
 export default HomePage;

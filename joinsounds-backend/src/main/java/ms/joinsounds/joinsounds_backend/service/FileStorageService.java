@@ -4,6 +4,8 @@ import net.bramp.ffmpeg.FFmpeg;
 import net.bramp.ffmpeg.FFmpegExecutor;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.builder.FFmpegBuilder;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -118,5 +120,21 @@ public class FileStorageService {
 
         FFmpegExecutor executor = new FFmpegExecutor(ffmpeg, ffprobe);
         executor.createJob(builder).run();
+    }
+
+    // W FileStorageService dodaj:
+    public Resource loadFile(String filename) {
+        try {
+            Path filePath = this._fileStorageLocation.resolve(filename).normalize();
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (resource.exists()) {
+                return resource;
+            } else {
+                throw new RuntimeException("File not found " + filename);
+            }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load file", e);
+        }
     }
 }
