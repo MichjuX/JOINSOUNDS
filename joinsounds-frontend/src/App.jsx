@@ -32,7 +32,7 @@ function App() {
               </>
             )}
             
-            <Route path="*" element={<Navigate to="/profile" />} />
+            <Route path="*" element={<Navigate to="/" />} />
             {!UserService.isAuthenticated() && (
               <>
                 <Route path="/login" element={<LoginPage />} />
