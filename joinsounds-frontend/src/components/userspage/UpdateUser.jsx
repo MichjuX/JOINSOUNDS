@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import UserService from '../service/UserService';
+import '../auth/LoginPage.css';
 
 function UpdateUser() {
   const navigate = useNavigate();
@@ -57,42 +58,45 @@ function UpdateUser() {
   };
 
   return (
-    <div className="auth-container">
-      <h2>Update User</h2>
-      <form onSubmit={handleSubmit}>
-        <div className="form-group">
-          <label>Name:</label>
-          <input type="text" name="name" value={userData.name} onChange={handleInputChange} />
-        </div>
-        <div className="form-group">
-          <label>Email:</label>
-          <input type="email" name="email" value={userData.email} onChange={handleInputChange} />
-        </div>
-        {/* <div className="form-group">
-          <label>Role:</label>
-          <input type="text" name="role" value={userData.role} onChange={handleInputChange} />
-        </div> */}
-        <div className="form-group">
-                    <label>Role:</label>
-                    <select 
-                        name="role" 
-                        value={userData.role} 
-                        onChange={handleInputChange} 
-                        required
-                    >
-                        <option value="">-- Select your role --</option>
-                        <option value="ADMIN">Administrator</option>
-                        <option value="MODERATOR">Moderator</option>
-                        <option value="USER">User</option>
-                    </select>
-                </div>
-        <div className="form-group">
-          <label>City:</label>
-          <input type="text" name="city" value={userData.city} onChange={handleInputChange} />
-        </div>
-        <button type="submit">Update</button>
-      </form>
+    <div className="login-page-container">
+      <div className="auth-container">
+        <p className="login-title">Update user</p>
+        <form onSubmit={handleSubmit}>
+          <div className="form-group">
+            <label>Name:</label>
+            <input type="text" name="name" value={userData.name} onChange={handleInputChange} className='form-input' />
+          </div>
+          <div className="form-group">
+            <label>Email:</label>
+            <input type="email" name="email" value={userData.email} onChange={handleInputChange} className='form-input' />
+          </div>
+          {/* <div className="form-group">
+            <label>Role:</label>
+            <input type="text" name="role" value={userData.role} onChange={handleInputChange} />
+          </div> */}
+          <div className="form-group">
+                      <label>Role:</label>
+                      <select 
+                          name="role" 
+                          value={userData.role} 
+                          onChange={handleInputChange} 
+                          required
+                          className='form-input'
+                      >
+                          <option value="">-- Select your role --</option>
+                          <option value="ADMIN">Administrator</option>
+                          <option value="MODERATOR">Moderator</option>
+                          <option value="USER">User</option>
+                      </select>
+                  </div>
+          <div className="form-group">
+            <label>City:</label>
+            <input type="text" name="city" value={userData.city} onChange={handleInputChange} className='form-input' />
+          </div>
+          <button type="submit">Update</button>
+        </form>
     </div>
+  </div>
   );
 }
 

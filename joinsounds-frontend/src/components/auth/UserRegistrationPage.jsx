@@ -2,7 +2,11 @@ import React, { useState } from 'react';
 import UserService from '../service/UserService';
 import { useNavigate } from 'react-router-dom';
 import { Link } from 'react-router-dom';
-import './LoginPage.css'; // Używamy tego samego pliku CSS
+import Select from 'react-select';
+import './LoginPage.css';
+import { countries } from './countries' 
+// Lista państw - możesz rozszerzyć tę listę według potrzeb
+
 
 function UserRegistrationPage() {
     const navigate = useNavigate();
@@ -12,12 +16,16 @@ function UserRegistrationPage() {
         email: '',
         password: '',
         role: '',
-        city: ''
+        country: ''
     });
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setFormData({ ...formData, [name]: value });
+    };
+
+    const handleCountryChange = (selectedOption) => {
+        setFormData({ ...formData, country: selectedOption ? selectedOption.value : '' });
     };
 
     const handleSubmit = async (e) => {
@@ -42,16 +50,19 @@ function UserRegistrationPage() {
                 email: '',
                 password: '',
                 role: '',
-                city: ''
+                country: ''
             });
             alert('User registered successfully');
-            navigate('/profile');
+            navigate('/login');
     
         } catch (error) {
             console.error('Error registering user:', error);
             alert('An error occurred while registering user');
         }
     };
+
+    // Znajdź aktualnie wybrany kraj dla Select
+    const selectedCountry = countries.find(country => country.value === formData.country);
 
     return (
         <div className="login-page-container">
@@ -92,15 +103,43 @@ function UserRegistrationPage() {
                         />
                     </div>
                     <div className="form-group">
-                        <label className="form-label">City:</label>
-                        <input 
-                            type="text" 
-                            name="city" 
-                            value={formData.city} 
-                            onChange={handleInputChange} 
-                            className="form-input"
-                            placeholder="Enter your city" 
-                            required 
+                        <label className="form-label">Country:</label>
+                        <Select
+                            value={selectedCountry}
+                            onChange={handleCountryChange}
+                            options={countries}
+                            isSearchable={true}
+                            placeholder="Select or search a country..."
+                            classNamePrefix="country-select"
+                            required
+                            styles={{
+                                input: (provided) => ({
+                                    ...provided,
+                                    color: '#ffffff',
+                                }),
+                                singleValue: (provided) => ({
+                                    ...provided,
+                                    color: '#ffffff',
+                                }),
+                            }}
+                            theme={(theme) => ({
+                                ...theme,
+                                colors: {
+                                    ...theme.colors,
+                                    primary: '#ff5100',
+                                    primary25: '#313131',
+                                    primary50: '#ff5100',
+                                    neutral0: '#131313',
+                                    neutral20: '#313131',
+                                    neutral30: '#ff5100',
+                                    neutral40: '#ff5100',
+                                    neutral50: '#ffffff',
+                                    neutral60: '#ffffff',
+                                    neutral70: '#ffffff',
+                                    neutral80: '#ffffff',
+                                    neutral90: '#ffffff',
+                                },
+                            })}
                         />
                     </div>
                     <button type="submit" className="submit-button">Register</button>

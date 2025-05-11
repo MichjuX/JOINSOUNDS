@@ -137,4 +137,13 @@ public class FileStorageService {
             throw new RuntimeException("Failed to load file", e);
         }
     }
+
+    public void deleteFile(String filename) {
+        try {
+            Path filePath = this._fileStorageLocation.resolve(filename).normalize();
+            Files.deleteIfExists(filePath);
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to delete file", e);
+        }
+    }
 }

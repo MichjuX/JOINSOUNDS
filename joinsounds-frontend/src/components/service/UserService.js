@@ -142,6 +142,14 @@ class UserService {
         return role === "MODERATOR";
     }
 
+    static isModeratorOrAdmin() {
+        const role = localStorage.getItem("role");
+        if (role === "ADMIN" || role === "MODERATOR") {
+            return true;
+        }
+        else return false;
+    }
+
     static isUser() {
         const role = localStorage.getItem("role");
         return role === "USER";
