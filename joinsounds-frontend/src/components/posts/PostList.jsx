@@ -1,8 +1,9 @@
-import React from "react";
+import React , { useState } from "react";
 import "../common/Buttons.css";
 import PostService from "../service/PostService";
 import "./PostList.css";
 import UserService from "../service/UserService";
+import AudioPlayer from "../common/AudioPlayer";
 
 function PostList({ 
   posts, 
@@ -13,6 +14,7 @@ function PostList({
   onAdminDelete,
   token 
 }) {
+  const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const truncateText = (text, maxLength = 200) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
@@ -52,6 +54,14 @@ function PostList({
     };
     
     return date.toLocaleDateString('en-EN', options);
+  };
+
+  const handlePlay = (postId) => {
+    setCurrentlyPlayingId(postId);
+  };
+
+  const handlePause = () => {
+    setCurrentlyPlayingId(null);
   };
 
   if (loading) return <div className="loading">Loading posts...</div>;
@@ -101,7 +111,7 @@ function PostList({
         )}
 
           
-          {post.audioFilePath && (
+          {/* {post.audioFilePath && (
             <div className="audio-player">
               <audio controls>
                 <source 
@@ -118,6 +128,16 @@ function PostList({
                 Your browser does not support the audio element.
               </audio>
             </div>
+          )} */}
+          {post.audioFilePath && (
+            <AudioPlayer 
+              audioUrl={getAudioUrl(post.audioFilePath)}
+              audioType={getAudioType(post.audioFilePath)}
+              isPlaying={currentlyPlayingId === post.id}
+              onPlay={() => handlePlay(post.id)}
+              onPause={handlePause}
+              onEnd={handlePause}
+            />
           )}
         </div>
       ))}
