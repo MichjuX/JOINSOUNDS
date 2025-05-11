@@ -4,7 +4,7 @@ class PostService {
     // static BASE_URL = "http://localhost:8080"
     static BASE_URL = "http://172.24.188.59:8080"
 
-    static getAuthorizedFileUrl(filename, token) {
+    static getAuthorizedFileUrl(filename) {
         if (!filename) return '';
         return `${this.BASE_URL}/public/file/${encodeURIComponent(filename)}`;
         // Token NIE jest już w URL!
@@ -40,32 +40,53 @@ class PostService {
         }
     }
 
-    static async uploadFile(file, token) {
+    static async uploadFile(file, token, onProgress) {
         try {
             const formData = new FormData();
             formData.append('file', file);
 
-            const response = await axios.post(`${this.BASE_URL}/authenticated/file/upload`, formData, {
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data'
+            const response = await axios.post(
+                `${this.BASE_URL}/authenticated/file/upload`, 
+                formData, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data'
+                    },
+                    onUploadProgress: (progressEvent) => {
+                        if (onProgress) {
+                            // Dodajemy zabezpieczenie przed brakującymi wartościami
+                            const progress = progressEvent.total 
+                                ? Math.round((progressEvent.loaded * 100) / progressEvent.total)
+                                : 0;
+                            onProgress(progress);
+                        }
+                    }
                 }
-            });
-            return response.data; // Zmiana: backend zwraca string, nie obiekt z filePath
+            );
+            return response.data;
         } catch (error) {
             console.error("Error uploading file:", error);
             throw error;
         }
     }
 
-    static async getAllPosts() {
+    static async getAllPosts(page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
+                params: { 
+                    page, 
+                    size,
+                    sort: `${sortBy},${sortDirection}`
+                },
+                ...config
             });
             return response.data;
         } catch (error) {
-            console.error("Error getting posts:", error);
-            throw error;
+            if (!axios.isCancel(error)) {
+                console.error("Error getting posts:", error);
+                throw error;
+            }
         }
     }
 
@@ -110,7 +131,7 @@ class PostService {
 
     static async deletePost(postId, token) {
         try {
-            const response = await axios.delete(`${this.BASE_URL}/posts/delete/${postId}`, {
+            const response = await axios.delete(`${this.BASE_URL}/authenticated/post/delete/${postId}`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

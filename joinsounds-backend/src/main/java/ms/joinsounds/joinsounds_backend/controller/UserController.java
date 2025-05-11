@@ -67,4 +67,18 @@ public class UserController {
     public ResponseEntity<ReqRes> deleteUser(@PathVariable UUID userId){
         return ResponseEntity.ok(userService.deleteUser(userId));
     }
+
+    @GetMapping("/public/getCurrentUserId")
+    public ResponseEntity<UUID> getCurrentUserId() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+
+        // Sprawdź, czy użytkownik jest zalogowany (nie jest "anonymousUser")
+        if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal())) {
+            return ResponseEntity.ok(null);  // Zwraca HTTP 200 z null
+        }
+
+        // Jeśli użytkownik jest zalogowany, zwróć jego ID
+        User user = (User) authentication.getPrincipal();
+        return ResponseEntity.ok(user.getId());
+    }
 }

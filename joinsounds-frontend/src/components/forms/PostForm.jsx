@@ -1,25 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import PostService from '../service/PostService';
+import './PostForm.css';
 
-const PostForm = ({ token }) => {
+const PostForm = ({ token, onPostCreated}) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [audioFile, setAudioFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [uploadProgress, setUploadProgress] = useState(0);
+    const fileInputRef = useRef(null); // Dodajemy referencję do inputa file
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsSubmitting(true);
+        setUploadProgress(0);
 
         try {
             let audioFilePath = null;
 
-            // 1. Upload pliku audio (jeśli istnieje)
             if (audioFile) {
-                const fileName = await PostService.uploadFile(audioFile, token);
-                audioFilePath = fileName; // Backend zwraca już gotową nazwę pliku
+                const fileName = await PostService.uploadFile(
+                    audioFile, 
+                    token,
+                    (progress) => {
+                        setUploadProgress(progress);
+                    }
+                );
+                audioFilePath = fileName;
             }
-            // 2. Utwórz post
+            
             await PostService.createPost({
                 title,
                 content,
@@ -31,6 +40,17 @@ const PostForm = ({ token }) => {
             setTitle('');
             setContent('');
             setAudioFile(null);
+            setUploadProgress(0);
+            
+            // Reset formularza pliku
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+
+            // Wywołujemy callback po przesłaniu pliku
+            if (onPostCreated) {
+                onPostCreated();
+            }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.includes("Only audio files are allowed")) {
                 alert('Proszę wybrać plik audio w poprawnym formacie (MP3, WAV, OGG, M4A)');
@@ -40,38 +60,54 @@ const PostForm = ({ token }) => {
         } finally {
             setIsSubmitting(false);
         }
-      };
+    };
 
     return (
         <form onSubmit={handleSubmit}>
             <input
-              type="text"
-              placeholder="Tytuł"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-              disabled={isSubmitting}
+                className='form-input'
+                type="text"
+                placeholder="Tytuł"
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                disabled={isSubmitting}
             />
             <textarea
-              placeholder="Treść"
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              required
-              disabled={isSubmitting}
+                placeholder="Treść"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                required
+                disabled={isSubmitting}
             />
             <input
-              type="file"
-              onChange={(e) => setAudioFile(e.target.files[0])}
-              disabled={isSubmitting}
+                type="file"
+                ref={fileInputRef} // Dodajemy referencję
+                onChange={(e) => setAudioFile(e.target.files[0])}
+                disabled={isSubmitting}
+                accept="audio/*"
             />
+            
+            {isSubmitting && (
+                <div className="progress-container">
+                    <div 
+                        className="progress-bar" 
+                        style={{ width: `${uploadProgress || 0}%` }}
+                    ></div>
+                    <span className="progress-text">
+                        {uploadProgress !== undefined ? `${uploadProgress}%` : 'Przesyłanie...'}
+                    </span>
+                </div>
+            )}
+            
             <button
-              type="submit"
-              disabled={isSubmitting}
+                type="submit"
+                disabled={isSubmitting}
             >
-              {isSubmitting ? 'Wysyłanie...' : 'Dodaj post'}
+                {isSubmitting ? 'Sending...' : 'Add post'}
             </button>
-          </form>
-        );
+        </form>
+    );
 };
 
 export default PostForm;
