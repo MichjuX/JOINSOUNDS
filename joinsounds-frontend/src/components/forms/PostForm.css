@@ -61,7 +61,8 @@ form input[type="file"]:hover {
 
 form input[type="file"]::file-selector-button {
   padding: 0.5rem 1rem;
-  background-color: #e64900;
+  background: #ff5d12;
+  background: linear-gradient(90deg, rgb(218, 95, 38) 0%, rgb(233, 59, 43) 100%);
   color: #ffffff;
   border: none;
   border-radius: 4px;
@@ -98,7 +99,8 @@ form button[type="submit"]:hover:not(:disabled) {
 }
 
 form button[type="submit"]:disabled {
-  background-color: #a0a0a0;
+  background: #a0a0a0;
+  background: linear-gradient(90deg, rgb(172, 172, 172) 0%, rgb(145, 145, 145) 100%);
   cursor: not-allowed;
   opacity: 0.7;
 }

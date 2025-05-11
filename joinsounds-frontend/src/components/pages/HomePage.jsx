@@ -209,6 +209,7 @@ function HomePage() {
           loading={loading}
           currentUserId={currentUserId}
           onShowMore={handleShowMore}
+          onEdit={(postId) => navigate(`/post/edit/${postId}`)}
           onDelete={handleDelete}
           onAdminDelete={handleAdminDelete}
           getAudioType={getAudioType}
@@ -222,7 +223,7 @@ function HomePage() {
                 onClick={() => setPage(p => Math.max(p - 1, 0))} 
                 disabled={page === 0 || loading}
                 className="page-btn"
-              >
+              > 
                 Previous
               </button>
               

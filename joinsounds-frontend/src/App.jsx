@@ -11,6 +11,7 @@ import UserManagementPage from './components/userspage/UserManagementPage';
 import ProfilePage from './components/userspage/ProfilePage';
 import HomePage from './components/pages/HomePage';
 import FullPostPage from './components/pages/FullPostPage';
+import EditPostPage from './components/pages/EditPostPage';
 
 function App() {
   return (
@@ -39,6 +40,12 @@ function App() {
               <>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<UserRegistrationPage />} />
+              </>
+            )}
+
+            {UserService.isAuthenticated() && (
+              <>
+                <Route path="/post/edit/:id" element={<EditPostPage />} />
               </>
             )}
             {/* Redirect to login if not authenticated */}

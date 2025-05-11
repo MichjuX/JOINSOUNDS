@@ -92,4 +92,17 @@ public class PostController {
         _postService.deletePostByModerator(id, user.getRole());
         return ResponseEntity.ok().build();
     }
+
+    @PutMapping("/authenticated/post/update/{id}")
+    public ResponseEntity<Post> updatePost(@PathVariable UUID id, @RequestBody Post post) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Post existingPost = _postRepository.findById(id).orElse(null);
+        if (existingPost != null && existingPost.getUser().getId().equals(user.getId())) {
+            existingPost.setTitle(post.getTitle());
+            existingPost.setContent(post.getContent());
+            return ResponseEntity.ok(_postRepository.save(existingPost));
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

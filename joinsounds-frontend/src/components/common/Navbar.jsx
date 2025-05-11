@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import './Navbar.css';
 import UserService from '../service/UserService';
 import { useEffect } from 'react';
+import logo from '../../assets/images/JOINSOUNDS.png';
+
 
 function Navbar() {
     const [isAuthenticated, setIsAuthenticated] = useState(UserService.isAuthenticated());
@@ -43,7 +45,7 @@ function Navbar() {
         <nav className="navbar">
         <div className="navbar-container">
             <Link to="/" className="navbar-logo" onClick={closeMobileMenu}>
-            <img src="src\assets\images\JOINSOUNDS.png" alt="JoinSounds Logo" />
+            <img src={logo} alt="JoinSounds Logo" />
             </Link>
             <div className={`menu-icon ${isOpen ? 'toggle' : ''}`} onClick={toggleMenu}>
             <div className="line line1"></div>

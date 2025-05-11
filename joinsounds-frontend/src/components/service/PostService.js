@@ -116,7 +116,7 @@ class PostService {
 
     static async updatePost(postId, postData, token) {
         try {
-            const response = await axios.put(`${this.BASE_URL}/posts/update/${postId}`, postData, {
+            const response = await axios.put(`${this.BASE_URL}/authenticated/post/update/${postId}`, postData, {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
