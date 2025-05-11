@@ -5,6 +5,7 @@ import ms.joinsounds.joinsounds_backend.dto.UserDto;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -49,7 +50,7 @@ public class UserService {
             }
             User ourUser = new User();
             ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setCity(registrationRequest.getCity());
+            ourUser.setCountry(registrationRequest.getCountry());
             ourUser.setRole("USER");
 //            ourUser.setRole(registrationRequest.getRole());
             registerBase(registrationRequest, resp, ourUser);
@@ -81,7 +82,7 @@ public class UserService {
             }
             User ourUser = new User();
             ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setCity(registrationRequest.getCity());
+            ourUser.setCountry(registrationRequest.getCountry());
             ourUser.setRole(registrationRequest.getRole());
             registerBase(registrationRequest, resp, ourUser);
 
@@ -104,27 +105,44 @@ public class UserService {
         }
     }
 
-
-
-    public ReqRes login(ReqRes loginRequest){
+    public ReqRes login(ReqRes loginRequest) {
         ReqRes response = new ReqRes();
         try {
-            authenticationManager
-                    .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getEmail(),
-                            loginRequest.getPassword()));
-            var user = usersRepository.findByEmail(loginRequest.getEmail()).orElseThrow();
-            var jwt = jwtUtils.generateToken(user);
-            var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user);
+            // Sprawdź czy podana wartość to email czy nazwa użytkownika
+            Optional<User> user = loginRequest.getEmail().contains("@")
+                    ? usersRepository.findByEmail(loginRequest.getEmail())
+                    : usersRepository.findByName(loginRequest.getEmail());
+
+            if (user.isEmpty()) {
+                response.setStatusCode(404);
+                response.setMessage("User not found");
+                return response;
+            }
+
+            // Uwierzytelnienie używając znalezionego użytkownika
+            authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            user.get().getEmail(), // Spring Security wymaga emaila jako identyfikatora
+                            loginRequest.getPassword()
+                    )
+            );
+
+            var jwt = jwtUtils.generateToken(user.get());
+            var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user.get());
+
             response.setStatusCode(200);
             response.setToken(jwt);
-            response.setRole(user.getRole());
+            response.setRole(user.get().getRole());
             response.setRefreshToken(refreshToken);
             response.setExpirationTime("24Hrs");
             response.setMessage("Successfully Logged In");
 
-        }catch (Exception e){
+        } catch (BadCredentialsException e) {
+            response.setStatusCode(401);
+            response.setMessage("Invalid credentials");
+        } catch (Exception e) {
             response.setStatusCode(500);
-            response.setMessage(e.getMessage());
+            response.setMessage("Login error: " + e.getMessage());
         }
         return response;
     }
@@ -214,7 +232,7 @@ public class UserService {
                 User existingUser = userOptional.get();
                 existingUser.setEmail(updatedUser.getEmail());
                 existingUser.setName(updatedUser.getName());
-                existingUser.setCity(updatedUser.getCity());
+                existingUser.setCountry(updatedUser.getCountry());
                 existingUser.setRole(updatedUser.getRole());
 
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
@@ -261,7 +279,7 @@ public class UserService {
         userDto.setId(user.getId());
         userDto.setName(user.getName());
         userDto.setEmail(user.getEmail());
-        userDto.setCity(user.getCity());
+        userDto.setCity(user.getCountry());
         userDto.setRole(user.getRole());
         return userDto;
     }

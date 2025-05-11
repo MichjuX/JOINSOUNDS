@@ -4,6 +4,7 @@ import ms.joinsounds.joinsounds_backend.dto.PostDto;
 import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
+import ms.joinsounds.joinsounds_backend.service.FileStorageService;
 import ms.joinsounds.joinsounds_backend.service.PostService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,10 +22,14 @@ import java.util.UUID;
 public class PostController {
     private final PostRepository _postRepository;
     private final PostService _postService;
+    private final FileStorageService _fileStorageService;
 
-    public PostController(PostRepository postRepository, PostService postService) {
+    public PostController(PostRepository postRepository,
+                          PostService postService,
+                          FileStorageService fileStorageService) {
         this._postRepository = postRepository;
         _postService = postService;
+        _fileStorageService = fileStorageService;
     }
 
     @PostMapping("/authenticated/post/create")
@@ -55,12 +60,36 @@ public class PostController {
     }
 
     @DeleteMapping("/authenticated/post/delete/{id}")
-    public void deletePost(@PathVariable UUID id) {
+    public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = authentication.getPrincipal() instanceof User ? (User) authentication.getPrincipal() : null;
+        User user = (User) authentication.getPrincipal();
         Post post = _postRepository.findById(id).orElse(null);
+        String audioFilePath = "";
+        if (post != null ) {
+            audioFilePath = post.getAudioFilePath();
+        }
         if (post != null && post.getUser().getId().equals(user.getId())) {
             _postRepository.delete(post);
+            if (audioFilePath != null && !audioFilePath.isEmpty()) {
+                _fileStorageService.deleteFile(audioFilePath);
+            }
+            return ResponseEntity.ok().build();
         }
+        String role = user.getRole();
+        if(post != null && (role.equals("ADMIN") || role.equals("MODERATOR"))){
+            _postRepository.delete(post);
+            if (audioFilePath != null && !audioFilePath.isEmpty()) {
+                _fileStorageService.deleteFile(audioFilePath);
+            }
+        }
+        return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/moderator/post/delete/{id}")
+    public ResponseEntity<Void> deletePostByModerator(@PathVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        _postService.deletePostByModerator(id, user.getRole());
+        return ResponseEntity.ok().build();
     }
 }

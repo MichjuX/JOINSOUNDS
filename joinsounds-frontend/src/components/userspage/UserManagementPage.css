@@ -1,50 +1,124 @@
-/*USER MANAGEMENT PAGE*/
 .user-management-container {
-    max-width: 800px;
-    margin: 0px auto 60px auto;
-    padding: 20px;
-    
-    }
-    
-    h2 {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #181818;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    font-family: "Sansation", sans-serif;
+}
+
+.user-management-container h2 {
+    color: #ff5100;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
     text-align: center;
-    margin-bottom: 30px;
-    color: #ebebeb;
+    border-bottom: 2px solid #313131;
+    padding-bottom: 1rem;
+}
+
+.register-btn {
+    background-color: #ff5100;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+    display: inline-block;
+}
+
+.register-btn:hover {
+    background-color: #e04800;
+    transform: translateY(-2px);
+}
+
+.register-btn a {
+    color: white;
+    text-decoration: none;
+    display: block;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    background-color: #252525;
+}
+
+th, td {
+    padding: 1rem;
+    text-align: left;
+    border-bottom: 1px solid #313131;
+}
+
+th {
+    background-color: #ff5100;
+    color: white;
+    font-weight: 600;
+}
+
+tr:hover {
+    background-color: #313131;
+}
+
+.delete-btn {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.delete-btn:hover {
+    background-color: #c82333;
+    transform: translateY(-2px);
+}
+
+.confirm-btn {
+    background-color: #28a745;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.confirm-btn:hover {
+    background-color: #218838;
+    transform: translateY(-2px);
+}
+
+.confirm-btn a {
+    color: white;
+    text-decoration: none;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .user-management-container {
+        padding: 1rem;
+        margin: 1rem;
     }
     
     table {
-    width: 100%;
-    border-collapse: collapse;
-    font-family: "Sansation", sans-serif;
+        display: block;
+        overflow-x: auto;
     }
     
     th, td {
-    border: 1px solid #535353;
-    padding: 8px;
-    text-align: left;
-    color: #f7f7f7;
+        padding: 0.8rem;
     }
     
-    th {
-        background-color: #1f1f1f;
+    .delete-btn, .confirm-btn {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.9rem;
     }
-
-    tr {
-        background-color: #242424;
-    }
-    
-    tr:nth-child(even) {
-    background-color: #252525;
-    }
-    
-    tr:hover {
-    background-color: #1b1b1b;
-    }
-    
-    .register-btn {
-    padding: 15px;
-    margin: 10px auto;
-    }
-    
-
-    
+}

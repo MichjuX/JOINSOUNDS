@@ -2,6 +2,7 @@ import React from "react";
 import "../common/Buttons.css";
 import PostService from "../service/PostService";
 import "./PostList.css";
+import UserService from "../service/UserService";
 
 function PostList({ 
   posts, 
@@ -9,6 +10,7 @@ function PostList({
   currentUserId, 
   onShowMore, 
   onDelete, 
+  onAdminDelete,
   token 
 }) {
   const truncateText = (text, maxLength = 200) => {
@@ -66,26 +68,38 @@ function PostList({
                 {formatDate(post.createdAt)}
               </span>
             )}
-          </div>
+        </div>
           
-          {post.user && <p className="post-author">By: {post.user.name}</p>}
+        {post.user && <p className="post-author">By: {post.user.name}</p>}
               
-          <p>{truncateText(post.content)}</p>
-          <button 
-            onClick={() => onShowMore(post.id)}
-            className="submit-btn"
-          >
-            VIEW FULL POST
-          </button>
-
-          {currentUserId === post.user?.id && (
+        <p>{truncateText(post.content)}</p>
+        {post.content.length > 0 && (
             <button 
-              onClick={() => onDelete(post.id)}
-              className="delete-btn"
+                onClick={() => onShowMore(post.id)}
+                className="submit-btn"
             >
-              Delete
+                VIEW FULL POST
             </button>
-          )}
+        )}
+            
+
+        {(currentUserId === post.user?.id || UserService.isModeratorOrAdmin()) && (
+            <button 
+                onClick={() => onDelete(post.id)}
+                className="delete-btn"
+            >
+                Delete
+            </button>
+            )}
+        {UserService.isModeratorOrAdmin() && (
+            <button 
+                onClick={() => onAdminDelete(post.id)}
+                className="delete-btn"
+            >
+                Moderator Delete
+            </button>
+        )}
+
           
           {post.audioFilePath && (
             <div className="audio-player">

@@ -143,6 +143,20 @@ class PostService {
         }
     }
 
+    static async adminDeletePost(postId, token) {
+        try {
+            const response = await axios.delete(`${this.BASE_URL}/moderator/post/delete/${postId}`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error deleting post:", error);
+            throw error;
+        }
+    }
+
     // COMMENT METHODS
     static async addComment(postId, commentData, token) {
         try {

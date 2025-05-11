@@ -15,10 +15,14 @@ import java.util.UUID;
 public class PostService {
     private final PostRepository _postRepository;
     private final UserService _userService;
+    private final FileStorageService _fileStorageService;
 
-    public PostService(PostRepository postRepository, UserService userService) {
+    public PostService(PostRepository postRepository,
+                       UserService userService,
+                       FileStorageService fileStorageService) {
         this._postRepository = postRepository;
         this._userService = userService;
+        _fileStorageService = fileStorageService;
     }
 
     public Page<PostDto> getAllPosts(Pageable pageable) {
@@ -50,5 +54,18 @@ public class PostService {
                 return postDto;
             }
             return new PostDto();
+    }
+    public void deletePostByModerator(UUID id, String role) {
+        Post post = _postRepository.findById(id).orElse(null);
+        if (post != null) {
+            post.setTitle("Post removed by " + role.toLowerCase());
+            post.setContent("");
+            post.setAudioFilePath(null);
+            _postRepository.save(post);
+            String audioFilePath = post.getAudioFilePath();
+            if (audioFilePath != null && !audioFilePath.isEmpty()) {
+                _fileStorageService.deleteFile(audioFilePath);
+            }
+        }
     }
 }

@@ -14,6 +14,7 @@ function HomePage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [reloadFlag, setReloadFlag] = useState(0);
   
   const [page, setPage] = useState(0);
   const [size, setSize] = useState(20);
@@ -59,7 +60,7 @@ function HomePage() {
     fetchData();
 
     return () => abortController.abort();
-  }, [page, size, sortBy, sortDirection]);
+  }, [page, size, sortBy, sortDirection, reloadFlag, ]);
 
   const fetchCurrentUserId = async () => {
     try {
@@ -94,11 +95,28 @@ function HomePage() {
         setPosts(prev => prev.filter(post => post.id !== postId));
         // Aktualizacja licznika
         setTotalElements(prev => prev - 1);
+        setReloadFlag(prev => prev + 1);
       } catch (error) {
         console.error("Error deleting post:", error);
       }
     }
   };
+
+  const handleAdminDelete = async (postId) => {
+    if (window.confirm("Are you sure you want to delete this post?")) {
+        try {
+            await PostService.adminDeletePost(postId, token);
+            // Optymalizacja: nie przeładowujemy całej listy, tylko aktualizujemy stan
+            setPosts(prev => prev.filter(post => post.id !== postId));
+            // Aktualizacja licznika
+            setTotalElements(prev => prev - 1);
+            setReloadFlag(prev => prev + 1);
+        } catch (error) {
+            console.error("Error deleting post:", error);
+        }
+    }
+};
+
 
   const handleSortChange = (field, direction) => {
     setSortBy(field);
@@ -117,6 +135,7 @@ function HomePage() {
             token={token} 
             onPostCreated={() => {
               setPage(0);
+              setReloadFlag(prev => prev + 1);
               // Nie trzeba wywoływać fetchPosts, useEffect sam się zajmie
             }} 
           />
@@ -191,11 +210,12 @@ function HomePage() {
           currentUserId={currentUserId}
           onShowMore={handleShowMore}
           onDelete={handleDelete}
+          onAdminDelete={handleAdminDelete}
           getAudioType={getAudioType}
           token={token}
         />
 
-        {posts.length > size && (
+        {posts.length > 0 && (
           <div className="pagination-controls bottom">
             <div className="page-navigation">
               <button 

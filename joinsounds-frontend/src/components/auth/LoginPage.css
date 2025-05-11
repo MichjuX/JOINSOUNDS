@@ -1,41 +1,38 @@
-/* Główny kontener strony - teraz na górze */
+/* Główny kontener strony */
 .login-page-container {
     display: flex;
     justify-content: center;
-    padding-top: 50px; /* Odstęp od góry */
-    min-height: calc(100vh - 50px); /* Upewniamy się, że kontener ma odpowiednią wysokość */
+    padding-top: 15vh; /* Pozycja bliżej góry niż środek */
+    min-height: 100vh;
     font-family: "Sansation", sans-serif;
+    background-color: transparent; /* Przezroczyste tło */
 }
 
-/* Kontener formularza */
+/* Kontener formularza - teraz bez tła */
 .auth-container {
     width: 100%;
     max-width: 400px;
-    max-height: 400px;
-    padding: 2rem;
-    background-color: transparent;
-    border-style: none;
-    /* box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1); */
-    margin-top: 20px; /* Dodatkowy odstęp od góry */
+    padding: 2.5rem;
+    background-color: transparent; /* Usunięte tło karty */
+    border: none;
     color: #ffffff;
 }
 
-/* Reszta stylów pozostaje bez zmian */
 .login-title {
     text-align: center;
-    font-size: 30px;
+    font-size: 2rem;
     font-family: "Sansation", sans-serif;
     font-weight: 700;
     font-style: italic;
-    letter-spacing: 5px;
-    margin-bottom: 1.5rem;
-    color: #ffffff;
+    letter-spacing: 2px;
+    margin-bottom: 2rem;
+    color: #ff5100;
 }
 
 .login-form {
     display: flex;
     flex-direction: column;
-    gap: 1rem;
+    gap: 1.5rem;
 }
 
 .form-group {
@@ -45,57 +42,167 @@
 }
 
 .form-label {
-    font-size: 0.9rem;
+    font-size: 1rem;
     color: #ffffff;
+    margin-bottom: 0.5rem;
 }
 
 .form-input {
-    padding: 0.8rem;
-    border: 1px solid #242424;
+    padding: 0.8rem 1rem;
+    border: 1px solid #313131;
     border-radius: 4px;
     font-size: 1rem;
-    background-color: #f0f0f0;
+    background-color: #131313; /* Białe tło inputów */
+    color: #000000; /* Czarny tekst dla lepszej czytelności */
+    transition: all 0.3s ease;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.form-input:focus {
+    outline: none;
+    border-color: #ff5100;
+    box-shadow: 0 0 0 2px rgba(255, 81, 0, 0.2);
 }
 
 .submit-button {
-    padding: 0.8rem;
-    background-color: #f5750d;
+    padding: 1rem;
+    background-color: #ff5100;
     color: white;
     border: none;
     border-radius: 4px;
     font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     margin-top: 1rem;
-    transition: background-color 0.2s;
+    transition: all 0.3s ease;
+    width: 100%;
 }
 
 .submit-button:hover {
-    background-color: #e95d0d;
+    background-color: #e04800;
+    transform: translateY(-2px);
 }
 
 .error-message {
-    color: #dc3545;
+    color: #ff3333;
     text-align: center;
     margin-bottom: 1rem;
+    font-size: 0.9rem;
 }
 
 .register-link {
     display: block;
     text-align: center;
     margin-top: 1.5rem;
-    color: #f5750d;
+    color: #ff5100;
     text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
 }
 
 .register-link:hover {
+    color: #ffffff;
     text-decoration: underline;
 }
-/* Specyficzne style dla select */
-.form-input[type="select"],
-.form-input select {
-    appearance: none;
-    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
-    background-repeat: no-repeat;
-    background-position: right 0.8rem center;
-    background-size: 1em;
+.form-input:-webkit-autofill,
+.form-input:-webkit-autofill:hover, 
+.form-input:-webkit-autofill:focus,
+.form-input:autofill,
+.form-input:autofill:hover, 
+.form-input:autofill:focus {
+    -webkit-text-fill-color: #ffffff !important;
+    -webkit-box-shadow: 0 0 0px 1000px #131313 inset !important;
+    box-shadow: 0 0 0px 1000px #131313 inset !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+/* Dla Firefox */
+.form-input:-moz-ui-invalid {
+    box-shadow: none;
+}
+
+
+
+/* Responsywność */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1.5rem;
+    }
+    
+    .login-title {
+        font-size: 1.5rem;
+    }
+    
+    .login-page-container {
+        padding-top: 10vh; /* Mniejszy odstęp na mobile */
+    }
+}
+
+/* Stylizacja react-select */
+/* Stylizacja react-select */
+.country-select__control {
+    background-color: #131313 !important;
+    border: 1px solid #ff5100 !important;
+    border-radius: 7px !important;
+    min-height: 40px !important;
+    box-shadow: none !important;
+}
+
+.country-select__control--is-focused {
+    border-color: #ff5100 !important;
+    box-shadow: 0 0 0 1px #ff5100 !important;
+}
+
+.country-select__input-container {
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.country-select__input {
+    color: #ffffff !important;
+    box-shadow: none !important;
+}
+
+.country-select__single-value {
+    color: #ffffff !important;
+}
+
+.country-select__menu {
+    background-color: #131313 !important;
+    border: 1px solid #313131 !important;
+}
+
+.country-select__option {
+    background-color: #131313 !important;
+    color: #ffffff !important;
+}
+
+.country-select__option--is-focused {
+    background-color: #313131 !important;
+}
+
+.country-select__option--is-selected {
+    background-color: #ff5100 !important;
+    color: #ffffff !important;
+}
+
+.country-select__indicator-separator {
+    background-color: #313131 !important;
+}
+
+.country-select__dropdown-indicator {
+    color: #313131 !important;
+}
+
+.country-select__dropdown-indicator:hover {
+    color: #ff5100 !important;
+}
+
+.country-select__clear-indicator {
+    color: #313131 !important;
+}
+
+.country-select__clear-indicator:hover {
+    color: #ff5100 !important;
 }

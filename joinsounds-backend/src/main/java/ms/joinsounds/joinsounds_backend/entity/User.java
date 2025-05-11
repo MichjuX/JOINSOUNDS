@@ -26,9 +26,10 @@ public class User implements UserDetails {
     //@GeneratedValue(strategy = GenerationType.IDENTITY)
     //private Integer id;
     private String email;
+    @Column(unique = true)
     private String name;
     private String password;
-    private String city;
+    private String country;
     private String role;
 
     @Override
