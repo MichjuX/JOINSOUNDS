@@ -5,6 +5,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 import ms.joinsounds.joinsounds_backend.entity.User;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -16,6 +17,7 @@ public class PostDto {
     private String content;
     private String audioFilePath;
     private String waveformFilePath;
+    private LocalDateTime createdAt;
     private UserDto user;
 }
 

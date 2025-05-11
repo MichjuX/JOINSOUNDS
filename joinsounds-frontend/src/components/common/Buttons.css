@@ -31,6 +31,7 @@ button:hover {
     margin-bottom: 10px;
     font-weight: 400;
 }
+
 .confirm-btn {
     background-color: #4CAF50; /* Green */
     color: white;
@@ -41,4 +42,20 @@ button:hover {
 .confirm-btn a{
     color: white;
     text-decoration: none;
+}
+
+.submit-btn {
+    background-color: #e64900;
+    color: white;
+    /* margin-bottom: 10px; */
+    font-weight: 400;
+    text-decoration: none;
+    transition: all 0.3s ease
+}
+.confirm-btn a{
+    color: white;
+    text-decoration: none;
+}
+.confirm-btn:hover {
+    transform: translateY(-1px);
 }

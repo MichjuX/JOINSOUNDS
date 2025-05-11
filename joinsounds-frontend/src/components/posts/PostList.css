@@ -1,0 +1,111 @@
+.posts-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-height: 300px;
+}
+
+.post-card {
+    border: 1px solid #313131;
+    border-radius: 8px;
+    padding: 20px;
+    background-color: #181818;
+    position: relative;
+    animation: fadeIn 0.3s ease-in;
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.post-card h3 {
+    margin-top: 0;
+    color: #ffffff;
+    flex: 1;
+}
+
+.post-date {
+    color: #aaaaaa;
+    font-size: 0.85em;
+    margin-left: 15px;
+    white-space: nowrap;
+}
+
+.post-meta {
+    color: #ffffff;
+    font-size: 0.9em;
+    margin-bottom: 15px;
+}
+
+.post-author {
+    color: #aaaaaa;
+    font-size: 0.9em;
+    margin: 5px 0 10px 0;
+}
+
+.post-card p {
+    color: #ffffff;
+    margin: 10px 0;
+}
+
+.audio-player {
+    margin: 15px 0;
+    width: 100%;
+}
+
+audio {
+    width: 100%;
+}
+
+.loading {
+    padding: 20px;
+    text-align: center;
+    color: #aaaaaa;
+    font-style: italic;
+}
+
+/* Przyciski */
+.submit-btn {
+    background-color: #ff5100;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.delete-btn {
+    background-color: #ff0000;
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+/* Animacje */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsywność */
+@media (max-width: 600px) {
+    .post-header {
+        flex-direction: column;
+    }
+    
+    .post-date {
+        margin-left: 0;
+        margin-top: 5px;
+        align-self: flex-end;
+    }
+    
+    .post-card {
+        padding: 15px;
+    }
+}

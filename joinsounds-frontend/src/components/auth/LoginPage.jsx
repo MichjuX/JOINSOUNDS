@@ -17,6 +17,7 @@ function LoginPage() {
             if (userData.token) {
                 localStorage.setItem('token', userData.token);
                 localStorage.setItem('role', userData.role);
+                localStorage.setItem('userId', userData.userId);
                 window.location.reload();
                 navigate('/');
             } else {

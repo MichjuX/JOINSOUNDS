@@ -3,6 +3,8 @@ package ms.joinsounds.joinsounds_backend.service;
 import ms.joinsounds.joinsounds_backend.dto.PostDto;
 import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -19,19 +21,21 @@ public class PostService {
         this._userService = userService;
     }
 
-    public List<PostDto> getAllPosts() {
-        List <PostDto> postsDto = new ArrayList<PostDto>();
-        List<Post> posts = _postRepository.findAll();
-        for (Post post : posts) {
+    public Page<PostDto> getAllPosts(Pageable pageable) {
+        Page<Post> postsPage = _postRepository.findAll(pageable);
+
+        return postsPage.map(post -> {
             PostDto postDto = new PostDto();
             postDto.setId(post.getId());
             postDto.setTitle(post.getTitle());
             postDto.setContent(post.getContent());
-            if (post.getUser() != null) postDto.setUser(_userService.convertToDto(post.getUser()));
+            postDto.setCreatedAt(post.getCreatedAt());
+            if (post.getUser() != null) {
+                postDto.setUser(_userService.convertToDto(post.getUser()));
+            }
             postDto.setAudioFilePath(post.getAudioFilePath());
-            postsDto.add(postDto);
-        }
-        return postsDto;
+            return postDto;
+        });
     }
 
     public PostDto getPostById(UUID id){

@@ -106,6 +106,19 @@ class UserService {
             throw err;
         }
     }
+    static async getCurrentUserId(token){
+        try{
+            const response = await axios.get(`${UserService.BASE_URL}/public/getCurrentUserId`,
+            {
+                headers: {Authorization: `Bearer ${token}`}
+            })
+            console.log("Raw response:", response); // Debug całej odpowiedzi
+            console.log("Response data:", response.data); // Debug danych
+            return response.data;
+        }catch(err){
+            throw err;
+        }
+    }
 
     // AUTH CHECKER
 
