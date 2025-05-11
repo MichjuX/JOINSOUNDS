@@ -1,6 +1,7 @@
 button {
     padding: 10px;
-    background-color: #e64900;
+    background: #ff5d12;
+    background: linear-gradient(90deg, rgb(218, 95, 38) 0%, rgb(233, 59, 43) 100%);
     color: white;
     border: none;
     border-radius: 20px;
@@ -26,7 +27,8 @@ button:hover {
 
 }
 .delete-btn {
-    background-color: rgb(255, 9, 9);
+    background: #ff3612;
+    background: linear-gradient(90deg, rgb(218, 38, 38) 0%, rgb(233, 59, 43) 100%);
     color: white;
     margin-bottom: 10px;
     font-weight: 400;
@@ -45,13 +47,22 @@ button:hover {
 }
 
 .submit-btn {
-    background-color: #e64900;
+    background: #ff5d12;
+    background: linear-gradient(90deg, rgb(218, 95, 38) 0%, rgb(233, 59, 43) 100%);
     color: white;
     /* margin-bottom: 10px; */
     font-weight: 400;
     text-decoration: none;
     transition: all 0.3s ease
 }
+.submit-btn:hover {
+    background: #ff5d12;
+    background: linear-gradient(90deg, rgb(209, 104, 55) 0%, rgb(255, 69, 52) 100%);
+    color: white;
+    text-decoration: none;
+    transform: translateY(-2px);
+}
+
 .confirm-btn a{
     color: white;
     text-decoration: none;

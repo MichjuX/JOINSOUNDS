@@ -10,6 +10,7 @@ function PostList({
   loading, 
   currentUserId, 
   onShowMore, 
+  onEdit,
   onDelete, 
   onAdminDelete,
   token 
@@ -91,17 +92,28 @@ function PostList({
                 VIEW FULL POST
             </button>
         )}
-            
+
+        {currentUserId === post.user?.id && (
+           <button 
+                    className="submit-btn"
+                    onClick={() => onEdit(post.id)}
+                >
+                    Edit
+                </button>
+        )}
 
         {(currentUserId === post.user?.id || UserService.isModeratorOrAdmin()) && (
-            <button 
-                onClick={() => onDelete(post.id)}
-                className="delete-btn"
-            >
-                Delete
-            </button>
-            )}
-        {UserService.isModeratorOrAdmin() && (
+            <>
+                <button 
+                    onClick={() => onDelete(post.id)}
+                    className="delete-btn"
+                >
+                    Delete
+                </button>
+            </>
+        )}
+            
+        {(UserService.isModeratorOrAdmin() && post.content!="" ) && (
             <button 
                 onClick={() => onAdminDelete(post.id)}
                 className="delete-btn"
