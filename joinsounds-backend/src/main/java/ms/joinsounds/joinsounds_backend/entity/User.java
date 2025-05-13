@@ -31,6 +31,7 @@ public class User implements UserDetails {
     private String password;
     private String country;
     private String role;
+    private boolean verified = false;
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
