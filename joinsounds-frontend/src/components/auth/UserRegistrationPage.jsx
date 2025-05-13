@@ -40,6 +40,8 @@ function UserRegistrationPage() {
             alert('Username must be at least 3 characters long');
             return;
         }
+
+
         
         try {
             const token = localStorage.getItem('token');
@@ -142,6 +144,7 @@ function UserRegistrationPage() {
                             })}
                         />
                     </div>
+                    
                     <button type="submit" className="submit-button">Register</button>
                 </form>
                 <Link to="/login" className="register-link">

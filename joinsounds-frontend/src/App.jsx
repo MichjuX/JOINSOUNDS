@@ -12,6 +12,7 @@ import ProfilePage from './components/userspage/ProfilePage';
 import HomePage from './components/pages/HomePage';
 import FullPostPage from './components/pages/FullPostPage';
 import EditPostPage from './components/pages/EditPostPage';
+import AccountVerificationPage from './components/auth/AccountVerificationPage';
 
 function App() {
   return (
@@ -40,6 +41,7 @@ function App() {
               <>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<UserRegistrationPage />} />
+                <Route path="/verify-account/:id/:token?" element={<AccountVerificationPage />} />
               </>
             )}
 

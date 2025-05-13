@@ -1,5 +1,6 @@
 package ms.joinsounds.joinsounds_backend.service;
 
+import lombok.RequiredArgsConstructor;
 import ms.joinsounds.joinsounds_backend.dto.ReqRes;
 import ms.joinsounds.joinsounds_backend.dto.UserDto;
 import ms.joinsounds.joinsounds_backend.entity.User;
@@ -15,20 +16,16 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+@RequiredArgsConstructor
 @Service
 public class UserService {
 
-    private final UsersRepository usersRepository;
-    private final JWTUtils jwtUtils;
-    private final AuthenticationManager authenticationManager;
-    private final PasswordEncoder passwordEncoder;
-
-    public UserService(UsersRepository usersRepository, JWTUtils jwtUtils, AuthenticationManager authenticationManager, PasswordEncoder passwordEncoder){
-        this.usersRepository = usersRepository;
-        this.jwtUtils = jwtUtils;
-        this.authenticationManager = authenticationManager;
-        this.passwordEncoder = passwordEncoder;
-    }
+    private final UsersRepository _usersRepository;
+    private final JWTUtils _jwtUtils;
+    private final AuthenticationManager _authenticationManager;
+    private final PasswordEncoder _passwordEncoder;
+    private final EmailService _emailService;
+    private final VerificationService _verificationService;
 
     // Tu ustalamy zawsze rolę USER
     public ReqRes register(ReqRes registrationRequest){
@@ -36,24 +33,35 @@ public class UserService {
 
         try {
             // Sprawdź czy email już istnieje
-            if (usersRepository.existsByEmail(registrationRequest.getEmail())) {
+            if (_usersRepository.existsByEmail(registrationRequest.getEmail())) {
                 resp.setStatusCode(400);
                 resp.setError("Email already in use");
                 return resp;
             }
 
             // Sprawdź czy nazwa użytkownika już istnieje
-            if (usersRepository.existsByName(registrationRequest.getName())) {
+            if (_usersRepository.existsByName(registrationRequest.getName())) {
                 resp.setStatusCode(400);
                 resp.setError("Username already taken");
                 return resp;
             }
-            User ourUser = new User();
-            ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setCountry(registrationRequest.getCountry());
-            ourUser.setRole("USER");
-//            ourUser.setRole(registrationRequest.getRole());
-            registerBase(registrationRequest, resp, ourUser);
+            User user = new User();
+            user.setEmail(registrationRequest.getEmail());
+
+            user.setCountry(registrationRequest.getCountry());
+            user.setRole("USER");
+//            user.setRole(registrationRequest.getRole());
+            registerBase(registrationRequest, resp, user);
+
+            // Weryfikacja emaila
+            var verificationCode = _verificationService.generateVerificationCode();
+            var hashedCode = _verificationService.hashVerificationCode(verificationCode);
+            var email = _emailService.generateVerificationEmail(registrationRequest.getEmail(),
+                    verificationCode,
+                    user.getName(),
+                    _verificationService.generateVerificationLink(user.getId().toString(), verificationCode));
+            _emailService.sendEmail(registrationRequest.getEmail(), "JoinSounds account verification", email);
+            _verificationService.saveVerificationCode(user, hashedCode);
 
         }catch (Exception e){
             resp.setStatusCode(500);
@@ -68,23 +76,23 @@ public class UserService {
 
         try {
             // Sprawdź czy email już istnieje
-            if (usersRepository.existsByEmail(registrationRequest.getEmail())) {
+            if (_usersRepository.existsByEmail(registrationRequest.getEmail())) {
                 resp.setStatusCode(400);
                 resp.setError("Email already in use");
                 return resp;
             }
 
             // Sprawdź czy nazwa użytkownika już istnieje
-            if (usersRepository.existsByName(registrationRequest.getName())) {
+            if (_usersRepository.existsByName(registrationRequest.getName())) {
                 resp.setStatusCode(400);
                 resp.setError("Username already taken");
                 return resp;
             }
-            User ourUser = new User();
-            ourUser.setEmail(registrationRequest.getEmail());
-            ourUser.setCountry(registrationRequest.getCountry());
-            ourUser.setRole(registrationRequest.getRole());
-            registerBase(registrationRequest, resp, ourUser);
+            User user = new User();
+            user.setEmail(registrationRequest.getEmail());
+            user.setCountry(registrationRequest.getCountry());
+            user.setRole(registrationRequest.getRole());
+            registerBase(registrationRequest, resp, user);
 
         }catch (Exception e){
             resp.setStatusCode(500);
@@ -96,8 +104,8 @@ public class UserService {
     // Powielony kodzik z rejestracji
     private void registerBase(ReqRes registrationRequest, ReqRes resp, User ourUser) {
         ourUser.setName(registrationRequest.getName());
-        ourUser.setPassword(passwordEncoder.encode(registrationRequest.getPassword()));
-        User userResult = usersRepository.save(ourUser);
+        ourUser.setPassword(_passwordEncoder.encode(registrationRequest.getPassword()));
+        User userResult = _usersRepository.save(ourUser);
         if (userResult.getId()!=null) {
             resp.setUser((userResult));
             resp.setMessage("User Saved Successfully");
@@ -110,8 +118,8 @@ public class UserService {
         try {
             // Sprawdź czy podana wartość to email czy nazwa użytkownika
             Optional<User> user = loginRequest.getEmail().contains("@")
-                    ? usersRepository.findByEmail(loginRequest.getEmail())
-                    : usersRepository.findByName(loginRequest.getEmail());
+                    ? _usersRepository.findByEmail(loginRequest.getEmail())
+                    : _usersRepository.findByName(loginRequest.getEmail());
 
             if (user.isEmpty()) {
                 response.setStatusCode(404);
@@ -120,15 +128,15 @@ public class UserService {
             }
 
             // Uwierzytelnienie używając znalezionego użytkownika
-            authenticationManager.authenticate(
+            _authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.get().getEmail(), // Spring Security wymaga emaila jako identyfikatora
                             loginRequest.getPassword()
                     )
             );
 
-            var jwt = jwtUtils.generateToken(user.get());
-            var refreshToken = jwtUtils.generateRefreshToken(new HashMap<>(), user.get());
+            var jwt = _jwtUtils.generateToken(user.get());
+            var refreshToken = _jwtUtils.generateRefreshToken(new HashMap<>(), user.get());
 
             response.setStatusCode(200);
             response.setToken(jwt);
@@ -150,10 +158,10 @@ public class UserService {
     public ReqRes refreshToken(ReqRes refreshTokenReqiest){
         ReqRes response = new ReqRes();
         try{
-            String ourEmail = jwtUtils.extractUsername(refreshTokenReqiest.getToken());
-            User users = usersRepository.findByEmail(ourEmail).orElseThrow();
-            if (jwtUtils.isTokenValid(refreshTokenReqiest.getToken(), users)) {
-                var jwt = jwtUtils.generateToken(users);
+            String ourEmail = _jwtUtils.extractUsername(refreshTokenReqiest.getToken());
+            User users = _usersRepository.findByEmail(ourEmail).orElseThrow();
+            if (_jwtUtils.isTokenValid(refreshTokenReqiest.getToken(), users)) {
+                var jwt = _jwtUtils.generateToken(users);
                 response.setStatusCode(200);
                 response.setToken(jwt);
                 response.setRefreshToken(refreshTokenReqiest.getToken());
@@ -174,7 +182,7 @@ public class UserService {
         ReqRes reqRes = new ReqRes();
 
         try {
-            List<User> result = usersRepository.findAll();
+            List<User> result = _usersRepository.findAll();
             if (!result.isEmpty()) {
                 reqRes.setUserList(result);
                 reqRes.setStatusCode(200);
@@ -194,7 +202,7 @@ public class UserService {
     public ReqRes getUsersById(UUID id) {
         ReqRes reqRes = new ReqRes();
         try {
-            User usersById = usersRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not found"));
+            User usersById = _usersRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not found"));
             reqRes.setUser(usersById);
             reqRes.setStatusCode(200);
             reqRes.setMessage("Users with id '" + id + "' found successfully");
@@ -208,9 +216,9 @@ public class UserService {
     public ReqRes deleteUser(UUID userId) {
         ReqRes reqRes = new ReqRes();
         try {
-            Optional<User> userOptional = usersRepository.findById(userId);
+            Optional<User> userOptional = _usersRepository.findById(userId);
             if (userOptional.isPresent()) {
-                usersRepository.deleteById(userId);
+                _usersRepository.deleteById(userId);
                 reqRes.setStatusCode(200);
                 reqRes.setMessage("User deleted successfully");
             } else {
@@ -227,7 +235,7 @@ public class UserService {
     public ReqRes updateUser(UUID userId, User updatedUser) {
         ReqRes reqRes = new ReqRes();
         try {
-            Optional<User> userOptional = usersRepository.findById(userId);
+            Optional<User> userOptional = _usersRepository.findById(userId);
             if (userOptional.isPresent()) {
                 User existingUser = userOptional.get();
                 existingUser.setEmail(updatedUser.getEmail());
@@ -236,10 +244,10 @@ public class UserService {
                 existingUser.setRole(updatedUser.getRole());
 
                 if (updatedUser.getPassword() != null && !updatedUser.getPassword().isEmpty()) {
-                    existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+                    existingUser.setPassword(_passwordEncoder.encode(updatedUser.getPassword()));
                 }
 
-                User savedUser = usersRepository.save(existingUser);
+                User savedUser = _usersRepository.save(existingUser);
                 reqRes.setUser(savedUser);
                 reqRes.setStatusCode(200);
                 reqRes.setMessage("User updated successfully");
@@ -257,7 +265,7 @@ public class UserService {
     public ReqRes getMyInfo(String email){
         ReqRes reqRes = new ReqRes();
         try {
-            Optional<User> userOptional = usersRepository.findByEmail(email);
+            Optional<User> userOptional = _usersRepository.findByEmail(email);
             if (userOptional.isPresent()) {
                 reqRes.setUser(userOptional.get());
                 reqRes.setStatusCode(200);
@@ -281,6 +289,7 @@ public class UserService {
         userDto.setEmail(user.getEmail());
         userDto.setCity(user.getCountry());
         userDto.setRole(user.getRole());
+        userDto.setVerified(user.isVerified());
         return userDto;
     }
 }

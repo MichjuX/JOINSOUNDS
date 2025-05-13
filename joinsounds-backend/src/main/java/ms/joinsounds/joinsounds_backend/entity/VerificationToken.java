@@ -10,20 +10,13 @@ import java.util.UUID;
 
 @Data
 @Entity
-public class Post {
+public class VerificationToken {
     @Id
     @UuidGenerator
     private UUID id;
-    private String title;
-    @Column(columnDefinition = "LONGTEXT")
-    private String content;
-    private String audioFilePath;
-    private String waveformFilePath;
-
-    @CreationTimestamp
-    private LocalDateTime createdAt;
+    private String token;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = true)
+    @JoinColumn(name = "user_id", nullable = false)
     private User user;
 }
