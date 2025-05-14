@@ -18,7 +18,7 @@ function LoginPage() {
 
         try {
             const response = await UserService.login(email, password);
-            
+
             if (response.token) {
                 localStorage.setItem('token', response.token);
                 localStorage.setItem('role', response.role);
@@ -28,7 +28,7 @@ function LoginPage() {
             }
         } catch (error) {
             console.error('Login error:', error); // Dodaj to dla debugowania
-            
+
             // Poprawiona obsługa błędów
             if (error.response) {
                 // Axios error
@@ -44,7 +44,7 @@ function LoginPage() {
                 // Other errors
                 setError(error.message || 'Login failed. Please try again.');
             }
-            
+
             // setTimeout(() => setError(''), 5000);
         } finally {
             setIsLoading(false);
@@ -55,7 +55,7 @@ function LoginPage() {
         <div className="login-page-container">
             <div className="auth-container">
                 <h1 className="login-title">Login</h1>
-                
+
                 {/* Poprawione wyświetlanie błędu */}
                 {error && (
                     <div className="error-message">
@@ -63,7 +63,7 @@ function LoginPage() {
                         {error.includes("Verify your account first") && (
                             <div className="verification-help">
                                 Didn't receive the verification email?
-                                <button 
+                                <button
                                     className="submit-btn"
                                     onClick={() => navigate('/resend-verification')}
                                     disabled={isLoading}
@@ -78,9 +78,9 @@ function LoginPage() {
                 <form onSubmit={handleSubmit} className="login-form">
                     <div className="form-group">
                         <label htmlFor="email" className="form-label">Email or username:</label>
-                        <input 
+                        <input
                             id="email"
-                            type="text" 
+                            type="text"
                             value={email} 
                             onChange={(e) => setEmail(e.target.value)}
                             className="form-input"
@@ -88,12 +88,12 @@ function LoginPage() {
                             autoComplete="username"
                         />
                     </div>
-                    
+
                     <div className="form-group">
                         <label htmlFor="password" className="form-label">Password:</label>
-                        <input 
+                        <input
                             id="password"
-                            type="password" 
+                            type="password"
                             value={password} 
                             onChange={(e) => setPassword(e.target.value)}
                             className="form-input"
@@ -101,16 +101,16 @@ function LoginPage() {
                             autoComplete="current-password"
                         />
                     </div>
-                    
-                    <button 
-                        type="submit" 
+
+                    <button
+                        type="submit"
                         className="submit-button"
                         disabled={isLoading}
                     >
                         {isLoading ? 'Logging in...' : 'Login'}
                     </button>
                 </form>
-                
+
                 <div className="auth-footer">
                     <Link to="/register" className="register-link">
                         Don't have an account? Register here.
