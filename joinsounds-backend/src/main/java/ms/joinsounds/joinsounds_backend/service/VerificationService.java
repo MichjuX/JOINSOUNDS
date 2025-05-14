@@ -7,6 +7,9 @@ import ms.joinsounds.joinsounds_backend.repository.VerificationTokenRepository;
 import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
+import java.util.UUID;
+
 @RequiredArgsConstructor
 @Service
 public class VerificationService {
@@ -28,6 +31,15 @@ public class VerificationService {
         return BCrypt.checkpw(rawCode, hashedCode);
     }
 
+    public boolean verifyCode(String rawCode, UUID userId) {
+        Optional<VerificationToken> tokenOptional = _verificationTokenRepository.findByUserId(userId);
+        if (tokenOptional.isPresent()) {
+            VerificationToken token = tokenOptional.get();
+            return verifyCode(rawCode, token.getToken());
+        }
+        return false;
+    }
+
     public void saveVerificationCode(User user, String hashedCode) {
         var token = new VerificationToken();
         token.setToken(hashedCode);
@@ -39,6 +51,14 @@ public class VerificationService {
     public String generateVerificationLink(String userid, String token) {
         return baseUrl + "/verify-account/" + userid + "?token=" + token;
     }
+
+    public void removeVerificationCode(UUID userId) {
+        VerificationToken token = _verificationTokenRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Token not found"));
+        _verificationTokenRepository.delete(token);
+    }
+
+
 
 
 }

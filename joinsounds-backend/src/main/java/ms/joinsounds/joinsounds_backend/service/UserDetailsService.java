@@ -8,15 +8,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserDetailsService implements org.springframework.security.core.userdetails.UserDetailsService {
 
-    private final UsersRepository usersRepository;
+    private final UsersRepository _usersRepository;
 
-    public UserDetailsService(UsersRepository usersRepository) {
-        this.usersRepository = usersRepository;
+    public UserDetailsService(UsersRepository _usersRepository) {
+        this._usersRepository = _usersRepository;
     }
 
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return usersRepository.findByEmail(username).orElseThrow();
+        return _usersRepository.findByEmail(username).orElseThrow();
     }
 
 }

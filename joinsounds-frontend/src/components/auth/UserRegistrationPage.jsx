@@ -45,17 +45,16 @@ function UserRegistrationPage() {
         
         try {
             const token = localStorage.getItem('token');
-            await UserService.register(formData, token);
+            const response = await UserService.register(formData, token);
     
             setFormData({
                 name: '',
                 email: '',
                 password: '',
-                role: '',
                 country: ''
             });
             alert('User registered successfully');
-            navigate('/login');
+            navigate(`/verify-account/${response.user.id}`);
     
         } catch (error) {
             console.error('Error registering user:', error);

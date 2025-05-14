@@ -35,6 +35,16 @@ class UserService {
         }
     }
 
+    static async verifyAccount(userId, verificationCode) {
+        try {
+            const response = await axios.post(`${this.BASE_URL}/auth/verify-account/${userId}/${verificationCode}`);
+            return response.data;   
+        } catch (error) {
+            console.error("Error verifying account:", error);
+            throw error;
+        }
+    }
+
     static async adminRegister(userData, token) {
         try{
             const response = await axios.post(`${UserService.BASE_URL}/admin/register`, userData, 

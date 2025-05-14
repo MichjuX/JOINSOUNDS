@@ -29,21 +29,21 @@ public class UserService {
 
     // Tu ustalamy zawsze rolę USER
     public ReqRes register(ReqRes registrationRequest){
-        ReqRes resp = new ReqRes();
+        ReqRes response = new ReqRes();
 
         try {
             // Sprawdź czy email już istnieje
             if (_usersRepository.existsByEmail(registrationRequest.getEmail())) {
-                resp.setStatusCode(400);
-                resp.setError("Email already in use");
-                return resp;
+                response.setStatusCode(400);
+                response.setError("Email already in use");
+                return response;
             }
 
             // Sprawdź czy nazwa użytkownika już istnieje
             if (_usersRepository.existsByName(registrationRequest.getName())) {
-                resp.setStatusCode(400);
-                resp.setError("Username already taken");
-                return resp;
+                response.setStatusCode(400);
+                response.setError("Username already taken");
+                return response;
             }
             User user = new User();
             user.setEmail(registrationRequest.getEmail());
@@ -51,7 +51,7 @@ public class UserService {
             user.setCountry(registrationRequest.getCountry());
             user.setRole("USER");
 //            user.setRole(registrationRequest.getRole());
-            registerBase(registrationRequest, resp, user);
+            registerBase(registrationRequest, response, user);
 
             // Weryfikacja emaila
             var verificationCode = _verificationService.generateVerificationCode();
@@ -63,11 +63,39 @@ public class UserService {
             _emailService.sendEmail(registrationRequest.getEmail(), "JoinSounds account verification", email);
             _verificationService.saveVerificationCode(user, hashedCode);
 
+
         }catch (Exception e){
-            resp.setStatusCode(500);
-            resp.setError(e.getMessage());
+            response.setStatusCode(500);
+            response.setError(e.getMessage());
         }
-        return resp;
+        return response;
+    }
+
+    public ReqRes verifyAccount(UUID userId, String verificationCode) {
+        ReqRes response = new ReqRes();
+        try {
+            Optional<User> userOptional = _usersRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                if(_verificationService.verifyCode(verificationCode, userId)){
+                    User user = userOptional.get();
+                    user.setVerified(true);
+                    _usersRepository.save(user);
+                    _verificationService.removeVerificationCode(userId);
+                    response.setStatusCode(200);
+                    response.setMessage("Account verified successfully");
+                } else {
+                    response.setStatusCode(400);
+                    response.setMessage("Invalid verification code");
+                }
+            } else {
+                response.setStatusCode(404);
+                response.setMessage("User not found");
+            }
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error occurred: " + e.getMessage());
+        }
+        return response;
     }
 
     // Tu ustawiamy role jaką chcemy
@@ -102,14 +130,14 @@ public class UserService {
     }
 
     // Powielony kodzik z rejestracji
-    private void registerBase(ReqRes registrationRequest, ReqRes resp, User ourUser) {
-        ourUser.setName(registrationRequest.getName());
-        ourUser.setPassword(_passwordEncoder.encode(registrationRequest.getPassword()));
-        User userResult = _usersRepository.save(ourUser);
+    private void registerBase(ReqRes registrationRequest, ReqRes response, User user) {
+        user.setName(registrationRequest.getName());
+        user.setPassword(_passwordEncoder.encode(registrationRequest.getPassword()));
+        User userResult = _usersRepository.save(user);
         if (userResult.getId()!=null) {
-            resp.setUser((userResult));
-            resp.setMessage("User Saved Successfully");
-            resp.setStatusCode(200);
+            response.setUser((userResult));
+            response.setMessage("User Saved Successfully");
+            response.setStatusCode(200);
         }
     }
 
@@ -127,7 +155,13 @@ public class UserService {
                 return response;
             }
 
-            // Uwierzytelnienie używając znalezionego użytkownika
+            if(!user.get().isVerified()){
+                response.setStatusCode(401);
+                response.setMessage("Verify your account first!");
+                return response;
+            }
+
+            // Uwierzytelnienie używa   jąc znalezionego użytkownika
             _authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
                             user.get().getEmail(), // Spring Security wymaga emaila jako identyfikatora

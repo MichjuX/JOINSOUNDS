@@ -53,7 +53,8 @@ button:hover {
     /* margin-bottom: 10px; */
     font-weight: 400;
     text-decoration: none;
-    transition: all 0.3s ease
+    transition: all 0.3s ease;
+    margin-right: 0;
 }
 .submit-btn:hover {
     background: #ff5d12;

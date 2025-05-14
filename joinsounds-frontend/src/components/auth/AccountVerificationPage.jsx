@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import "./LoginPage.css";
+import UserServce from '../service/UserService';
 
 function AccountVerificationPage() {
   const { userId } = useParams();
@@ -8,6 +9,7 @@ function AccountVerificationPage() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
+  // const userId = searchParams.get('userId');
 
   // Automatyczne wypełnienie pola, jeśli token istnieje w URL
   useEffect(() => {
@@ -19,6 +21,8 @@ function AccountVerificationPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      await UserServce.verifyAccount(userId, verificationCode);
+
       console.log(`Weryfikacja użytkownika ${userId} z kodem: ${verificationCode}`);
       navigate('/login');
     } catch (error) {
@@ -30,6 +34,7 @@ function AccountVerificationPage() {
     <div className="login-page-container">
       <div className="verification-container">
         <h2>Account verification</h2>
+        <p>Please enter the verification code sent to your email.</p>
         {token && <p className="auto-fill-notice">Verification code has been auto-filled from the link</p>}
         
         <form onSubmit={handleSubmit} className="login-form">

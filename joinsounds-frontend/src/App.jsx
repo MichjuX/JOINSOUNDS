@@ -41,7 +41,7 @@ function App() {
               <>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/register" element={<UserRegistrationPage />} />
-                <Route path="/verify-account/:id/:token?" element={<AccountVerificationPage />} />
+                <Route path="/verify-account/:userId/:token?" element={<AccountVerificationPage />} />
               </>
             )}
 
