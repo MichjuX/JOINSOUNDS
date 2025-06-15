@@ -71,33 +71,6 @@ public class UserService {
         return response;
     }
 
-    public ReqRes verifyAccount(UUID userId, String verificationCode) {
-        ReqRes response = new ReqRes();
-        try {
-            Optional<User> userOptional = _usersRepository.findById(userId);
-            if (userOptional.isPresent()) {
-                if(_verificationService.verifyCode(verificationCode, userId)){
-                    User user = userOptional.get();
-                    user.setVerified(true);
-                    _usersRepository.save(user);
-                    _verificationService.removeVerificationCode(userId);
-                    response.setStatusCode(200);
-                    response.setMessage("Account verified successfully");
-                } else {
-                    response.setStatusCode(400);
-                    response.setMessage("Invalid verification code");
-                }
-            } else {
-                response.setStatusCode(404);
-                response.setMessage("User not found");
-            }
-        } catch (Exception e) {
-            response.setStatusCode(500);
-            response.setMessage("Error occurred: " + e.getMessage());
-        }
-        return response;
-    }
-
     // Tu ustawiamy role jaką chcemy
     public ReqRes adminRegister(ReqRes registrationRequest){
         ReqRes resp = new ReqRes();
@@ -140,6 +113,35 @@ public class UserService {
             response.setStatusCode(200);
         }
     }
+
+    public ReqRes verifyAccount(UUID userId, String verificationCode) {
+        ReqRes response = new ReqRes();
+        try {
+            Optional<User> userOptional = _usersRepository.findById(userId);
+            if (userOptional.isPresent()) {
+                if(_verificationService.verifyCode(verificationCode, userId)){
+                    User user = userOptional.get();
+                    user.setVerified(true);
+                    _usersRepository.save(user);
+                    _verificationService.removeVerificationCode(userId);
+                    response.setStatusCode(200);
+                    response.setMessage("Account verified successfully");
+                } else {
+                    response.setStatusCode(400);
+                    response.setMessage("Invalid verification code");
+                }
+            } else {
+                response.setStatusCode(404);
+                response.setMessage("User not found");
+            }
+        } catch (Exception e) {
+            response.setStatusCode(500);
+            response.setMessage("Error occurred: " + e.getMessage());
+        }
+        return response;
+    }
+
+
 
     public ReqRes login(ReqRes loginRequest) {
         ReqRes response = new ReqRes();
