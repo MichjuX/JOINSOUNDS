@@ -66,6 +66,7 @@ function HomePage() {
     try {
       const userId = await UserService.getCurrentUserId(token);
       setCurrentUserId(userId);
+      localStorage.setItem('userId', userId);
     } catch (err) {
       console.error("Failed to fetch user ID:", err);
     }

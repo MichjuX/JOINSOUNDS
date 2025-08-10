@@ -49,7 +49,10 @@ public class PostService {
                 postDto.setId(post.getId());
                 postDto.setTitle(post.getTitle());
                 postDto.setContent(post.getContent());
-                if (post.getUser() != null) postDto.setUser(_userService.convertToDto(post.getUser()));
+                postDto.setCreatedAt(post.getCreatedAt());
+                if (post.getUser() != null) {
+                    postDto.setUser(_userService.convertToDto(post.getUser()));
+                }
                 postDto.setAudioFilePath(post.getAudioFilePath());
                 return postDto;
             }

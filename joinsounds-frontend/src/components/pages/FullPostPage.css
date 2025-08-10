@@ -1,30 +1,107 @@
+/* FullPostPage.css */
 .full-post-container {
     max-width: 1200px;
     margin: 0 auto;
     padding: 20px;
+    color: #ffffff;
 }
 
 .back-button {
-    background: #f0f0f0;
+    background-color: #313131;
+    color: white;
     border: none;
-    padding: 8px 16px;
-    margin-bottom: 20px;
-    cursor: pointer;
+    padding: 8px 15px;
     border-radius: 4px;
+    cursor: pointer;
+    margin-bottom: 20px;
+    transition: background-color 0.2s;
 }
 
 .back-button:hover {
-    background: #e0e0e0;
+    background-color: #ff5100;
 }
 
 .full-post-card {
-    background: white;
-    padding: 20px;
+    border: 1px solid #313131;
     border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    padding: 25px;
+    background-color: #181818;
+    animation: fadeIn 0.3s ease-in;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative; /* Dodane dla pozycjonowania daty */
+}
+
+.post-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 20px;
+}
+
+.full-post-card h3 {
+    margin-top: 0;
+    color: #ffffff;
+    font-size: 1.8rem;
+    flex: 1; /* Pozwala tytułowi zajmować dostępne miejsce */
+}
+
+.post-date {
+    color: #aaaaaa;
+    font-size: 0.85em;
+    margin-left: 15px;
+    white-space: nowrap;
 }
 
 .full-content {
-    white-space: pre-line;
+    color: #ffffff;
     line-height: 1.6;
+    margin-bottom: 25px;
+    white-space: pre-line;
+}
+
+.error {
+    color: #ff6b6b;
+    text-align: center;
+    padding: 20px;
+    font-size: 1.1em;
+}
+
+.audio-player {
+    margin: 20px 0;
+    width: 100%;
+}
+
+audio {
+    width: 100%;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+/* Responsive adjustments */
+@media (max-width: 600px) {
+    .full-post-container {
+        padding: 15px;
+    }
+    
+    .full-post-card {
+        padding: 15px;
+    }
+    
+    .full-post-card h3 {
+        font-size: 1.5rem;
+    }
+    
+    .post-header {
+        flex-direction: column;
+    }
+    
+    .post-date {
+        margin-left: 0;
+        margin-top: 5px;
+        align-self: flex-end;
+    }
 }

@@ -79,7 +79,7 @@ function PostList({
                 {formatDate(post.createdAt)}
               </span>
             )}
-        </div>
+          </div>
           
         {post.user && <p className="post-author">By: {post.user.name}</p>}
               
