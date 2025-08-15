@@ -24,7 +24,7 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
       cursorWidth: 1,
       height: 40,
       responsive: true,
-      interact: false,
+      interact: true,
       fillParent: true,
       partialRender: true
     });

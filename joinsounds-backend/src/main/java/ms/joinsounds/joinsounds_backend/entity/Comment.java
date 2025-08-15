@@ -2,8 +2,10 @@ package ms.joinsounds.joinsounds_backend.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Data
@@ -23,6 +25,9 @@ public class Comment {
 
     // Kolor regionu w formacie HEX lub RGBA (opcjonalny)
     private String color;
+
+    @CreationTimestamp
+    private LocalDateTime createdAt;
 
     @ManyToOne
     @JoinColumn(name = "post_id", nullable = false)

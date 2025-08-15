@@ -13,4 +13,5 @@ public class CommentDto {
     private Double endTime;
     private String color;
     private String postId;
+    private String createdAt;
 }
