@@ -15,44 +15,41 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
   useEffect(() => {
     if (!waveformRef.current || !audioUrl) return;
 
-    // Create WaveSurfer instance
     const ws = WaveSurfer.create({
       container: waveformRef.current,
-      waveColor: "rgba(200, 200, 200, 0.5)",
+      waveColor: "rgba(200, 200, 200, 0.2)",
       progressColor: color || "rgba(252, 68, 47, 0.8)",
       cursorColor: '#e64900',
       barWidth: 1,
       cursorWidth: 1,
-      height: 30,
+      height: 40,
       responsive: true,
       interact: false,
-      fillParent: true
+      fillParent: true,
+      partialRender: true
     });
 
     wavesurferRef.current = ws;
 
-    // Load audio
     ws.load(audioUrl);
 
     ws.on('ready', () => {
       setIsReady(true);
       
       if (startTime && endTime) {
-        // Add regions plugin
         const regions = ws.registerPlugin(RegionsPlugin.create());
         
-        // Add region for this comment
         regions.addRegion({
           id: `comment-region-${Date.now()}`,
           start: startTime,
           end: endTime,
-          color: color || 'rgba(255, 165, 0, 0.5)',
+          color: color || 'rgba(255, 165, 0, 0.3)',
           drag: false,
           resize: false
         });
-        
-        // Zoom to the region
-        ws.zoom(startTime, endTime);
+
+        // Ustaw czas rozpoczęcia odtwarzania na początek regionu
+        ws.setTime(startTime);
       }
     });
 
@@ -61,17 +58,23 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
     });
 
     return () => {
-      if (wavesurferRef.current) {
-        wavesurferRef.current.destroy();
-      }
+      ws.destroy();
     };
   }, [audioUrl, startTime, endTime, color]);
 
   const togglePlay = () => {
-    if (wavesurferRef.current) {
-      wavesurferRef.current.playPause();
-      setIsPlaying(!isPlaying);
+    if (!wavesurferRef.current) return;
+    
+    if (isPlaying) {
+      wavesurferRef.current.pause();
+    } else {
+      // Jeśli to początek odtwarzania, ustaw czas na start regionu
+      if (wavesurferRef.current.getCurrentTime() === 0 && startTime) {
+        wavesurferRef.current.setTime(startTime);
+      }
+      wavesurferRef.current.play();
     }
+    setIsPlaying(!isPlaying);
   };
 
   return (
