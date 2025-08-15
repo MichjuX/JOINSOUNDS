@@ -28,8 +28,8 @@ public class PostController {
                           PostService postService,
                           FileStorageService fileStorageService) {
         this._postRepository = postRepository;
-        _postService = postService;
-        _fileStorageService = fileStorageService;
+        this._postService = postService;
+        this._fileStorageService = fileStorageService;
     }
 
     @PostMapping("/authenticated/post/create")

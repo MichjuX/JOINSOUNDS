@@ -122,35 +122,16 @@ function PostList({
             </button>
         )}
 
-          
-          {/* {post.audioFilePath && (
-            <div className="audio-player">
-              <audio controls>
-                <source 
-                  src={getAudioUrl(post.audioFilePath)} 
-                  type={getAudioType(post.audioFilePath)}
-                  onError={(e) => {
-                    console.error('Audio load failed:', {
-                      error: e.target.error,
-                      src: e.target.src,
-                      type: e.target.type
-                    });
-                  }}
-                />
-                Your browser does not support the audio element.
-              </audio>
-            </div>
-          )} */}
-          {post.audioFilePath && (
-            <AudioPlayer 
-              audioUrl={getAudioUrl(post.audioFilePath)}
-              audioType={getAudioType(post.audioFilePath)}
-              isPlaying={currentlyPlayingId === post.id}
-              onPlay={() => handlePlay(post.id)}
-              onPause={handlePause}
-              onEnd={handlePause}
-            />
-          )}
+        {post.audioFilePath && (
+          <AudioPlayer 
+            audioUrl={getAudioUrl(post.audioFilePath)}
+            audioType={getAudioType(post.audioFilePath)}
+            isPlaying={currentlyPlayingId === post.id}
+            onPlay={() => handlePlay(post.id)}
+            onPause={handlePause}
+            onEnd={handlePause}
+          />
+        )}
         </div>
       ))}
     </div>

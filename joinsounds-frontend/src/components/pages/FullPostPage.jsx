@@ -156,6 +156,7 @@ function FullPostPage() {
                         onPlay={() => handlePlay(post.id)}
                         onPause={handlePause}
                         onEnd={handlePause}
+                        postId={post.id}
                     />
                 )}
             </div>

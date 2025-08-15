@@ -102,3 +102,86 @@
     width: 60px;
   }
 }
+
+/* regiony */
+.regions-panel {
+    margin-top: 20px;
+    padding: 15px;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+.region-edit {
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: white;
+    border-radius: 5px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.region-time {
+    font-size: 0.9em;
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.comment-input {
+    width: 100%;
+    padding: 8px;
+    margin-bottom: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.region-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.comment-btn, .delete-region-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.comment-btn {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.comment-btn:disabled {
+    background-color: #cccccc;
+    cursor: not-allowed;
+}
+
+.delete-region-btn {
+    background-color: #f44336;
+    color: white;
+}
+
+.regions-list {
+    max-height: 200px;
+    overflow-y: auto;
+}
+
+.region-item {
+    padding: 10px;
+    margin-bottom: 8px;
+    background-color: white;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.region-item:hover {
+    background-color: #f0f0f0;
+}
+
+.region-comment {
+    margin-top: 5px;
+    font-size: 0.9em;
+}
