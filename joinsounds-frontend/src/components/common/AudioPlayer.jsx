@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import WaveSurfer from 'wavesurfer.js';
 import RegionsPlugin from 'wavesurfer.js/dist/plugins/regions.esm.js';
-import { MdPlayArrow, MdOutlinePause, MdVolumeDown, MdVolumeUp, MdVolumeOff } from "react-icons/md";
+import { MdPlayArrow, MdOutlinePause, MdVolumeDown, MdVolumeUp, MdVolumeOff, MdReplay } from "react-icons/md";
 import { FaComment, FaTrash, FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import CommentService from '../service/CommentService';
 import "./AudioPlayer.css";
@@ -11,6 +11,8 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
   const wavesurferRef = useRef(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isReady, setIsReady] = useState(false);
+  const [volume, setVolume] = useState(0.8);
+  const [isMuted, setIsMuted] = useState(false);
 
   useEffect(() => {
     if (!waveformRef.current || !audioUrl) return;
@@ -26,12 +28,14 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
       responsive: true,
       interact: true,
       fillParent: true,
-      partialRender: true
+      partialRender: true,
+      backgroundColor: 'transparent'
     });
 
     wavesurferRef.current = ws;
 
     ws.load(audioUrl);
+    ws.setVolume(volume);
 
     ws.on('ready', () => {
       setIsReady(true);
@@ -43,7 +47,7 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
           id: `comment-region-${Date.now()}`,
           start: startTime,
           end: endTime,
-          color: color || 'rgba(255, 165, 0, 0.3)',
+          color: color || 'rgba(255, 115, 0, 0.5)',
           drag: false,
           resize: false
         });
@@ -77,16 +81,71 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
     setIsPlaying(!isPlaying);
   };
 
+  const handleVolumeChange = (newVolume) => {
+    setVolume(newVolume);
+    if (wavesurferRef.current) {
+      wavesurferRef.current.setVolume(newVolume);
+    }
+    if (isMuted && newVolume > 0) setIsMuted(false);
+  };
+
+  const toggleMute = () => {
+    if (wavesurferRef.current) {
+      if (isMuted) {
+        wavesurferRef.current.setVolume(volume);
+      } else {
+        wavesurferRef.current.setVolume(0);
+      }
+      setIsMuted(!isMuted);
+    }
+  };
+
+  const jumpToRegionStart = () => {
+    if (wavesurferRef.current && startTime) {
+      wavesurferRef.current.setTime(startTime);
+      if (!isPlaying) {
+        wavesurferRef.current.play();
+        setIsPlaying(true);
+      }
+    }
+  };
+
   return (
     <div className="comment-player">
       <div ref={waveformRef} className="comment-waveform" />
-      <button 
-        onClick={togglePlay} 
-        className="comment-play-btn"
-        disabled={!isReady}
-      >
-        {isPlaying ? <MdOutlinePause size={14} /> : <MdPlayArrow size={14} />}
-      </button>
+      <div className="comment-player-controls">
+        <button 
+          onClick={togglePlay} 
+          className="comment-play-btn"
+          disabled={!isReady}
+        >
+          {isPlaying ? <MdOutlinePause size={14} /> : <MdPlayArrow size={14} />}
+        </button>
+        
+        <button
+          onClick={jumpToRegionStart}
+          className="comment-jump-btn"
+          title="Przewiń do początku fragmentu"
+        >
+          <MdReplay size={14} />
+        </button>
+        
+        <div className="comment-volume-control">
+          <button onClick={toggleMute} className="comment-volume-btn">
+            {isMuted ? <MdVolumeOff size={14} /> : 
+             volume > 0.5 ? <MdVolumeUp size={14} /> : <MdVolumeDown size={14} />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={isMuted ? 0 : volume}
+            onChange={(e) => handleVolumeChange(parseFloat(e.target.value))}
+            className="comment-volume-slider"
+          />
+        </div>
+      </div>
     </div>
   );
 };
@@ -125,7 +184,8 @@ const AudioPlayer = ({
       cursorWidth: 3,
       height: 80,
       responsive: true,
-      interact: true
+      interact: true,
+      backgroundColor: 'transparent'
     });
 
     const regions = ws.registerPlugin(RegionsPlugin.create());
@@ -172,150 +232,151 @@ const AudioPlayer = ({
     }
   };
 
-    // Tworzenie regionów dla komentarzy
-    const createRegionsForComments = (comments) => {
-        // Najpierw wyczyść istniejące regiony
-        regionsRef.current.clearRegions();
-        
-        comments.forEach(comment => {
-            if (comment.startTime && comment.endTime) {
-                const region = regionsRef.current.addRegion({
-                    id: comment.id,
-                    start: comment.startTime,
-                    end: comment.endTime,
-                    content: comment.content,
-                    color: 'rgba(255, 165, 0, 0.3)',
-                    drag: true,
-                    resize: true
-                });
-
-                region.on('click', (e) => {
-                    e.stopPropagation();
-                    setActiveComment(comment);
-                    // Przewiń do regionu i odtwórz
-                    wavesurferRef.current.setTime(region.start);
-                    wavesurferRef.current.play();
-                    setIsPlaying(true);
-                });
-            }
-        });
-    };
-
-    // Rozpoczęcie tworzenia nowego komentarza
-    const startNewComment = () => {
-        setIsCreatingComment(true);
-        setActiveComment({
-            id: null,
-            content: '',
-            regions: []
-        });
-        setCommentText('');
-        setSelectedRegions([]);
-    };
-
-    // Anulowanie tworzenia komentarza
-    const cancelComment = () => {
-        setIsCreatingComment(false);
-        setActiveComment(null);
-        selectedRegions.forEach(region => region.remove());
-        setSelectedRegions([]);
-    };
-
-    // Dodanie nowego regionu do tworzonego komentarza
-    const addRegionToComment = () => {
-        if (!isCreatingComment) return;
-        
-        const currentTime = wavesurferRef.current.getCurrentTime();
-        const newRegion = regionsRef.current.addRegion({
-            start: currentTime,
-            end: currentTime + 5,
-            color: 'rgba(255, 165, 0, 0.5)',
-            drag: true,
-            resize: true,
-            minLength: 0.5,
+  // Tworzenie regionów dla komentarzy
+  const createRegionsForComments = (comments) => {
+    // Najpierw wyczyść istniejące regiony
+    regionsRef.current.clearRegions();
+    
+    comments.forEach(comment => {
+      if (comment.startTime && comment.endTime) {
+        const region = regionsRef.current.addRegion({
+          id: comment.id,
+          start: comment.startTime,
+          end: comment.endTime,
+          content: comment.content,
+          color: 'rgba(255, 165, 0, 0.3)',
+          drag: true,
+          resize: true
         });
 
-        newRegion.on('update-end', () => {
-            setSelectedRegions(prev => [...prev]);
+        region.on('click', (e) => {
+          e.stopPropagation();
+          setActiveComment(comment);
+          // Przewiń do regionu i odtwórz
+          wavesurferRef.current.setTime(region.start);
+          wavesurferRef.current.play();
+          setIsPlaying(true);
         });
+      }
+    });
+  };
 
-        newRegion.on('click', (e) => {
-            e.stopPropagation();
-            setSelectedRegions(prev => [...prev]);
-        });
+  // Rozpoczęcie tworzenia nowego komentarza
+  const startNewComment = () => {
+    setIsCreatingComment(true);
+    setActiveComment({
+      id: null,
+      content: '',
+      regions: []
+    });
+    setCommentText('');
+    setSelectedRegions([]);
+  };
 
-        setSelectedRegions(prev => [...prev, newRegion]);
-    };
+  // Anulowanie tworzenia komentarza
+  const cancelComment = () => {
+    setIsCreatingComment(false);
+    setActiveComment(null);
+    selectedRegions.forEach(region => region.remove());
+    setSelectedRegions([]);
+  };
 
-    // Usunięcie regionu z tworzonego komentarza
-    const removeRegionFromComment = (index) => {
-        if (!isCreatingComment || index >= selectedRegions.length) return;
-        
-        const regionToRemove = selectedRegions[index];
-        regionToRemove.remove();
-        setSelectedRegions(prev => prev.filter((_, i) => i !== index));
-    };
+  // Dodanie nowego regionu do tworzonego komentarza
+  const addRegionToComment = () => {
+    if (!isCreatingComment) return;
+    
+    const currentTime = wavesurferRef.current.getCurrentTime();
+    const newRegion = regionsRef.current.addRegion({
+      start: currentTime,
+      end: currentTime + 5,
+      color: 'rgba(255, 165, 0, 0.5)',
+      drag: true,
+      resize: true,
+      minLength: 0.5,
+    });
 
-    // Zapisanie komentarza
-    const saveComment = async () => {
-        if (!commentText.trim()) return;
+    newRegion.on('update-end', () => {
+      setSelectedRegions(prev => [...prev]);
+    });
 
-        try {
-            const commentData = {
-                content: commentText,
-                startTime: selectedRegions.length > 0 ? selectedRegions[0].start : null,
-                endTime: selectedRegions.length > 0 ? selectedRegions[0].end : null,
-                color: 'rgba(255, 165, 0, 0.5)', // lub dynamicznie wybrana wartość
-                post: {
-                    id: postId // Kluczowa zmiana - zgodna z strukturą z Postmana
-                }
-            };
+    newRegion.on('click', (e) => {
+      e.stopPropagation();
+      setSelectedRegions(prev => [...prev]);
+    });
 
-            const savedComment = await CommentService.createComment(commentData, token);
-            
-            setComments(prev => [...prev, savedComment]);
-            setIsCreatingComment(false);
-            setActiveComment(null);
-            setCommentText('');
-            setSelectedRegions([]);
-        } catch (error) {
-            console.error("Error saving comment:", error);
-            // Tutaj możesz dodać powiadomienie dla użytkownika
+    setSelectedRegions(prev => [...prev, newRegion]);
+  };
+
+  // Usunięcie regionu z tworzonego komentarza
+  const removeRegionFromComment = (index) => {
+    if (!isCreatingComment || index >= selectedRegions.length) return;
+    
+    const regionToRemove = selectedRegions[index];
+    regionToRemove.remove();
+    setSelectedRegions(prev => prev.filter((_, i) => i !== index));
+  };
+
+  // Zapisanie komentarza
+  const saveComment = async () => {
+    if (!commentText.trim()) return;
+
+    try {
+      const commentData = {
+        content: commentText,
+        startTime: selectedRegions.length > 0 ? selectedRegions[0].start : null,
+        endTime: selectedRegions.length > 0 ? selectedRegions[0].end : null,
+        color: 'rgba(255, 165, 0, 0.5)', // lub dynamicznie wybrana wartość
+        post: {
+          id: postId // Kluczowa zmiana - zgodna z strukturą z Postmana
         }
-    };
-    // Usunięcie komentarza
-    const deleteComment = async (commentId) => {
-        try {
-            await CommentService.deleteComment(commentId, token);
-            setComments(prev => prev.filter(c => c.id !== commentId));
-            
-            const regions = regionsRef.current.getRegions();
-            regions.forEach(region => {
-                if (region.id.startsWith(commentId)) {
-                    region.remove();
-                }
-            });
-        } catch (error) {
-            console.error("Error deleting comment:", error);
+      };
+
+      const savedComment = await CommentService.createComment(commentData, token);
+      
+      setComments(prev => [...prev, savedComment]);
+      setIsCreatingComment(false);
+      setActiveComment(null);
+      setCommentText('');
+      setSelectedRegions([]);
+    } catch (error) {
+      console.error("Error saving comment:", error);
+      // Tutaj możesz dodać powiadomienie dla użytkownika
+    }
+  };
+  
+  // Usunięcie komentarza
+  const deleteComment = async (commentId) => {
+    try {
+      await CommentService.deleteComment(commentId, token);
+      setComments(prev => prev.filter(c => c.id !== commentId));
+      
+      const regions = regionsRef.current.getRegions();
+      regions.forEach(region => {
+        if (region.id.startsWith(commentId)) {
+          region.remove();
         }
-    };
+      });
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+    }
+  };
 
-    // Obsługa play/pause
-    const togglePlayPause = () => {
-        if (wavesurferRef.current) {
-            wavesurferRef.current.playPause();
-            setIsPlaying(!isPlaying);
-        }
-    };
+  // Obsługa play/pause
+  const togglePlayPause = () => {
+    if (wavesurferRef.current) {
+      wavesurferRef.current.playPause();
+      setIsPlaying(!isPlaying);
+    }
+  };
 
-    // Formatowanie czasu
-    const formatTime = (seconds) => {
-        const minutes = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-    };
+  // Formatowanie czasu
+  const formatTime = (seconds) => {
+    const minutes = Math.floor(seconds / 60);
+    const secs = Math.floor(seconds % 60);
+    return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+  };
 
-    return (
+  return (
     <div className="audio-player-container">
       <div ref={waveformRef} className="waveform" onClick={(e) => e.stopPropagation()} />
       
@@ -333,143 +394,142 @@ const AudioPlayer = ({
           {formatTime(currentTime)} / {formatTime(duration)}
         </div>
                 
-                <div className="volume-control">
-                    <button onClick={() => setIsMuted(!isMuted)} className="volume-btn">
-                        {isMuted ? <MdVolumeOff size={20} /> : 
-                         volume > 0.5 ? <MdVolumeUp size={20} /> : <MdVolumeDown size={20} />}
-                    </button>
-                    <input
-                        type="range"
-                        min="0"
-                        max="1"
-                        step="0.01"
-                        value={isMuted ? 0 : volume}
-                        onChange={(e) => {
-                            setVolume(parseFloat(e.target.value));
-                            wavesurferRef.current.setVolume(parseFloat(e.target.value));
-                            if (isMuted && e.target.value > 0) setIsMuted(false);
-                        }}
-                    />
-                </div>
-            </div>
+        <div className="volume-control">
+          <button onClick={() => setIsMuted(!isMuted)} className="volume-btn">
+            {isMuted ? <MdVolumeOff size={20} /> : 
+              volume > 0.5 ? <MdVolumeUp size={20} /> : <MdVolumeDown size={20} />}
+          </button>
+          <input
+            type="range"
+            min="0"
+            max="1"
+            step="0.01"
+            value={isMuted ? 0 : volume}
+            onChange={(e) => {
+              setVolume(parseFloat(e.target.value));
+              wavesurferRef.current.setVolume(parseFloat(e.target.value));
+              if (isMuted && e.target.value > 0) setIsMuted(false);
+            }}
+          />
+        </div>
+      </div>
 
-            <div className="comments-section">
-                <div className="comments-header">
-                    <h3>Komentarze</h3>
+      <div className="comments-section">
+        <div className="comments-header">
+          <h3>Komentarze</h3>
+          <button 
+            onClick={startNewComment}
+            className="add-comment-btn"
+          >
+            <FaComment /> Nowy komentarz
+          </button>
+        </div>
+
+        {(isCreatingComment || activeComment?.id === null) && (
+          <div className="comment-form">
+            <textarea
+              value={commentText}
+              onChange={(e) => setCommentText(e.target.value)}
+              placeholder="Treść komentarza..."
+              rows={3}
+            />
+            
+            <div className="regions-list">
+              <h4>Dodane strefy:</h4>
+              {selectedRegions.length === 0 ? (
+                <p>Brak stref (komentarz ogólny)</p>
+              ) : (
+                selectedRegions.map((region, index) => (
+                  <div key={index} className="region-item">
+                    <span>
+                      {formatTime(region.start)} - {formatTime(region.end)}
+                    </span>
                     <button 
-                        onClick={startNewComment}
-                        className="add-comment-btn"
+                      onClick={() => removeRegionFromComment(index)}
+                      className="remove-region-btn"
                     >
-                        <FaComment /> Nowy komentarz
+                      <FaMinus />
                     </button>
-                </div>
+                  </div>
+                ))
+              )}
+            </div>
+            
+            <div className="form-actions">
+              <button 
+                onClick={addRegionToComment}
+                className="action-btn"
+              >
+                <FaPlus /> Dodaj strefę
+              </button>
+              
+              <div>
+                <button 
+                  onClick={cancelComment}
+                  className="action-btn cancel"
+                >
+                  Anuluj
+                </button>
+                <button 
+                  onClick={saveComment}
+                  className="action-btn save"
+                  disabled={!commentText.trim()}
+                >
+                  Zapisz
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
-                {(isCreatingComment || activeComment?.id === null) && (
-                    <div className="comment-form">
-                        <textarea
-                            value={commentText}
-                            onChange={(e) => setCommentText(e.target.value)}
-                            placeholder="Treść komentarza..."
-                            rows={3}
-                        />
-                        
-                        <div className="regions-list">
-                            <h4>Dodane strefy:</h4>
-                            {selectedRegions.length === 0 ? (
-                                <p>Brak stref (komentarz ogólny)</p>
-                            ) : (
-                                selectedRegions.map((region, index) => (
-                                    <div key={index} className="region-item">
-                                        <span>
-                                            {formatTime(region.start)} - {formatTime(region.end)}
-                                        </span>
-                                        <button 
-                                            onClick={() => removeRegionFromComment(index)}
-                                            className="remove-region-btn"
-                                        >
-                                            <FaMinus />
-                                        </button>
-                                    </div>
-                                ))
-                            )}
-                        </div>
-                        
-                        <div className="form-actions">
-                            <button 
-                                onClick={addRegionToComment}
-                                className="action-btn"
-                            >
-                                <FaPlus /> Dodaj strefę
-                            </button>
-                            
-                            <div>
-                                <button 
-                                    onClick={cancelComment}
-                                    className="action-btn cancel"
-                                >
-                                    Anuluj
-                                </button>
-                                <button 
-                                    onClick={saveComment}
-                                    className="action-btn save"
-                                    disabled={!commentText.trim()}
-                                >
-                                    Zapisz
-                                </button>
-                            </div>
-                        </div>
+        <div className="comments-list">
+          {comments.map(comment => (
+            <div 
+              key={comment.id} 
+              className={`comment-card ${activeComment?.id === comment.id ? 'active' : ''}`}
+            >
+              <div className="comment-header">
+                <FaUser className="user-icon" />
+                <span className="comment-author">
+                  {comment.user?.username || 'Anonimowy użytkownik'}
+                </span>
+                <span className="comment-date">
+                  {new Date(comment.createdAt).toLocaleString()}
+                </span>
+                <button 
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deleteComment(comment.id);
+                  }}
+                  className="delete-comment-btn"
+                >
+                  <FaTrash />
+                </button>
+              </div>
+              
+              <div className="comment-content">
+                <p>{comment.content}</p>
+                
+                {comment.startTime && comment.endTime && (
+                  <>
+                    <CommentPlayer 
+                      audioUrl={audioUrl} 
+                      startTime={comment.startTime} 
+                      endTime={comment.endTime}
+                      color={comment.color}
+                    />
+                    <div className="comment-timestamps">
+                      Fragment: {formatTime(comment.startTime)} - {formatTime(comment.endTime)}
                     </div>
+                  </>
                 )}
-
-                <div className="comments-list">
-                    {comments.map(comment => (
-                        <div 
-                        key={comment.id} 
-                        className={`comment-item ${activeComment?.id === comment.id ? 'active' : ''}`}
-                        >
-                        <div className="comment-header">
-                            <FaUser className="user-icon" />
-                            <span className="comment-author">
-                            {comment.user?.username || 'Anonimowy użytkownik'}
-                            </span>
-                            <span className="comment-date">
-                            {new Date(comment.createdAt).toLocaleString()}
-                            </span>
-                        </div>
-                        
-                        <div className="comment-content">
-                            <p>{comment.content}</p>
-                            
-                            {comment.startTime && comment.endTime && (
-                            <>
-                                <CommentPlayer 
-                                audioUrl={audioUrl} 
-                                startTime={comment.startTime} 
-                                endTime={comment.endTime}
-                                color={comment.color}
-                                />
-                                <div className="comment-timestamps">
-                                Fragment: {formatTime(comment.startTime)} - {formatTime(comment.endTime)}
-                                </div>
-                            </>
-                            )}
-                        </div>
-                        
-                        <button 
-                            onClick={(e) => {
-                            e.stopPropagation();
-                            deleteComment(comment.id);
-                            }}
-                            className="delete-comment-btn"
-                        >
-                            <FaTrash />
-                        </button>
-                        </div>
-                    ))}
-                    </div>
-                </div>
-                </div>
-            );
-            };
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+};
 
 export default AudioPlayer;

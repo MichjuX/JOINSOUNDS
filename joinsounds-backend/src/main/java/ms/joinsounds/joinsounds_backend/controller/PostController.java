@@ -1,11 +1,13 @@
 package ms.joinsounds.joinsounds_backend.controller;
 
 import ms.joinsounds.joinsounds_backend.dto.PostDto;
+import ms.joinsounds.joinsounds_backend.dto.PostRequest;
 import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
 import ms.joinsounds.joinsounds_backend.service.FileStorageService;
 import ms.joinsounds.joinsounds_backend.service.PostService;
+import ms.joinsounds.joinsounds_backend.service.TagService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,21 +25,29 @@ public class PostController {
     private final PostRepository _postRepository;
     private final PostService _postService;
     private final FileStorageService _fileStorageService;
+    private final TagService _tagService;
 
     public PostController(PostRepository postRepository,
                           PostService postService,
-                          FileStorageService fileStorageService) {
+                          FileStorageService fileStorageService, TagService tagService) {
         this._postRepository = postRepository;
         this._postService = postService;
         this._fileStorageService = fileStorageService;
+        _tagService = tagService;
     }
 
     @PostMapping("/authenticated/post/create")
-    public Post createPost(@RequestBody Post post) {
+    public Post createPost(@RequestBody PostRequest postRequest) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = authentication.getPrincipal() instanceof User ? (User) authentication.getPrincipal() : null;
+        Post post = new Post();
+        post.setTitle(postRequest.getTitle());
+        post.setContent(postRequest.getContent());
+        post.setTitle(postRequest.getTitle());
+        post.setAudioFilePath(postRequest.getAudioFilePath());
         post.setUser(user);
-        return _postRepository.save(post);
+
+        return _postService.createPostWithTags(post, postRequest.getTags());
     }
 
     @GetMapping("/public/post/{id}")
@@ -101,6 +111,7 @@ public class PostController {
         if (existingPost != null && existingPost.getUser().getId().equals(user.getId())) {
             existingPost.setTitle(post.getTitle());
             existingPost.setContent(post.getContent());
+            existingPost.setTags(post.getTags());
             return ResponseEntity.ok(_postRepository.save(existingPost));
         }
         return ResponseEntity.notFound().build();

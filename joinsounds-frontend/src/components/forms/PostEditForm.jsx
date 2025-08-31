@@ -5,6 +5,7 @@ import './PostForm.css';
 const PostEditForm = ({ post, onPostUpdated }) => { // Zmieniamy props na post i onPostUpdated
     const [title, setTitle] = useState(post ? post.title : '');
     const [content, setContent] = useState(post ? post.content : '');
+    const [tags, setTags] = useState(post ? post.tags : '');
     const [audioFile, setAudioFile] = useState(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
@@ -15,6 +16,7 @@ const PostEditForm = ({ post, onPostUpdated }) => { // Zmieniamy props na post i
         if (post) {
             setTitle(post.title);
             setContent(post.content);
+            setTags(post.tags);
         }
     }, [post]);
 
@@ -30,7 +32,8 @@ const PostEditForm = ({ post, onPostUpdated }) => { // Zmieniamy props na post i
 
             await PostService.updatePost(post.id, {
                 title,
-                content
+                content,
+                tags
             }, token); // Przekaż token
 
             alert('Post updated successfully!');
@@ -60,6 +63,14 @@ const PostEditForm = ({ post, onPostUpdated }) => { // Zmieniamy props na post i
                 required
                 disabled={isSubmitting}
             />
+            <textarea
+                placeholder="Tagi"
+                value={tags}
+                onChange={(e) => setContent(e.target.value)}
+                required
+                disabled={isSubmitting}
+            />
+
             
             {post.audioFilePath && !audioFile && (
                 <div className="current-audio">

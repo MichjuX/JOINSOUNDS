@@ -2,13 +2,26 @@ import React, { useState, useRef } from 'react';
 import PostService from '../service/PostService';
 import './PostForm.css';
 
-const PostForm = ({ token, onPostCreated}) => {
+const PostForm = ({ token, onPostCreated }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [audioFile, setAudioFile] = useState(null);
+    const [tagsInput, setTagsInput] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
-    const fileInputRef = useRef(null); // Dodajemy referencję do inputa file
+    const fileInputRef = useRef(null);
+
+    // Funkcja do przetwarzania tagów z inputa na string
+    const processTags = (input) => {
+        if (!input.trim()) return '';
+        
+        // Dzielimy po przecinkach, usuwamy puste tagi, trimujemy i zamieniamy na małe litery
+        return input.split(',')
+            .map(tag => tag.trim())
+            .filter(tag => tag.length > 0)
+            .map(tag => tag.toLowerCase())
+            .join(','); // Łączymy z powrotem w string oddzielony przecinkami
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
@@ -29,16 +42,21 @@ const PostForm = ({ token, onPostCreated}) => {
                 audioFilePath = fileName;
             }
             
+            // Przetwarzamy tagi do formatu string
+            const tagsString = processTags(tagsInput);
+            
             await PostService.createPost({
                 title,
                 content,
-                audioFilePath
+                audioFilePath,
+                tags: tagsString // Wysyłamy już przetworzony string
             }, token);
 
             alert('Post został dodany!');
             // Reset formularza
             setTitle('');
             setContent('');
+            setTagsInput('');
             setAudioFile(null);
             setUploadProgress(0);
             
@@ -73,6 +91,7 @@ const PostForm = ({ token, onPostCreated}) => {
                 required
                 disabled={isSubmitting}
             />
+            
             <textarea
                 placeholder="Treść"
                 value={content}
@@ -80,9 +99,20 @@ const PostForm = ({ token, onPostCreated}) => {
                 required
                 disabled={isSubmitting}
             />
+            
+            {/* Input dla tagów */}
+            <input
+                className='form-input'
+                type="text"
+                placeholder="Tagi (oddzielone przecinkami, np. muzyka,audio,dźwięk)"
+                value={tagsInput}
+                onChange={(e) => setTagsInput(e.target.value)}
+                disabled={isSubmitting}
+            />
+            
             <input
                 type="file"
-                ref={fileInputRef} // Dodajemy referencję
+                ref={fileInputRef}
                 onChange={(e) => setAudioFile(e.target.files[0])}
                 disabled={isSubmitting}
                 accept="audio/*"
@@ -104,7 +134,7 @@ const PostForm = ({ token, onPostCreated}) => {
                 type="submit"
                 disabled={isSubmitting}
             >
-                {isSubmitting ? 'Sending...' : 'Add post'}
+                {isSubmitting ? 'Wysyłanie...' : 'Dodaj post'}
             </button>
         </form>
     );
