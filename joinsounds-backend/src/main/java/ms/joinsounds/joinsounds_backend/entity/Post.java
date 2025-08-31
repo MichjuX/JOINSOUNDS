@@ -1,5 +1,6 @@
 package ms.joinsounds.joinsounds_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -41,6 +42,7 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     @EqualsAndHashCode.Exclude
+    @JsonIgnore // Zapobiega serializacji cyklicznej
     private Set<Tag> tags = new HashSet<>();
 
     // W encji Post

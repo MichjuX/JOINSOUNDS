@@ -62,7 +62,7 @@ public class PostService {
                 postDto.setTags(post.getTags().stream()
                         .map(Tag::getName)
                         .collect(Collectors.toList()));
-                
+
                 return postDto;
             }
             return new PostDto();

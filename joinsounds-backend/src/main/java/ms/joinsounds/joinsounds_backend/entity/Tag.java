@@ -1,5 +1,6 @@
 package ms.joinsounds.joinsounds_backend.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -22,6 +23,7 @@ public class Tag {
 
     @ManyToMany(mappedBy = "tags", fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
+    @JsonIgnore // Zapobiega serializacji cyklicznej
     private Set<Post> posts = new HashSet<>();
 
     public Tag() {}
