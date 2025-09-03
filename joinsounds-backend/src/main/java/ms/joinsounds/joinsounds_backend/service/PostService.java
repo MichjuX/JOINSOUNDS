@@ -33,16 +33,35 @@ public class PostService {
     public Page<PostDto> getAllPosts(Pageable pageable) {
         Page<Post> postsPage = _postRepository.findAll(pageable);
 
+        return getPostDtos(postsPage);
+    }
+
+    public Page<PostDto> getAllPostsByTag(String tagName, Pageable pageable) {
+        // Normalizuj nazwę tagu do małych liter (jeśli tak przechowujesz)
+        String normalizedTagName = tagName.toLowerCase();
+
+        Page<Post> postsPage = _postRepository.findByTagName(normalizedTagName, pageable);
+
+        return getPostDtos(postsPage);
+    }
+
+    private Page<PostDto> getPostDtos(Page<Post> postsPage) {
         return postsPage.map(post -> {
             PostDto postDto = new PostDto();
             postDto.setId(post.getId());
             postDto.setTitle(post.getTitle());
             postDto.setContent(post.getContent());
             postDto.setCreatedAt(post.getCreatedAt());
+
             if (post.getUser() != null) {
                 postDto.setUser(_userService.convertToDto(post.getUser()));
             }
+
             postDto.setAudioFilePath(post.getAudioFilePath());
+            postDto.setTags(post.getTags().stream()
+                    .map(Tag::getName)
+                    .collect(Collectors.toList()));
+
             return postDto;
         });
     }

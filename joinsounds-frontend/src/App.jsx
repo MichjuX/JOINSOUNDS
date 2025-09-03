@@ -13,6 +13,7 @@ import HomePage from './components/pages/HomePage';
 import FullPostPage from './components/pages/FullPostPage';
 import EditPostPage from './components/pages/EditPostPage';
 import AccountVerificationPage from './components/auth/AccountVerificationPage';
+import TagPage from './components/pages/TagPage';
 
 function App() {
   return (
@@ -25,6 +26,7 @@ function App() {
             {/* <Route path="/login" element={<LoginPage />} /> */}
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/post/:id" element={<FullPostPage />} />
+            <Route path="/tag/:tag" element={<TagPage />} />
             {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}

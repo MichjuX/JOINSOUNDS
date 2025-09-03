@@ -69,6 +69,23 @@ public class PostController {
         return ResponseEntity.ok(postsPage);
     }
 
+    @GetMapping("/public/post/all/tag/{tagName}")
+    public ResponseEntity<Page<PostDto>> getAllPostsByTag(
+            @PathVariable String tagName,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort) {
+
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
+
+        Page<PostDto> postsPage = _postService.getAllPostsByTag(tagName, pageable);
+        return ResponseEntity.ok(postsPage);
+    }
+
+
+
     @DeleteMapping("/authenticated/post/delete/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

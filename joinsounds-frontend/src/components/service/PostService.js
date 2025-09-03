@@ -90,6 +90,25 @@ class PostService {
         }
     }
 
+    static async getAllPostsByTag(tag, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
+        try {
+            const response = await axios.get(`${this.BASE_URL}/public/post/all/tag/${tag}`, {
+                params: { 
+                    page, 
+                    size,
+                    sort: `${sortBy},${sortDirection}`
+                },
+                ...config
+            });
+            return response.data;
+        } catch (error) {
+            if (!axios.isCancel(error)) {
+                console.error("Error getting posts:", error);
+                throw error;
+            }
+        }
+    }
+
     static async getPostById(postId, token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/${postId}`);

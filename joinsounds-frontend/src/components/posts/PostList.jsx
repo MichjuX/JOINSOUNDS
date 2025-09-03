@@ -4,6 +4,7 @@ import PostService from "../service/PostService";
 import "./PostList.css";
 import UserService from "../service/UserService";
 import AudioPlayer from "../common/AudioPlayer";
+import { useNavigate } from "react-router-dom";
 
 function PostList({ 
   posts, 
@@ -16,6 +17,7 @@ function PostList({
   token 
 }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const navigate = useNavigate();
   const truncateText = (text, maxLength = 200) => {
     if (text.length <= maxLength) return text;
     return text.substring(0, maxLength) + '...';
@@ -65,10 +67,15 @@ function PostList({
     setCurrentlyPlayingId(null);
   };
 
+  const onTagClick = (tag) => {
+    // Navigate to the tag page with the selected tag
+    navigate(`/tag/${tag}`);
+  };
+
   if (loading) return <div className="loading">Loading posts...</div>;
   if (posts.length === 0 && !loading) return <p>No posts available. Be the first to post!</p>;
 
-  return (
+return (
     <div className="posts-list">
       {posts.map(post => (
         <div key={post.id} className="post-card">
@@ -81,58 +88,74 @@ function PostList({
             )}
           </div>
           
-        {post.user && <p className="post-author">By: {post.user.name}</p>}
+          {post.user && <p className="post-author">By: {post.user.name}</p>}
               
-        <p>{truncateText(post.content)}</p>
-        {post.content.length > 0 && (
-            <button 
-                onClick={() => onShowMore(post.id)}
-                className="submit-btn"
-            >
-                VIEW FULL POST
-            </button>
-        )}
-
-        {currentUserId === post.user?.id && (
-           <button 
-                    className="submit-btn"
-                    onClick={() => onEdit(post.id)}
+          <p>{truncateText(post.content)}</p>
+          
+          {/* Tags display section */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="post-tags">
+              {post.tags.map((tag, index) => (
+                <button
+                  key={index}
+                  className="tag-btn"
+                  onClick={() => onTagClick(tag)}
                 >
-                    Edit
+                  #{tag}
                 </button>
-        )}
+              ))}
+            </div>
+          )}
+          
+          {post.content.length > 0 && (
+            <button 
+              onClick={() => onShowMore(post.id)}
+              className="submit-btn"
+            >
+              VIEW FULL POST
+            </button>
+          )}
 
-        {(currentUserId === post.user?.id || UserService.isModeratorOrAdmin()) && (
+          {currentUserId === post.user?.id && (
+            <button 
+              className="submit-btn"
+              onClick={() => onEdit(post.id)}
+            >
+              Edit
+            </button>
+          )}
+
+          {(currentUserId === post.user?.id || UserService.isModeratorOrAdmin()) && (
             <>
-                <button 
-                    onClick={() => onDelete(post.id)}
-                    className="delete-btn"
-                >
-                    Delete
-                </button>
-            </>
-        )}
-            
-        {(UserService.isModeratorOrAdmin() && post.content!="" ) && (
-            <button 
-                onClick={() => onAdminDelete(post.id)}
+              <button 
+                onClick={() => onDelete(post.id)}
                 className="delete-btn"
+              >
+                Delete
+              </button>
+            </>
+          )}
+            
+          {(UserService.isModeratorOrAdmin() && post.content !== "") && (
+            <button 
+              onClick={() => onAdminDelete(post.id)}
+              className="delete-btn"
             >
-                Moderator Delete
+              Moderator Delete
             </button>
-        )}
+          )}
 
-        {post.audioFilePath && (
-          <AudioPlayer 
-            audioUrl={getAudioUrl(post.audioFilePath)}
-            audioType={getAudioType(post.audioFilePath)}
-            isPlaying={currentlyPlayingId === post.id}
-            onPlay={() => handlePlay(post.id)}
-            onPause={handlePause}
-            onEnd={handlePause}
-            postId={post.id}
-          />
-        )}
+          {post.audioFilePath && (
+            <AudioPlayer 
+              audioUrl={getAudioUrl(post.audioFilePath)}
+              audioType={getAudioType(post.audioFilePath)}
+              isPlaying={currentlyPlayingId === post.id}
+              onPlay={() => handlePlay(post.id)}
+              onPause={handlePause}
+              onEnd={handlePause}
+              postId={post.id}
+            />
+          )}
         </div>
       ))}
     </div>
