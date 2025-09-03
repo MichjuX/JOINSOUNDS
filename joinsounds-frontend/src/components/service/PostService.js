@@ -133,20 +133,30 @@ class PostService {
         }
     }
 
-    static async updatePost(postId, postData, token) {
-        try {
-            const response = await axios.put(`${this.BASE_URL}/authenticated/post/update/${postId}`, postData, {
+    static async updatePost(postId, postData, token, replaceAudio = false) {
+    try {
+        const params = {};
+        if (replaceAudio) {
+            params.replaceAudio = true;
+        }
+
+        const response = await axios.put(
+            `${this.BASE_URL}/authenticated/post/update/${postId}`, 
+            postData, 
+            {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                }
-            });
-            return response.data;
-        } catch (error) {
-            console.error("Error updating post:", error);
-            throw error;
-        }
+                },
+                params: params
+            }
+        );
+        return response.data;
+    } catch (error) {
+        console.error("Error updating post:", error);
+        throw error;
     }
+}
 
     static async deletePost(postId, token) {
         try {

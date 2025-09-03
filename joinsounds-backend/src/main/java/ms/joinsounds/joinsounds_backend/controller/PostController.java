@@ -121,14 +121,30 @@ public class PostController {
     }
 
     @PutMapping("/authenticated/post/update/{id}")
-    public ResponseEntity<Post> updatePost(@PathVariable UUID id, @RequestBody Post post) {
+    public ResponseEntity<Post> updatePost(
+            @PathVariable UUID id,
+            @RequestBody PostRequest postRequest, // Zmieniamy na PostRequest
+            @RequestParam(value = "replaceAudio", required = false) Boolean replaceAudio) {
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User user = (User) authentication.getPrincipal();
+
         Post existingPost = _postRepository.findById(id).orElse(null);
         if (existingPost != null && existingPost.getUser().getId().equals(user.getId())) {
-            existingPost.setTitle(post.getTitle());
-            existingPost.setContent(post.getContent());
-            existingPost.setTags(post.getTags());
+            existingPost.setTitle(postRequest.getTitle());
+            existingPost.setContent(postRequest.getContent());
+
+            // Jeśli użytkownik chce podmienić audio, usuń stary plik
+            if (Boolean.TRUE.equals(replaceAudio) && existingPost.getAudioFilePath() != null) {
+                _fileStorageService.deleteFile(existingPost.getAudioFilePath());
+                existingPost.setAudioFilePath(null);
+            }
+
+            // Ustaw nową ścieżkę audio jeśli została podana
+            if (postRequest.getAudioFilePath() != null) {
+                existingPost.setAudioFilePath(postRequest.getAudioFilePath());
+            }
+
             return ResponseEntity.ok(_postRepository.save(existingPost));
         }
         return ResponseEntity.notFound().build();

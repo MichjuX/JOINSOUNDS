@@ -11,8 +11,16 @@ function EditPostPage() {
     const [post, setPost] = useState(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [token, setToken] = useState(localStorage.getItem('token'));
 
     useEffect(() => {
+        // Sprawdź czy token jest poprawny
+        if (!token || token.split('.').length !== 3) {
+            setError('Invalid authentication token. Please log in again.');
+            setLoading(false);
+            return;
+        }
+
         const fetchPost = async () => {
             try {
                 const postData = await PostService.getPostById(id);
@@ -26,7 +34,7 @@ function EditPostPage() {
         };
 
         fetchPost();
-    }, [id]);
+    }, [id, token]);
 
     if (loading) return <div className="error">Loading post...</div>;
     if (error) return <div className="error">Error: {error}</div>;
@@ -37,11 +45,15 @@ function EditPostPage() {
             <button 
                 className="submit-btn"
                 onClick={() => navigate(-1)}
-                >
+            >
                 Back
             </button>
 
-            <PostEditForm post={post} onPostUpdated={() => navigate(-1)} />
+            <PostEditForm 
+                post={post} 
+                onPostUpdated={() => navigate(-1)} 
+                token={token} // ← TU PRZEKAZUJESZ TOKEN!
+            />
         </div>
     );
 }
