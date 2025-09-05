@@ -421,7 +421,7 @@ const AudioPlayer = ({
             onClick={startNewComment}
             className="add-comment-btn"
           >
-            <FaComment /> Nowy komentarz
+            <FaComment /> New Comment
           </button>
         </div>
 
@@ -430,14 +430,14 @@ const AudioPlayer = ({
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Treść komentarza..."
+              placeholder="Content..."
               rows={3}
             />
             
             <div className="regions-list">
-              <h4>Dodane strefy:</h4>
+              <h4>Added Regions:</h4>
               {selectedRegions.length === 0 ? (
-                <p>Brak stref (komentarz ogólny)</p>
+                <p>No regions (general comment)</p>
               ) : (
                 selectedRegions.map((region, index) => (
                   <div key={index} className="region-item">
@@ -460,7 +460,7 @@ const AudioPlayer = ({
                 onClick={addRegionToComment}
                 className="action-btn"
               >
-                <FaPlus /> Dodaj strefę
+                <FaPlus /> Add Region
               </button>
               
               <div>
@@ -491,7 +491,7 @@ const AudioPlayer = ({
               <div className="comment-header">
                 <FaUser className="user-icon" />
                 <span className="comment-author">
-                  {comment.user?.username || 'Anonimowy użytkownik'}
+                  {comment.user?.name || 'Anonymous User'}
                 </span>
                 <span className="comment-date">
                   {new Date(comment.createdAt).toLocaleString()}

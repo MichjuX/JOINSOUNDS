@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 class CommentService {
-    static BASE_URL = "http://localhost:8080"; // or your backend address
+    // static BASE_URL = "http://localhost:8080"
+    static BASE_URL = "http://172.24.188.59:8080"; // or your backend address
 
     static async createComment(commentData, token) {
         try {

@@ -52,6 +52,7 @@ public class PostService {
             postDto.setTitle(post.getTitle());
             postDto.setContent(post.getContent());
             postDto.setCreatedAt(post.getCreatedAt());
+            postDto.setIsFinished(post.getIsFinished());
 
             if (post.getUser() != null) {
                 postDto.setUser(_userService.convertToDto(post.getUser()));
@@ -73,6 +74,7 @@ public class PostService {
                 postDto.setId(post.getId());
                 postDto.setTitle(post.getTitle());
                 postDto.setContent(post.getContent());
+                postDto.setIsFinished(post.getIsFinished());
                 if (post.getUser() != null) {
                     postDto.setUser(_userService.convertToDto(post.getUser()));
                 }

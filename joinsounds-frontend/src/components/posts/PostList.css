@@ -101,6 +101,14 @@ audio {
     font-style: italic;
 }
 
+.finished-badge{
+    background: #2DCF00;
+    background: linear-gradient(to bottom left, #2DCF00 0%, #94CF70 99%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
 /* Przyciski */
 .submit-btn {
     background-color: #ff5100;

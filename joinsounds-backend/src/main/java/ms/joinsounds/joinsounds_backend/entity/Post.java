@@ -25,8 +25,9 @@ public class Post {
     @Column(columnDefinition = "LONGTEXT")
     private String content;
 
+    private Boolean isFinished = false;
+
     private String audioFilePath;
-    private String waveformFilePath;
 
     @CreationTimestamp
     private LocalDateTime createdAt;

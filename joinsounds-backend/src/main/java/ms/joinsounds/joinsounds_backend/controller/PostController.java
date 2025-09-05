@@ -149,4 +149,17 @@ public class PostController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PutMapping("/authenticated/post/finish/{id}") // Remove the trailing slash
+    public ResponseEntity<Void> markAsFinished(@PathVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Post existingPost = _postRepository.findById(id).orElse(null);
+        if (existingPost != null && existingPost.getUser().getId().equals(user.getId())) {
+            existingPost.setIsFinished(Boolean.TRUE);
+            _postRepository.save(existingPost);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

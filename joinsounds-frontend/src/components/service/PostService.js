@@ -134,21 +134,40 @@ class PostService {
     }
 
     static async updatePost(postId, postData, token, replaceAudio = false) {
-    try {
-        const params = {};
-        if (replaceAudio) {
-            params.replaceAudio = true;
-        }
+        try {
+            const params = {};
+            if (replaceAudio) {
+                params.replaceAudio = true;
+            }
 
+            const response = await axios.put(
+                `${this.BASE_URL}/authenticated/post/update/${postId}`, 
+                postData, 
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    },
+                    params: params
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Error updating post:", error);
+            throw error;
+        }
+    }
+
+    static async markPostAsFinished(postId, token) {
+    try {
         const response = await axios.put(
-            `${this.BASE_URL}/authenticated/post/update/${postId}`, 
-            postData, 
+            `${this.BASE_URL}/authenticated/post/finish/${postId}`,
+            {}, // Empty request body
             {
                 headers: {
                     'Authorization': `Bearer ${token}`,
                     'Content-Type': 'application/json'
-                },
-                params: params
+                }
             }
         );
         return response.data;

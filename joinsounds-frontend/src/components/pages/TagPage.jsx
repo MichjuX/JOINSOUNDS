@@ -132,22 +132,9 @@ function TagPage() {
 
   return (
     <div className="home-page-container">
-      {UserService.isAuthenticated() && (
-        <div className="post-form-section">
-          <h2>Create new post</h2>
-          <PostForm 
-            token={token} 
-            onPostCreated={() => {
-              setPage(0);
-              setReloadFlag(prev => prev + 1);
-              // Nie trzeba wywoływać fetchPosts, useEffect sam się zajmie
-            }} 
-          />
-        </div>
-      )}
 
       <div className="posts-container">
-        <h2>Recent Posts</h2>
+        <h2>Posts By Tag: #{tag}</h2>
 
         <div className="sorting-controls">
           <span>Sort by: </span>

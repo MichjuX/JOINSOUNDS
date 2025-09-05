@@ -18,6 +18,7 @@ public class PostDto {
     private String content;
     private String audioFilePath;
     private String waveformFilePath;
+    private Boolean isFinished;
     private LocalDateTime createdAt;
     private UserDto user;
     private List<String> tags;

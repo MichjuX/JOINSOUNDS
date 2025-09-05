@@ -68,24 +68,38 @@ function PostList({
   };
 
   const onTagClick = (tag) => {
-    // Navigate to the tag page with the selected tag
     navigate(`/tag/${tag}`);
+  };
+
+  const onFinished = async (postId) => {
+    if (window.confirm("Are you sure you want to finish this post, this action CAN'T BE REVERTED?")) {
+      try {
+        await PostService.markPostAsFinished(postId, token);
+      }
+      catch (error) {
+        console.error("Error finishing post:", error);
+      }
   };
 
   if (loading) return <div className="loading">Loading posts...</div>;
   if (posts.length === 0 && !loading) return <p>No posts available. Be the first to post!</p>;
+}
 
 return (
     <div className="posts-list">
       {posts.map(post => (
         <div key={post.id} className="post-card">
           <div className="post-header">
-            <h3>{post.title}</h3>
-            {post.createdAt && (
-              <span className="post-date">
-                {formatDate(post.createdAt)}
-              </span>
-            )}
+            <h3>{post.isFinished && (
+                <span className="finished-badge">FINISHED <br /></span>
+              )}{post.title} </h3>
+            <div className="post-header-info">
+              {post.createdAt && (
+                <span className="post-date">
+                  {formatDate(post.createdAt)}
+                </span>
+              )}
+            </div>
           </div>
           
           {post.user && <p className="post-author">By: {post.user.name}</p>}
@@ -113,6 +127,24 @@ return (
               className="submit-btn"
             >
               VIEW FULL POST
+            </button>
+          )}
+
+          {currentUserId === post.user?.id && (
+            <button 
+              className="submit-btn"
+              onClick={() => onEdit(post.id)}
+            >
+              Edit
+            </button>
+          )}
+
+          {currentUserId === post.user?.id && (
+            <button 
+              className="submit-btn"
+              onClick={() => onFinished(post.id)}
+            >
+              Mark As Finished
             </button>
           )}
 
