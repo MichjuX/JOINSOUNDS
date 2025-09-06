@@ -146,4 +146,42 @@ public class FileStorageService {
             throw new RuntimeException("Failed to delete file", e);
         }
     }
+
+    // ZDJĘCIA PROFILOWE
+    ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+    public String storeProfilePicture(MultipartFile file) {
+        try {
+            if (file.isEmpty()) {
+                throw new RuntimeException("File is empty");
+            }
+
+            String contentType = file.getContentType();
+            if (contentType == null || !contentType.startsWith("image/")) {
+                throw new RuntimeException("Only image files are allowed");
+            }
+
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename == null || !originalFilename.contains(".")) {
+                throw new RuntimeException("Invalid file name");
+            }
+
+            String fileExtension = originalFilename.substring(originalFilename.lastIndexOf(".")).toLowerCase();
+
+            List<String> allowedExtensions = Arrays.asList(".jpg", ".jpeg", ".png", ".gif", ".webp");
+            if (!allowedExtensions.contains(fileExtension)) {
+                throw new RuntimeException("Unsupported image format. Allowed: .jpg, .jpeg, .png, .gif, .webp");
+            }
+
+            // Generuj unikalną nazwę pliku
+            String fileName = "profile_" + UUID.randomUUID() + fileExtension;
+            Path filePath = this._fileStorageLocation.resolve(fileName);
+
+            // Zapisz plik
+            Files.copy(file.getInputStream(), filePath);
+
+            return fileName;
+        } catch (IOException e) {
+            throw new RuntimeException("Failed to store profile picture", e);
+        }
+    }
 }

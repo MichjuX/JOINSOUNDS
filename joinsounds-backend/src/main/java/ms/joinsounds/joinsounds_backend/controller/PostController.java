@@ -66,6 +66,7 @@ public class PostController {
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
 
         Page<PostDto> postsPage = _postService.getAllPosts(pageable);
+
         return ResponseEntity.ok(postsPage);
     }
 

@@ -47,7 +47,7 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
           id: `comment-region-${Date.now()}`,
           start: startTime,
           end: endTime,
-          color: color || 'rgba(255, 115, 0, 0.5)',
+          color: color || 'rgba(255, 89, 0, 0.5)',
           drag: false,
           resize: false
         });
@@ -244,7 +244,7 @@ const AudioPlayer = ({
           start: comment.startTime,
           end: comment.endTime,
           content: comment.content,
-          color: 'rgba(255, 165, 0, 0.3)',
+          color: 'rgba(249, 75, 0, 0.69)',
           drag: true,
           resize: true
         });
@@ -277,7 +277,12 @@ const AudioPlayer = ({
   const cancelComment = () => {
     setIsCreatingComment(false);
     setActiveComment(null);
-    selectedRegions.forEach(region => region.remove());
+    
+    // USUWANIE REGIONÓW PRZY ANULOWANIU
+    selectedRegions.forEach(region => {
+      region.remove();
+    });
+    
     setSelectedRegions([]);
   };
 
@@ -289,7 +294,7 @@ const AudioPlayer = ({
     const newRegion = regionsRef.current.addRegion({
       start: currentTime,
       end: currentTime + 5,
-      color: 'rgba(255, 165, 0, 0.5)',
+      color: 'rgba(201, 201, 201, 0.48)',
       drag: true,
       resize: true,
       minLength: 0.5,
@@ -317,6 +322,7 @@ const AudioPlayer = ({
   };
 
   // Zapisanie komentarza
+  // Zapisanie komentarza
   const saveComment = async () => {
     if (!commentText.trim()) return;
 
@@ -325,22 +331,32 @@ const AudioPlayer = ({
         content: commentText,
         startTime: selectedRegions.length > 0 ? selectedRegions[0].start : null,
         endTime: selectedRegions.length > 0 ? selectedRegions[0].end : null,
-        color: 'rgba(255, 165, 0, 0.5)', // lub dynamicznie wybrana wartość
+        color: 'rgba(255, 68, 0, 0.57)',
         post: {
-          id: postId // Kluczowa zmiana - zgodna z strukturą z Postmana
+          id: postId
         }
       };
 
       const savedComment = await CommentService.createComment(commentData, token);
       
+      // Usuń wszystkie regiony związane z tworzonym komentarzem
+      selectedRegions.forEach(region => {
+        if (region && typeof region.remove === 'function') {
+          region.remove();
+        }
+      });
+      
+      // Zaktualizuj stan
       setComments(prev => [...prev, savedComment]);
       setIsCreatingComment(false);
       setActiveComment(null);
       setCommentText('');
       setSelectedRegions([]);
+      
     } catch (error) {
       console.error("Error saving comment:", error);
-      // Tutaj możesz dodać powiadomienie dla użytkownika
+      // Możesz dodać powiadomienie dla użytkownika
+      alert('Error saving comment: ' + error.message);
     }
   };
   

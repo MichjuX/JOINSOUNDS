@@ -7,15 +7,16 @@ import ms.joinsounds.joinsounds_backend.entity.UserProfile;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
 import ms.joinsounds.joinsounds_backend.repository.UserProfileRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
+import ms.joinsounds.joinsounds_backend.service.FileStorageService;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.UUID;
 
 @Controller
@@ -24,21 +25,31 @@ public class UserProfileController {
     private final UsersRepository _usersRepository;
     private final UserProfileRepository _userProfileRepository;
     private final PostRepository _postRepository;
+    private final FileStorageService _fileStorageService;
 
-    @GetMapping("/public/user/profile/{UUID}")
-    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable UUID UUID) {
-        // Implement the logic to fetch user profile by UUID
-        UserProfileDto userProfile = new UserProfileDto();
-        User user = _usersRepository.findById(UUID).orElse(null);
+    @GetMapping("/public/user/profile/{userId}")
+    public ResponseEntity<UserProfileDto> getUserProfile(@PathVariable UUID userId) {
+        User user = _usersRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
         UserProfile userProfileEntity = _userProfileRepository.findByUser(user);
-        // Populate userProfile with data
-        userProfile.setUsername(_usersRepository.findById(UUID).get().getName());
 
-        userProfile.setProfilePictureUrl(null);
-        userProfile.setBio(userProfileEntity.getBio());
-        userProfile.setTools(userProfileEntity.getTools());
-        userProfile.setGenres(userProfileEntity.getGenres());
+        UserProfileDto userProfile = new UserProfileDto();
+        userProfile.setUsername(user.getName());
         userProfile.setPostCount(_postRepository.countByUser(user));
+
+        if (userProfileEntity != null) {
+            userProfile.setBio(userProfileEntity.getBio());
+            userProfile.setTools(userProfileEntity.getTools());
+            userProfile.setGenres(userProfileEntity.getGenres());
+            userProfile.setProfilePictureUrl(userProfileEntity.getProfilePicturePath());
+        } else {
+            // Domyślne wartości jeśli profil nie istnieje
+            userProfile.setBio("");
+            userProfile.setTools(new ArrayList<>());
+            userProfile.setGenres(new ArrayList<>());
+            userProfile.setProfilePictureUrl(null);
+        }
 
         return ResponseEntity.ok(userProfile);
     }
@@ -64,5 +75,70 @@ public class UserProfileController {
         _userProfileRepository.save(userProfile);
 
         return ResponseEntity.ok(userProfileDto);
+    }
+
+    @PostMapping("/authenticated/user/profile/upload-picture")
+    public ResponseEntity<String> uploadProfilePicture(@RequestParam("file") MultipartFile file) {
+        try {
+            // Walidacja typu MIME dla obrazów
+            if (!file.getContentType().startsWith("image/")) {
+                return ResponseEntity.badRequest().body("Only image files are allowed");
+            }
+
+            // Walidacja rozmiaru pliku (max 5MB)
+            if (file.getSize() > 5 * 1024 * 1024) {
+                return ResponseEntity.badRequest().body("File too large. Maximum size is 5MB");
+            }
+
+            String fileName = _fileStorageService.storeProfilePicture(file);
+
+            // Zaktualizuj ścieżkę w profilu użytkownika
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User user = auth.getPrincipal() instanceof User ? (User) auth.getPrincipal() : null;
+
+            UserProfile userProfile = _userProfileRepository.findByUser(user);
+            if (userProfile == null) {
+                userProfile = new UserProfile();
+                userProfile.setUser(user);
+            }
+
+            // Usuń stare zdjęcie jeśli istnieje
+            if (userProfile.getProfilePicturePath() != null) {
+                _fileStorageService.deleteFile(userProfile.getProfilePicturePath());
+            }
+
+            userProfile.setProfilePicturePath(fileName);
+            _userProfileRepository.save(userProfile);
+
+            return ResponseEntity.ok(fileName);
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to upload profile picture: " + e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/authenticated/user/profile/remove-picture")
+    public ResponseEntity<?> removeProfilePicture() {
+        try {
+            Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+            User user = auth.getPrincipal() instanceof User ? (User) auth.getPrincipal() : null;
+
+            UserProfile userProfile = _userProfileRepository.findByUser(user);
+            if (userProfile != null && userProfile.getProfilePicturePath() != null) {
+                // Usuń plik z dysku
+                _fileStorageService.deleteFile(userProfile.getProfilePicturePath());
+
+                // Usuń ścieżkę z profilu
+                userProfile.setProfilePicturePath(null);
+                _userProfileRepository.save(userProfile);
+            }
+
+            return ResponseEntity.ok().build();
+
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to remove profile picture: " + e.getMessage());
+        }
     }
 }

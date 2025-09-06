@@ -9,6 +9,7 @@ import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.entity.Tag;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
+import ms.joinsounds.joinsounds_backend.repository.UserProfileRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +29,7 @@ public class PostService {
     private final UserService _userService;
     private final FileStorageService _fileStorageService;
     private final TagService _tagService;
+    private final UserProfileRepository _userProfileRepository;
 
 
     public Page<PostDto> getAllPosts(Pageable pageable) {
@@ -53,6 +55,7 @@ public class PostService {
             postDto.setContent(post.getContent());
             postDto.setCreatedAt(post.getCreatedAt());
             postDto.setIsFinished(post.getIsFinished());
+            postDto.setUserProfilePicturePath(_userProfileRepository.findProfilePicturePathByUserId(post.getUser().getId()));
 
             if (post.getUser() != null) {
                 postDto.setUser(_userService.convertToDto(post.getUser()));
@@ -61,6 +64,7 @@ public class PostService {
             postDto.setAudioFilePath(post.getAudioFilePath());
             postDto.setTags(post.getTags().stream()
                     .map(Tag::getName)
+                    .sorted()
                     .collect(Collectors.toList()));
 
             return postDto;

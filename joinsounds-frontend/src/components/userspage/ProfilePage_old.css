@@ -1,0 +1,81 @@
+.profile-page-container {
+    max-width: 800px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: #181818;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    font-family: "Sansation", sans-serizf;
+}
+
+.profile-page-container h2 {
+    color: #ff5100;
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+    text-align: center;
+    border-bottom: 2px solid #313131;
+    padding-bottom: 1rem;
+}
+
+.profile-page-container p {
+    font-size: 1.1rem;
+    margin: 1rem 0;
+    padding: 0.8rem;
+    background-color: #252525;
+    border-radius: 5px;
+    color: #ffffff;
+    display: flex;
+}
+
+.profile-page-container p::before {
+    content: attr(data-label);
+    font-weight: bold;
+    color: #ff5100;
+    min-width: 100px;
+    display: inline-block;
+}
+
+.profile-page-container button {
+    background-color: #ff5100;
+    color: white;
+    border: none;
+    padding: 0.8rem 1.5rem;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 1rem;
+    margin-top: 1.5rem;
+    transition: all 0.3s ease;
+    display: block;
+    width: 100%;
+    text-align: center;
+}
+
+.profile-page-container button:hover {
+    background-color: #e04800;
+    transform: translateY(-2px);
+}
+
+.profile-page-container a {
+    color: white;
+    text-decoration: none;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+    .profile-page-container {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .profile-page-container p {
+        flex-direction: column;
+    }
+    
+    .profile-page-container p::before {
+        margin-bottom: 0.5rem;
+    }
+}

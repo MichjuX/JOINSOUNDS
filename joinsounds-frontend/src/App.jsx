@@ -24,9 +24,10 @@ function App() {
           <Routes>
             <Route path="/" element={<HomePage />} />
             {/* <Route path="/login" element={<LoginPage />} /> */}
-            <Route path="/profile" element={<ProfilePage />} />
+            {/* <Route path="/profile" element={<ProfilePage />} /> */}
             <Route path="/post/:id" element={<FullPostPage />} />
             <Route path="/tag/:tag" element={<TagPage />} />
+            <Route path="/profile/:userId" element={<ProfilePage />} />
             {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}

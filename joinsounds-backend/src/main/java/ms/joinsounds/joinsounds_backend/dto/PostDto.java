@@ -22,5 +22,6 @@ public class PostDto {
     private LocalDateTime createdAt;
     private UserDto user;
     private List<String> tags;
+    private String userProfilePicturePath;
 }
 
