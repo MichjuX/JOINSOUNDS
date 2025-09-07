@@ -43,63 +43,66 @@ const PostForm = ({ token, onPostCreated }) => {
     };
 
     const handleSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setUploadProgress(0);
+    e.preventDefault();
+    setIsSubmitting(true);
+    setUploadProgress(0);
 
-        try {
-            let audioFilePath = null;
+    try {
+        let audioFilePath = null;
 
-            if (audioFile) {
-                const fileName = await PostService.uploadFile(
-                    audioFile, 
-                    token,
-                    (progress) => {
-                        setUploadProgress(progress);
-                    }
-                );
-                audioFilePath = fileName;
-            }
-            
-            // Konwertujemy tablicę tagów na string oddzielony przecinkami
-            const tagsString = tags.join(',');
-            
-            await PostService.createPost({
-                title,
-                content,
-                audioFilePath,
-                tags: tagsString
-            }, token);
-
-            showToast('success', 'Success', 'Post has been successfully added!');
-
-            // Reset formularza
-            setTitle('');
-            setContent('');
-            setCurrentTag('');
-            setTags([]);
-            setAudioFile(null);
-            setUploadProgress(0);
-            
-            // Reset formularza pliku
-            if (fileInputRef.current) {
-                fileInputRef.current.value = '';
-            }
-
-            // Wywołujemy callback po przesłaniu pliku
-            if (onPostCreated) {
-                onPostCreated();
-            }
-        } catch (error) {
-            if (error.response && error.response.data && error.response.data.includes("Only audio files are allowed")) {
-                showToast('error', 'Błąd', 'Proszę wybrać plik audio w poprawnym formacie (MP3, WAV, OGG, M4A)');
-            } else {
-                showToast('error', 'Błąd', `Wystąpił błąd: ${error.response?.data?.message || error.message}`);
-            }
-        } finally {
-            setIsSubmitting(false);
+        if (audioFile) {
+            const fileName = await PostService.uploadFile(
+                audioFile, 
+                token,
+                (progress) => {
+                    setUploadProgress(progress);
+                }
+            );
+            audioFilePath = fileName;
         }
-    };
+        
+        const tagsString = tags.join(',');
+        
+        // Zmiana: przechowujemy odpowiedź z serwera
+        const newPost = await PostService.createPost({
+            title,
+            content,
+            audioFilePath,
+            tags: tagsString
+        }, token);
+
+        // DODAJ TEN FRAGMENT - ręczne dodanie tagów do nowego posta
+        const postWithTags = {
+            ...newPost,
+            tags: tags // Dodajemy tagi do odpowiedzi z serwera
+        };
+
+        showToast('success', 'Success', 'Post has been successfully added!');
+
+        // Reset formularza
+        setTitle('');
+        setContent('');
+        setCurrentTag('');
+        setTags([]);
+        setAudioFile(null);
+        setUploadProgress(0);
+        
+        if (fileInputRef.current) {
+            fileInputRef.current.value = '';
+        }
+
+        // Zmiana: przekazujemy nowy post Z TAGAMI do callbacka
+        if (onPostCreated) {
+            onPostCreated(postWithTags); // Używamy postWithTags zamiast newPost
+        }
+    } catch (error) {
+        // ... obsługa błędów ...
+        console.error("Error creating post:", error);
+        showToast('error', 'Error', 'Failed to create post');
+    } finally {
+        setIsSubmitting(false);
+    }
+};
 
     return (
         <>

@@ -33,6 +33,24 @@ class ProfileService {
         }
     }
 
+    static async getUserProfilePicturePath(token) {
+        try {
+            const response = await axios.get(
+                `${this.BASE_URL}/authenticated/user/profilePicturePath`,
+                {
+                    headers: {
+                        'Authorization': `Bearer ${token}`,
+                        'Content-Type': 'application/json'
+                    }
+                }
+            );
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching profile picture path:", error);
+            throw error;
+        }
+    }
+
     static async uploadProfilePicture(file, token, onProgress) {
         try {
             const formData = new FormData();

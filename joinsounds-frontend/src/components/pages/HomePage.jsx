@@ -9,6 +9,7 @@ import "../common/Buttons.css";
 import UserService from "../service/UserService";
 import PostList from "../posts/PostList";
 import "../common/ConfirmPopup.css";
+import UserProfileService from "../service/ProfilePageService";
 
 function HomePage() {
   const token = localStorage.getItem('token');
@@ -33,6 +34,7 @@ function HomePage() {
   // Pobierz ID użytkownika tylko raz przy montowaniu
   useEffect(() => {
     fetchCurrentUserId();
+    fetchCurrentUserProfilePicture();
   }, [token]);
 
   // Obsługa paginacji z użyciem abort controller
@@ -79,6 +81,18 @@ function HomePage() {
     }
   };
 
+  const fetchCurrentUserProfilePicture = async () => {
+    try {
+      const profilePicturePath = await UserProfileService.getUserProfilePicturePath(token);
+      if(profilePicturePath){
+        const authorizedProfilePicturePath = PostService.getAuthorizedFileUrl(profilePicturePath);
+        localStorage.setItem('profilePicturePath', authorizedProfilePicturePath);
+      }
+    } catch (err) {
+      console.error("Failed to fetch profile picture path:", err);
+    }
+  };
+
   const getAudioType = (filename) => {
     const ext = filename?.split('.').pop().toLowerCase();
     const types = {
@@ -95,68 +109,103 @@ function HomePage() {
     navigate(`/post/${postId}`);
   };
 
-  const handleDelete = async (event, postId) => {
-    confirmPopup({
-      target: event.currentTarget,
-      message: 'Are you sure you want to delete this post?',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        try {
-          await PostService.deletePost(postId, token);
-          setPosts(prev => prev.filter(post => post.id !== postId));
-          setTotalElements(prev => prev - 1);
-          setReloadFlag(prev => prev + 1);
-          toast.current.show({ 
-            severity: 'success', 
-            summary: 'Deleted', 
-            detail: 'Post has been deleted successfully', 
-            life: 3000 
-          });
-        } catch (error) {
-          console.error("Error deleting post:", error);
-          toast.current.show({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'Failed to delete post', 
-            life: 3000 
-          });
+  const handlePostCreated = (newPost) => {
+        // Optymistycznie dodaj nowy post na początek listy
+        newPost.userProfilePicturePath = localStorage.getItem('profilePicturePath');
+        console.log(newPost);
+        setPosts(prevPosts => [newPost, ...prevPosts]);
+        setTotalElements(prev => prev + 1);
+        
+        // Jeśli lista jest pełna, usuń ostatni element
+        if (posts.length >= size) {
+            setPosts(prevPosts => prevPosts.slice(0, size));
         }
-      },
-      reject: () => {
-        // Optional: handle rejection if needed
-      }
-    });
-  };
+        
+        // Możesz też zresetować paginację do pierwszej strony
+        setPage(0);
+        
+        toast.current.show({ 
+            severity: 'success', 
+            summary: 'Success', 
+            detail: 'Post created successfully', 
+            life: 3000 
+        });
+    };
 
-  const handleAdminDelete = async (event, postId) => {
-    confirmPopup({
-      target: event.currentTarget,
-      message: 'Are you sure you want to delete this post?',
-      icon: 'pi pi-exclamation-triangle',
-      accept: async () => {
-        try {
-          await PostService.adminDeletePost(postId, token);
-          setPosts(prev => prev.filter(post => post.id !== postId));
-          setTotalElements(prev => prev - 1);
-          setReloadFlag(prev => prev + 1);
-          toast.current.show({ 
-            severity: 'success', 
-            summary: 'Deleted', 
-            detail: 'Post has been deleted by admin', 
-            life: 3000 
-          });
-        } catch (error) {
-          console.error("Error deleting post:", error);
-          toast.current.show({ 
-            severity: 'error', 
-            summary: 'Error', 
-            detail: 'Failed to delete post', 
-            life: 3000 
-          });
-        }
-      }
-    });
-  };
+    const handleDelete = async (event, postId) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Are you sure you want to delete this post?',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    // Optymistyczne usunięcie - najpierw aktualizujemy UI
+                    const deletedPost = posts.find(post => post.id === postId);
+                    setPosts(prev => prev.filter(post => post.id !== postId));
+                    setTotalElements(prev => prev - 1);
+                    
+                    // Następnie wysyłamy request do serwera
+                    await PostService.deletePost(postId, token);
+                    
+                    toast.current.show({ 
+                        severity: 'success', 
+                        summary: 'Deleted', 
+                        detail: 'Post has been deleted successfully', 
+                        life: 3000 
+                    });
+                } catch (error) {
+                    // Jeśli wystąpi błąd, przywróć post
+                    setPosts(prev => [...prev, deletedPost]);
+                    setTotalElements(prev => prev + 1);
+                    
+                    console.error("Error deleting post:", error);
+                    toast.current.show({ 
+                        severity: 'error', 
+                        summary: 'Error', 
+                        detail: 'Failed to delete post', 
+                        life: 3000 
+                    });
+                }
+            }
+        });
+    };
+
+    const handleAdminDelete = async (event, postId) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Are you sure you want to delete this post?',
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                try {
+                    // Optymistyczne usunięcie
+                    const deletedPost = posts.find(post => post.id === postId);
+                    setPosts(prev => prev.filter(post => post.id !== postId));
+                    setTotalElements(prev => prev - 1);
+                    
+                    await PostService.adminDeletePost(postId, token);
+                    
+                    toast.current.show({ 
+                        severity: 'success', 
+                        summary: 'Deleted', 
+                        detail: 'Post has been deleted by admin', 
+                        life: 3000 
+                    });
+                } catch (error) {
+                    // Przywróć post w przypadku błędu
+                    setPosts(prev => [...prev, deletedPost]);
+                    setTotalElements(prev => prev + 1);
+                    
+                    console.error("Error deleting post:", error);
+                    toast.current.show({ 
+                        severity: 'error', 
+                        summary: 'Error', 
+                        detail: 'Failed to delete post', 
+                        life: 3000 
+                    });
+                }
+            }
+        });
+    };
 
   const handleSortChange = (field, direction) => {
     setSortBy(field);
@@ -174,14 +223,11 @@ function HomePage() {
       
       {UserService.isAuthenticated() && (
         <div className="post-form-section">
-          <h2>Create new post</h2>
-          <PostForm 
-            token={token} 
-            onPostCreated={() => {
-              setPage(0);
-              setReloadFlag(prev => prev + 1);
-            }} 
-          />
+            <h2>Create new post</h2>
+            <PostForm 
+                token={token} 
+                onPostCreated={handlePostCreated} 
+            />
         </div>
       )}
 

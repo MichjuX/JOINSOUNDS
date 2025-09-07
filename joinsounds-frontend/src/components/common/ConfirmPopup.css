@@ -153,6 +153,26 @@
         justify-content: center !important;
     }
 }
+/* Usunięcie domyślnego focusa z przycisków w popupie */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept:focus,
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject:focus {
+    outline: none !important;
+    box-shadow: none !important;
+}
+
+/* Opcjonalnie: możesz dodać własny styl focusa jeśli chcesz */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept:focus {
+    background: linear-gradient(135deg, #222222 0%, #222222 100%) !important;
+    border: 1px solid #ff0000 !important;
+    transform: none !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject:focus {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%) !important;
+    border: 1px solid #555555 !important;
+    transform: none !important;
+}
+
 
 /* Style dla Toast powiadomień */
 .p-toast {

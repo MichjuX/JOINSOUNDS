@@ -54,6 +54,17 @@ public class UserProfileController {
         return ResponseEntity.ok(userProfile);
     }
 
+    @GetMapping("/authenticated/user/profilePicturePath")
+    public ResponseEntity<String> getAuthenticatedUserProfilePicturePath() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        User user = auth.getPrincipal() instanceof User ? (User) auth.getPrincipal() : null;
+
+        UserProfile userProfile = _userProfileRepository.findByUser(user);
+        String profilePicturePath = userProfile != null ? userProfile.getProfilePicturePath() : null;
+
+        return ResponseEntity.ok(profilePicturePath);
+    }
+
     @PutMapping("/authenticated/user/profile/update")
     public ResponseEntity<UserProfileDto> updateUserProfile(@RequestBody UserProfileDto userProfileDto) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
