@@ -121,10 +121,10 @@ class ProfileEditModal extends Component {
                                     type="text"
                                     value={currentTool}
                                     onChange={(e) => this.setState({ currentTool: e.target.value })}
-                                    onSubmit={this.handleToolKeyPress}
-                                    placeholder="Add tool (eg. FL Studio)"
+                                    onKeyDown={this.handleToolKeyPress}
+                                    placeholder="Add tool (eg. FL Studio) and press Enter"
                                 />
-                                <button type="button" className='tag-submit-btn' onClick={this.addTool}>+</button>
+                                {/* <button type="button" className='tag-submit-btn' onClick={this.addTool}>+</button> */}
                             </div>
                             <div className="tags-list">
                                 {formData.tools.map((tool, index) => (
@@ -137,16 +137,16 @@ class ProfileEditModal extends Component {
                         </div>
 
                         <div className="form-group">
-                            <label>Gatunki muzyczne</label>
+                            <label>Fevorite Music Genres</label>
                             <div className="tag-input-group">
                                 <input
                                     type="text"
                                     value={currentGenre}
                                     onChange={(e) => this.setState({ currentGenre: e.target.value })}
-                                    onSubmit={this.handleGenreKeyPress}
-                                    placeholder="Add genre (eg. Electronic)"
+                                    onKeyDown={this.handleGenreKeyPress}
+                                    placeholder="Add genre (eg. Electronic) and press Enter"
                                 />
-                                <button type="button" className='tag-submit-btn' onClick={this.addGenre}>+</button>
+                                {/* <button type="button" className='tag-submit-btn' onClick={this.addGenre}>+</button> */}
                             </div>
                             <div className="tags-list">
                                 {formData.genres.map((genre, index) => (

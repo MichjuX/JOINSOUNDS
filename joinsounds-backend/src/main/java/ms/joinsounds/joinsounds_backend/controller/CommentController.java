@@ -6,7 +6,6 @@ import ms.joinsounds.joinsounds_backend.repository.CommentRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -28,9 +27,9 @@ public class CommentController {
         return _commentRepository.save(comment);
     }
 
-    @GetMapping("/public/comment/all/{id}")
-    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable UUID id) {
-        List<Comment> comments = _commentRepository.findByPostId(id);
+    @GetMapping("/public/comment/all/{postId}")
+    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable UUID postId) {
+        List<Comment> comments = _commentRepository.findByPostId(postId);
         return ResponseEntity.ok(comments);
     }
 
