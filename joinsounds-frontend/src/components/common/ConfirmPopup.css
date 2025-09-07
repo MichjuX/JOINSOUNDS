@@ -1,0 +1,240 @@
+/* Style dla PrimeReact ConfirmPopup - dopasowane do motywu */
+.p-confirm-popup {
+    background: linear-gradient(135deg, #1e1e1e 0%, #151515 100%) !important;
+    border: 1px solid #ff5100 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(255, 81, 0, 0.2) !important;
+    padding: 20px !important;
+    font-family: "Sansation", sans-serif;
+    margin-top: 10px !important;
+}
+
+.p-confirm-popup .p-confirm-popup-content {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 0 !important;
+    margin-bottom: 20px !important;
+}
+
+.p-confirm-popup .p-confirm-popup-icon {
+    color: #ff5100 !important;
+    font-size: 1.5rem !important;
+    margin: 0 !important;
+}
+
+.p-confirm-popup .p-confirm-popup-message {
+    color: #ffffff !important;
+    font-size: 1rem !important;
+    margin-left: -15px;
+    line-height: 1.5;
+}
+
+.p-confirm-popup .p-confirm-popup-footer {
+    display: flex !important;
+    gap: 12px !important;
+    justify-content: flex-end !important;
+    margin-top: 0 !important;
+    padding: 0 !important;
+}
+
+/* SPECYFICZNE SELEKTORY DLA PRZYCISKÓW CONFIRM POPUP */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept,
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject {
+    border: none !important;
+    border-radius: 6px !important;
+    padding: 10px 20px !important;
+    font-weight: 600 !important;
+    font-size: 0.9rem !important;
+    transition: all 0.3s ease !important;
+    min-width: 80px !important;
+}
+
+/* Przycisk "Yes" (Accept) */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept {
+    background: linear-gradient(135deg, #222222 0%, #222222 100%) !important;
+    color: white !important;
+    border: 1px solid #ff0000 !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept:hover,
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept:focus {
+    background: linear-gradient(135deg, #ff0000 0%, #c80000 100%) !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(255, 34, 0, 0.4) !important;
+    color: white !important;
+    border: 1px solid #f3000000 !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept:active {
+    transform: translateY(0) !important;
+}
+
+/* Przycisk "No" (Reject) */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject {
+    background: linear-gradient(135deg, #2d2d2d 0%, #3d3d3d 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #555555 !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject:hover,
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject:focus {
+    background: linear-gradient(135deg, #3d3d3d 0%, #4d4d4d 100%) !important;
+    border-color: #ff5100 !important;
+    transform: translateY(-2px) !important;
+    box-shadow: 0 4px 15px rgba(255, 81, 0, 0.2) !important;
+    color: #ffffff !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject:active {
+    transform: translateY(0) !important;
+}
+
+/* Usunięcie domyślnych stylów text button dla reject */
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject.p-button-text {
+    background: linear-gradient(135deg, #ff5100 0%, #ff2200 100%) !important;
+    color: #ffffff !important;
+    border: 1px solid #55555500 !important;
+}
+
+.p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject.p-button-text:hover {
+    background: linear-gradient(135deg, #ff5100 0%, #ff2200 100%) !important;
+    border-color: #e5000000 !important;
+    color: #ffffff !important;
+}
+
+/* Strzałka popupa */
+.p-confirm-popup::after {
+    border-bottom-color: #ff5100 !important;
+}
+
+.p-confirm-popup::before {
+    border-bottom-color: #ff5100 !important;
+}
+
+/* Animacja pojawiania się popupa */
+.p-confirm-popup {
+    animation: popupFadeIn 0.3s ease-out !important;
+}
+
+@keyframes popupFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px) scale(0.95);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+/* Responsywność */
+@media (max-width: 600px) {
+    .p-confirm-popup {
+        max-width: 90vw !important;
+        margin: 10px !important;
+        padding: 15px !important;
+    }
+    
+    .p-confirm-popup .p-confirm-popup-content {
+        flex-direction: column;
+        text-align: center;
+        gap: 10px;
+    }
+    
+    .p-confirm-popup .p-confirm-popup-footer {
+        flex-direction: column !important;
+        gap: 8px !important;
+    }
+    
+    .p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-accept,
+    .p-confirm-popup .p-confirm-popup-footer .p-confirm-popup-reject {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+}
+
+/* Style dla Toast powiadomień */
+.p-toast {
+    z-index: 10000 !important;
+}
+
+.p-toast .p-toast-message {
+    background: linear-gradient(135deg, #1e1e1e 0%, #2d2d2d 100%) !important;
+    border: 1px solid #ff5100 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 32px rgba(255, 81, 0, 0.3) !important;
+    color: #ffffff !important;
+}
+
+.p-toast .p-toast-message-content {
+    padding: 15px 20px !important;
+    display: flex !important;
+    align-items: center !important;
+    gap: 15px !important;
+}
+
+.p-toast .p-toast-icon-close {
+    color: #ffffff !important;
+    opacity: 0.7 !important;
+    transition: opacity 0.2s ease !important;
+}
+
+.p-toast .p-toast-icon-close:hover {
+    opacity: 1 !important;
+}
+
+.p-toast .p-toast-message-icon {
+    font-size: 1.5rem !important;
+    color: #fd6b27 !important;
+}
+
+.p-toast .p-toast-summary {
+    font-weight: 600 !important;
+    color: #ff5314 !important;
+    font-size: 1.1rem !important;
+}
+
+.p-toast .p-toast-detail {
+    color: #ffffff !important;
+    margin: 0 !important;
+}
+
+/* Success toast */
+.p-toast .p-toast-message-success {
+    border-color: #e24a29 !important;
+}
+
+.p-toast .p-toast-message-success .p-toast-message-icon {
+    color: #e24a29 !important;
+}
+
+.p-toast .p-toast-message-success .p-toast-summary {
+    color: #e24a29 !important;
+}
+
+/* Error toast */
+.p-toast .p-toast-message-error {
+    border-color: #ff0000 !important;
+}
+
+.p-toast .p-toast-message-error .p-toast-message-icon {
+    color: #ff0000 !important;
+}
+
+.p-toast .p-toast-message-error .p-toast-summary {
+    color: #ff0000 !important;
+}
+
+/* Warning toast */
+.p-toast .p-toast-message-warn {
+    border-color: #ffa500 !important;
+}
+
+.p-toast .p-toast-message-warn .p-toast-message-icon {
+    color: #ffa500 !important;
+}
+
+.p-toast .p-toast-message-warn .p-toast-summary {
+    color: #ffa500 !important;
+}

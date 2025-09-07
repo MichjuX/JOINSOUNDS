@@ -1,26 +1,45 @@
 import React, { useState, useRef } from 'react';
+import { Toast } from 'primereact/toast';
 import PostService from '../service/PostService';
 import './PostForm.css';
+import '../common/Buttons.css';
 
 const PostForm = ({ token, onPostCreated }) => {
     const [title, setTitle] = useState('');
     const [content, setContent] = useState('');
     const [audioFile, setAudioFile] = useState(null);
-    const [tagsInput, setTagsInput] = useState('');
+    const [currentTag, setCurrentTag] = useState('');
+    const [tags, setTags] = useState([]);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const fileInputRef = useRef(null);
+    const toast = useRef(null);
 
-    // Funkcja do przetwarzania tagów z inputa na string
-    const processTags = (input) => {
-        if (!input.trim()) return '';
-        
-        // Dzielimy po przecinkach, usuwamy puste tagi, trimujemy i zamieniamy na małe litery
-        return input.split(',')
-            .map(tag => tag.trim())
-            .filter(tag => tag.length > 0)
-            .map(tag => tag.toLowerCase())
-            .join(','); // Łączymy z powrotem w string oddzielony przecinkami
+    const addTag = () => {
+        if (currentTag.trim() && !tags.includes(currentTag.trim().toLowerCase())) {
+            setTags(prevTags => [...prevTags, currentTag.trim().toLowerCase()]);
+            setCurrentTag('');
+        }
+    };
+
+    const removeTag = (tagToRemove) => {
+        setTags(prevTags => prevTags.filter(tag => tag !== tagToRemove));
+    };
+
+    const handleTagKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            addTag();
+        }
+    };
+
+    const showToast = (severity, summary, detail) => {
+        toast.current.show({
+            severity: severity,
+            summary: summary,
+            detail: detail,
+            life: 3000
+        });
     };
 
     const handleSubmit = async (e) => {
@@ -42,21 +61,23 @@ const PostForm = ({ token, onPostCreated }) => {
                 audioFilePath = fileName;
             }
             
-            // Przetwarzamy tagi do formatu string
-            const tagsString = processTags(tagsInput);
+            // Konwertujemy tablicę tagów na string oddzielony przecinkami
+            const tagsString = tags.join(',');
             
             await PostService.createPost({
                 title,
                 content,
                 audioFilePath,
-                tags: tagsString // Wysyłamy już przetworzony string
+                tags: tagsString
             }, token);
 
-            alert('Post został dodany!');
+            showToast('success', 'Success', 'Post has been successfully added!');
+
             // Reset formularza
             setTitle('');
             setContent('');
-            setTagsInput('');
+            setCurrentTag('');
+            setTags([]);
             setAudioFile(null);
             setUploadProgress(0);
             
@@ -71,9 +92,9 @@ const PostForm = ({ token, onPostCreated }) => {
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.includes("Only audio files are allowed")) {
-                alert('Proszę wybrać plik audio w poprawnym formacie (MP3, WAV, OGG, M4A)');
+                showToast('error', 'Błąd', 'Proszę wybrać plik audio w poprawnym formacie (MP3, WAV, OGG, M4A)');
             } else {
-                alert(`Wystąpił błąd: ${error.response?.data?.message || error.message}`);
+                showToast('error', 'Błąd', `Wystąpił błąd: ${error.response?.data?.message || error.message}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -81,62 +102,98 @@ const PostForm = ({ token, onPostCreated }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                className='form-input'
-                type="text"
-                placeholder="Tytuł"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                disabled={isSubmitting}
-            />
-            
-            <textarea
-                placeholder="Treść"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                disabled={isSubmitting}
-            />
-            
-            {/* Input dla tagów */}
-            <input
-                className='form-input'
-                type="text"
-                placeholder="Tagi (oddzielone przecinkami, np. muzyka,audio,dźwięk)"
-                value={tagsInput}
-                onChange={(e) => setTagsInput(e.target.value)}
-                disabled={isSubmitting}
-            />
-            
-            <input
-                type="file"
-                ref={fileInputRef}
-                onChange={(e) => setAudioFile(e.target.files[0])}
-                disabled={isSubmitting}
-                accept="audio/*"
-            />
-            
-            {isSubmitting && (
-                <div className="progress-container">
-                    <div 
-                        className="progress-bar" 
-                        style={{ width: `${uploadProgress || 0}%` }}
-                    ></div>
-                    <span className="progress-text">
-                        {uploadProgress !== undefined ? `${uploadProgress}%` : 'Przesyłanie...'}
-                    </span>
+        <>
+            <Toast ref={toast} position="top-right" />
+            <form onSubmit={handleSubmit} className="post-form">
+                <div className="form-group">
+                    <label>Title</label>
+                    <input
+                        className='form-input'
+                        type="text"
+                        placeholder="Post title"
+                        value={title}
+                        onChange={(e) => setTitle(e.target.value)}
+                        required
+                        disabled={isSubmitting}
+                    />
                 </div>
-            )}
-            
-            <button
-                type="submit"
-                disabled={isSubmitting}
-            >
-                {isSubmitting ? 'Wysyłanie...' : 'Dodaj post'}
-            </button>
-        </form>
+                
+                <div className="form-group">
+                    <label>Content</label>
+                    <textarea
+                        placeholder="Describe your post..."
+                        value={content}
+                        onChange={(e) => setContent(e.target.value)}
+                        required
+                        disabled={isSubmitting}
+                        rows={4}
+                    />
+                </div>
+                
+                <div className="form-group">
+                    <label>Tags</label>
+                    <div className="tag-input-group">
+                        <input
+                            className='form-input'
+                            type="text"
+                            value={currentTag}
+                            onChange={(e) => setCurrentTag(e.target.value)}
+                            onKeyDown={handleTagKeyDown}
+                            placeholder="Add tag (e.g. music) and press Enter"
+                            disabled={isSubmitting}
+                        />
+                    </div>
+                    <div className="tags-list">
+                        {tags.map((tag, index) => (
+                            <span key={index} className="tag">
+                                {tag}
+                                <button 
+                                    type="button" 
+                                    className='tag-list-btn' 
+                                    onClick={() => removeTag(tag)}
+                                    disabled={isSubmitting}
+                                >
+                                    ×
+                                </button>
+                            </span>
+                        ))}
+                    </div>
+                </div>
+                
+                <div className="form-group">
+                    <label>Plik audio</label>
+                    <input
+                        type="file"
+                        ref={fileInputRef}
+                        onChange={(e) => setAudioFile(e.target.files[0])}
+                        disabled={isSubmitting}
+                        accept="audio/*"
+                    />
+                </div>
+                
+                {isSubmitting && (
+                    <div className="progress-container">
+                        <div 
+                            className="progress-bar" 
+                            style={{ width: `${uploadProgress || 0}%` }}
+                        ></div>
+                        <span className="progress-text">
+                            {uploadProgress !== undefined ? `${uploadProgress}%` : 'Przesyłanie...'}
+                        </span>
+                    </div>
+                )}
+                
+                <div className="form-actions">
+                    <button
+                        type="submit"
+                        className='submit-btn'
+                        disabled={isSubmitting}
+                    >
+                        {isSubmitting ? 'Wysyłanie...' : 'Dodaj post'}
+                    </button>
+                </div>
+            </form>
+        </>
     );
 };
 

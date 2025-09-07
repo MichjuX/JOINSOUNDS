@@ -1,16 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { Toast } from 'primereact/toast';
 import PostForm from "../forms/PostForm";
 import PostService from "../service/PostService";
 import "./HomePage.css";
 import "../common/Buttons.css";
 import UserService from "../service/UserService";
 import PostList from "../posts/PostList";
+import "../common/ConfirmPopup.css";
 
 function HomePage() {
   const token = localStorage.getItem('token');
   const [posts, setPosts] = useState([]);
-  const [loading, setLoading] = useState(false); // Zmienione na false początkowo
+  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
   const [currentUserId, setCurrentUserId] = useState(null);
@@ -22,6 +25,10 @@ function HomePage() {
   const [totalElements, setTotalElements] = useState(0);
   const [sortBy, setSortBy] = useState('createdAt');
   const [sortDirection, setSortDirection] = useState('desc');
+
+  // PrimeReact references
+  const toast = useRef(null);
+  const deleteButtonRef = useRef({});
 
   // Pobierz ID użytkownika tylko raz przy montowaniu
   useEffect(() => {
@@ -60,7 +67,7 @@ function HomePage() {
     fetchData();
 
     return () => abortController.abort();
-  }, [page, size, sortBy, sortDirection, reloadFlag, ]);
+  }, [page, size, sortBy, sortDirection, reloadFlag]);
 
   const fetchCurrentUserId = async () => {
     try {
@@ -88,47 +95,83 @@ function HomePage() {
     navigate(`/post/${postId}`);
   };
 
-  const handleDelete = async (postId) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
-      try {
-        await PostService.deletePost(postId, token);
-        // Optymalizacja: nie przeładowujemy całej listy, tylko aktualizujemy stan
-        setPosts(prev => prev.filter(post => post.id !== postId));
-        // Aktualizacja licznika
-        setTotalElements(prev => prev - 1);
-        setReloadFlag(prev => prev + 1);
-      } catch (error) {
-        console.error("Error deleting post:", error);
+  const handleDelete = async (event, postId) => {
+    confirmPopup({
+      target: event.currentTarget,
+      message: 'Are you sure you want to delete this post?',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
+        try {
+          await PostService.deletePost(postId, token);
+          setPosts(prev => prev.filter(post => post.id !== postId));
+          setTotalElements(prev => prev - 1);
+          setReloadFlag(prev => prev + 1);
+          toast.current.show({ 
+            severity: 'success', 
+            summary: 'Deleted', 
+            detail: 'Post has been deleted successfully', 
+            life: 3000 
+          });
+        } catch (error) {
+          console.error("Error deleting post:", error);
+          toast.current.show({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to delete post', 
+            life: 3000 
+          });
+        }
+      },
+      reject: () => {
+        // Optional: handle rejection if needed
       }
-    }
+    });
   };
 
-  const handleAdminDelete = async (postId) => {
-    if (window.confirm("Are you sure you want to delete this post?")) {
+  const handleAdminDelete = async (event, postId) => {
+    confirmPopup({
+      target: event.currentTarget,
+      message: 'Are you sure you want to delete this post?',
+      icon: 'pi pi-exclamation-triangle',
+      accept: async () => {
         try {
-            await PostService.adminDeletePost(postId, token);
-            // Optymalizacja: nie przeładowujemy całej listy, tylko aktualizujemy stan
-            setPosts(prev => prev.filter(post => post.id !== postId));
-            // Aktualizacja licznika
-            setTotalElements(prev => prev - 1);
-            setReloadFlag(prev => prev + 1);
+          await PostService.adminDeletePost(postId, token);
+          setPosts(prev => prev.filter(post => post.id !== postId));
+          setTotalElements(prev => prev - 1);
+          setReloadFlag(prev => prev + 1);
+          toast.current.show({ 
+            severity: 'success', 
+            summary: 'Deleted', 
+            detail: 'Post has been deleted by admin', 
+            life: 3000 
+          });
         } catch (error) {
-            console.error("Error deleting post:", error);
+          console.error("Error deleting post:", error);
+          toast.current.show({ 
+            severity: 'error', 
+            summary: 'Error', 
+            detail: 'Failed to delete post', 
+            life: 3000 
+          });
         }
-    }
-};
-
+      }
+    });
+  };
 
   const handleSortChange = (field, direction) => {
     setSortBy(field);
     setSortDirection(direction);
-    setPage(0); // Resetuj do pierwszej strony przy zmianie sortowania
+    setPage(0);
   };
 
   if (error) return <div className="error">Error: {error}</div>;
 
   return (
     <div className="home-page-container">
+      {/* Toast component for notifications */}
+      <Toast ref={toast} />
+      <ConfirmPopup />
+      
       {UserService.isAuthenticated() && (
         <div className="post-form-section">
           <h2>Create new post</h2>
@@ -137,7 +180,6 @@ function HomePage() {
             onPostCreated={() => {
               setPage(0);
               setReloadFlag(prev => prev + 1);
-              // Nie trzeba wywoływać fetchPosts, useEffect sam się zajmie
             }} 
           />
         </div>

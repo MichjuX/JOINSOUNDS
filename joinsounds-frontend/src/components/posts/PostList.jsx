@@ -192,7 +192,7 @@ return (
 
               {(currentUserId === post.user?.id || UserService.isModeratorOrAdmin()) && (
                 <button 
-                  onClick={() => onDelete(post.id)}
+                  onClick={(e) => onDelete(e, post.id)}  
                   className="delete-btn"
                 >
                   Delete
@@ -201,7 +201,7 @@ return (
                 
               {(UserService.isModeratorOrAdmin() && post.content !== "") && (
                 <button 
-                  onClick={() => onAdminDelete(post.id)}
+                  onClick={(e) => onAdminDelete(e, post.id)}  
                   className="delete-btn"
                 >
                   Moderator Delete

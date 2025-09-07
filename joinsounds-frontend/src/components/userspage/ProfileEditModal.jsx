@@ -146,7 +146,7 @@ class ProfileEditModal extends Component {
                                     onKeyDown={this.handleGenreKeyPress}
                                     placeholder="Add genre (eg. Electronic) and press Enter"
                                 />
-                                {/* <button type="button" className='tag-submit-btn' onClick={this.addGenre}>+</button> */}
+                                {/* <button type="button" class     Name='tag-submit-btn' onClick={this.addGenre}>+</button> */}
                             </div>
                             <div className="tags-list">
                                 {formData.genres.map((genre, index) => (

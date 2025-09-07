@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 class ProfileService {
-    static BASE_URL = "http://localhost:8080";
+    // static BASE_URL = "http://localhost:8080";
+    static BASE_URL = "http://172.24.188.59:8080";
 
     static async getUserProfile(userId) {
         try {

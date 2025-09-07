@@ -1,4 +1,4 @@
-button {
+/* button {
     padding: 10px;
     background: #ff5d12;
     background: linear-gradient(90deg, rgb(218, 95, 38) 0%, rgb(233, 59, 43) 100%);
@@ -7,8 +7,8 @@ button {
     border-radius: 20px;
     cursor: pointer;
     text-decoration: none;
-}
-button a{
+} */
+/* button a{
     color: white;
     text-decoration: none;
 }
@@ -16,7 +16,7 @@ button:hover {
     background-color: #ff8c00;
     color: white;
     text-decoration: none;
-}
+} */
 .transparent-btn{
     background-color: transparent ;
     color: blue;

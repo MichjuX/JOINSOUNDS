@@ -432,7 +432,7 @@ const AudioPlayer = ({
 
       <div className="comments-section">
         <div className="comments-header">
-          <h3>Komentarze</h3>
+          <h3>Comments</h3>
           <button 
             onClick={startNewComment}
             className="add-comment-btn"

@@ -12,8 +12,8 @@ form {
 }
 
 .form-input,
-form input[type="text"],
-form textarea {
+.post-form input[type="text"],
+.post-form textarea {
   padding: 0.8rem 1rem;
   border: 1px solid #e64900;
   border-radius: 8px;
@@ -26,14 +26,14 @@ form textarea {
 }
 
 .form-input:focus,
-form input[type="text"]:focus,
-form textarea:focus {
+.post-form input[type="text"]:focus,
+.post-form textarea:focus {
   outline: none;
   border-color: #e64900;
   box-shadow: 0 0 0 3px rgba(247, 70, 0, 0.938);
 }
 
-form textarea {
+.post-form textarea {
   min-height: 150px;
   resize: vertical;
   font-family: inherit;

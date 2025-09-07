@@ -64,7 +64,7 @@ public class PostService {
             postDto.setAudioFilePath(post.getAudioFilePath());
             postDto.setTags(post.getTags().stream()
                     .map(Tag::getName)
-                    .sorted()
+                    .sorted() // ← dodaj tę linię
                     .collect(Collectors.toList()));
 
             return postDto;
