@@ -1,8 +1,11 @@
 package ms.joinsounds.joinsounds_backend.controller;
 
+import lombok.RequiredArgsConstructor;
+import ms.joinsounds.joinsounds_backend.dto.CommentDto;
 import ms.joinsounds.joinsounds_backend.entity.Comment;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.CommentRepository;
+import ms.joinsounds.joinsounds_backend.service.CommentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,12 +15,10 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class CommentController {
     private final CommentRepository _commentRepository;
-
-    public CommentController(CommentRepository commentRepository) {
-        this._commentRepository = commentRepository;
-    }
+    private final CommentService _commentService;
 
     @PostMapping("/authenticated/comment/create")
     public Comment createComment(@RequestBody Comment comment) {
@@ -28,9 +29,8 @@ public class CommentController {
     }
 
     @GetMapping("/public/comment/all/{postId}")
-    public ResponseEntity<List<Comment>> getCommentsByPostId(@PathVariable UUID postId) {
-        List<Comment> comments = _commentRepository.findByPostId(postId);
-        return ResponseEntity.ok(comments);
+    public ResponseEntity<List<CommentDto>> getCommentsByPostId(@PathVariable UUID postId) {
+        return ResponseEntity.ok(_commentService.getAllCommentsForPost(postId));
     }
 
     // Dodaję tylko metodę delete do istniejącego kontrolera (reszta pozostaje bez zmian)

@@ -153,12 +153,21 @@
 
 .comment-form textarea {
   width: 100%;
+  color: #ffffff;
   padding: 12px;
-  border: 1px solid #ced4da;
+  border: 1px solid #e64900;
+  background-color: #181818;
   border-radius: 6px;
   resize: vertical;
   font-family: inherit;
   box-sizing: border-box;
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border: 2px solid #e64900;
+  border-color: #e64900;
+  box-shadow: 0 0 0 2px rgba(247, 70, 0, 0.185);
 }
 
 .regions-list {
@@ -249,6 +258,7 @@
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   padding: 16px;
+  margin-top: 10px;
   border-left: 4px solid #e64900;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -408,6 +418,63 @@
   border-radius: 50%;
   cursor: pointer;
   border: none;
+}
+
+/* Lista komentarzy */
+.comments-list-scrollable {
+  max-height: 400px;
+  overflow-y: auto;
+  padding-right: 8px;
+  margin-top: 15px;
+  padding-top: 15px;
+}
+
+/* Stylowanie scrollbara dla nowoczesnych przeglądarek */
+.comments-list-scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.comments-list-scrollable::-webkit-scrollbar-track {
+  background: #fd5800;
+  border-radius: 3px;
+}
+
+.comments-list-scrollable::-webkit-scrollbar-thumb {
+  background: #c1c1c1;
+  border-radius: 3px;
+}
+
+.comments-list-scrollable::-webkit-scrollbar-thumb:hover {
+  background: #a8a8a8;
+}
+
+/* Dla Firefox */
+.comments-list-scrollable {
+  scrollbar-width: thin;
+  scrollbar-color: #f63900 #ff440000;
+}
+
+/* Dla lepszego wyglądu podczas przewijania */
+.comments-list-scrollable {
+  transition: max-height 0.3s ease;
+}
+
+/* Opcjonalnie: wskaźnik, że można przewijać */
+.comments-list-scrollable:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 20px;
+  background: linear-gradient(to bottom, transparent, white);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.comments-list-scrollable.scrollable:after {
+  opacity: 1;
 }
 
 /* Responsywność */

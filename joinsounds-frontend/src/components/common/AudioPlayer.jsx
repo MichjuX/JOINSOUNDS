@@ -5,6 +5,9 @@ import { MdPlayArrow, MdOutlinePause, MdVolumeDown, MdVolumeUp, MdVolumeOff, MdR
 import { FaComment, FaTrash, FaPlus, FaMinus, FaUser } from "react-icons/fa";
 import CommentService from '../service/CommentService';
 import "./AudioPlayer.css";
+import { useNavigate } from 'react-router-dom';
+import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; 
+import PostService from '../service/PostService';
 
 const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
   const waveformRef = useRef(null);
@@ -52,7 +55,6 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
           resize: false
         });
 
-        // Ustaw czas rozpoczęcia odtwarzania na początek regionu
         ws.setTime(startTime);
       }
     });
@@ -72,7 +74,6 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
     if (isPlaying) {
       wavesurferRef.current.pause();
     } else {
-      // Jeśli to początek odtwarzania, ustaw czas na start regionu
       if (wavesurferRef.current.getCurrentTime() === 0 && startTime) {
         wavesurferRef.current.setTime(startTime);
       }
@@ -158,6 +159,7 @@ const AudioPlayer = ({
   const waveformRef = useRef(null);
   const wavesurferRef = useRef(null);
   const regionsRef = useRef(null);
+  const commentsContainerRef = useRef(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.8);
@@ -170,8 +172,9 @@ const AudioPlayer = ({
   const [selectedRegions, setSelectedRegions] = useState([]);
   const [isReady, setIsReady] = useState(false);
   const token = localStorage.getItem('token');
+  const [isRegionAdded, setIsRegionAdded] = useState(false);
+  const navigate = useNavigate();
 
-  // Initialize main WaveSurfer instance
   useEffect(() => {
     if (!waveformRef.current || !audioUrl) return;
 
@@ -222,7 +225,12 @@ const AudioPlayer = ({
     };
   }, [audioUrl]);
 
-  // Load comments
+  const getProfilePictureUrl = (profilePicturePath) => {
+    if (!profilePicturePath) return joinsoundsSquare;
+    if (profilePicturePath.startsWith('http')) return profilePicturePath;
+    return PostService.getAuthorizedFileUrl(profilePicturePath, token);
+  };
+
   const loadComments = async () => {
     try {
       const loadedComments = await CommentService.getCommentsByPostId(postId);
@@ -232,9 +240,7 @@ const AudioPlayer = ({
     }
   };
 
-  // Tworzenie regionów dla komentarzy
   const createRegionsForComments = (comments) => {
-    // Najpierw wyczyść istniejące regiony
     regionsRef.current.clearRegions();
     
     comments.forEach(comment => {
@@ -252,7 +258,6 @@ const AudioPlayer = ({
         region.on('click', (e) => {
           e.stopPropagation();
           setActiveComment(comment);
-          // Przewiń do regionu i odtwórz
           wavesurferRef.current.setTime(region.start);
           wavesurferRef.current.play();
           setIsPlaying(true);
@@ -261,7 +266,6 @@ const AudioPlayer = ({
     });
   };
 
-  // Rozpoczęcie tworzenia nowego komentarza
   const startNewComment = () => {
     setIsCreatingComment(true);
     setActiveComment({
@@ -273,12 +277,10 @@ const AudioPlayer = ({
     setSelectedRegions([]);
   };
 
-  // Anulowanie tworzenia komentarza
   const cancelComment = () => {
     setIsCreatingComment(false);
     setActiveComment(null);
     
-    // USUWANIE REGIONÓW PRZY ANULOWANIU
     selectedRegions.forEach(region => {
       region.remove();
     });
@@ -286,9 +288,9 @@ const AudioPlayer = ({
     setSelectedRegions([]);
   };
 
-  // Dodanie nowego regionu do tworzonego komentarza
   const addRegionToComment = () => {
     if (!isCreatingComment) return;
+    setIsRegionAdded(true);
     
     const currentTime = wavesurferRef.current.getCurrentTime();
     const newRegion = regionsRef.current.addRegion({
@@ -312,55 +314,50 @@ const AudioPlayer = ({
     setSelectedRegions(prev => [...prev, newRegion]);
   };
 
-  // Usunięcie regionu z tworzonego komentarza
   const removeRegionFromComment = (index) => {
     if (!isCreatingComment || index >= selectedRegions.length) return;
+    setIsRegionAdded(false);
     
     const regionToRemove = selectedRegions[index];
     regionToRemove.remove();
     setSelectedRegions(prev => prev.filter((_, i) => i !== index));
   };
 
-  // Zapisanie komentarza
-  // Zapisanie komentarza
   const saveComment = async () => {
-    if (!commentText.trim()) return;
+  if (!commentText.trim()) return;
 
-    try {
-      const commentData = {
-        content: commentText,
-        startTime: selectedRegions.length > 0 ? selectedRegions[0].start : null,
-        endTime: selectedRegions.length > 0 ? selectedRegions[0].end : null,
-        color: 'rgba(255, 68, 0, 0.57)',
-        post: {
-          id: postId
-        }
-      };
+  try {
+    const commentData = {
+      content: commentText,
+      startTime: selectedRegions.length > 0 ? selectedRegions[0].start : null,
+      endTime: selectedRegions.length > 0 ? selectedRegions[0].end : null,
+      color: 'rgba(255, 68, 0, 0.57)',
+      post: {
+        id: postId
+      }
+    };
 
-      const savedComment = await CommentService.createComment(commentData, token);
-      
-      // Usuń wszystkie regiony związane z tworzonym komentarzem
-      selectedRegions.forEach(region => {
-        if (region && typeof region.remove === 'function') {
-          region.remove();
-        }
-      });
-      
-      // Zaktualizuj stan
-      setComments(prev => [...prev, savedComment]);
-      setIsCreatingComment(false);
-      setActiveComment(null);
-      setCommentText('');
-      setSelectedRegions([]);
-      
+    const savedComment = await CommentService.createComment(commentData, token);
+    
+    selectedRegions.forEach(region => {
+      if (region && typeof region.remove === 'function') {
+        region.remove();
+      }
+    });
+    
+    // Dodaj nowy komentarz na początek listy (na górę)
+    setComments(prev => [savedComment, ...prev]);
+    setIsCreatingComment(false);
+    setActiveComment(null);
+    setCommentText('');
+    setSelectedRegions([]);
+    
     } catch (error) {
       console.error("Error saving comment:", error);
-      // Możesz dodać powiadomienie dla użytkownika
       alert('Error saving comment: ' + error.message);
     }
   };
   
-  // Usunięcie komentarza
   const deleteComment = async (commentId) => {
     try {
       await CommentService.deleteComment(commentId, token);
@@ -377,7 +374,6 @@ const AudioPlayer = ({
     }
   };
 
-  // Obsługa play/pause
   const togglePlayPause = () => {
     if (wavesurferRef.current) {
       wavesurferRef.current.playPause();
@@ -385,18 +381,20 @@ const AudioPlayer = ({
     }
   };
 
-  // Formatowanie czasu
   const formatTime = (seconds) => {
     const minutes = Math.floor(seconds / 60);
     const secs = Math.floor(seconds % 60);
     return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
   };
 
+  const handleAuthorClick = (userId) => {
+    navigate(`/profile/${userId}`);
+  };
+
   return (
     <div className="audio-player-container">
       <div ref={waveformRef} className="waveform" onClick={(e) => e.stopPropagation()} />
       
-      {/* Main player controls */}
       <div className="controls">
         <button 
           onClick={togglePlayPause} 
@@ -432,7 +430,7 @@ const AudioPlayer = ({
 
       <div className="comments-section">
         <div className="comments-header">
-          <h3>Comments</h3>
+          <h3>Comments ({comments.length})</h3>
           <button 
             onClick={startNewComment}
             className="add-comment-btn"
@@ -446,14 +444,14 @@ const AudioPlayer = ({
             <textarea
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
-              placeholder="Content..."
+              placeholder="Comment content..."
               rows={3}
             />
             
             <div className="regions-list">
-              <h4>Added Regions:</h4>
+              <h4>Added regions:</h4>
               {selectedRegions.length === 0 ? (
-                <p>No regions (general comment)</p>
+                <p>No regions added (general comment)</p>
               ) : (
                 selectedRegions.map((region, index) => (
                   <div key={index} className="region-item">
@@ -472,42 +470,60 @@ const AudioPlayer = ({
             </div>
             
             <div className="form-actions">
-              <button 
+              {!isRegionAdded && <button 
                 onClick={addRegionToComment}
-                className="action-btn"
+                className="confirm-btn"
               >
                 <FaPlus /> Add Region
-              </button>
+              </button>}
               
               <div>
                 <button 
                   onClick={cancelComment}
-                  className="action-btn cancel"
+                  className="delete-btn"
                 >
-                  Anuluj
+                  Cancel
                 </button>
                 <button 
                   onClick={saveComment}
-                  className="action-btn save"
+                  className="submit-btn"
                   disabled={!commentText.trim()}
                 >
-                  Zapisz
+                  Save
                 </button>
               </div>
             </div>
           </div>
         )}
 
-        <div className="comments-list">
+        <div 
+          ref={commentsContainerRef}
+          className="comments-list-scrollable"
+        >
           {comments.map(comment => (
             <div 
               key={comment.id} 
               className={`comment-card ${activeComment?.id === comment.id ? 'active' : ''}`}
             >
               <div className="comment-header">
-                <FaUser className="user-icon" />
+                {/* <FaUser className="user-icon" /> */}
+                <div 
+                    className="post-author-avatar-container"
+                    onClick={() => handleAuthorClick(comment.user.id)}
+                  >
+                  <img
+                        src={getProfilePictureUrl(comment.userProfilePicturePath)}
+                        alt={`${comment.user.name}'s avatar`}
+                        className="post-author-avatar"
+                      />
+                </div>
                 <span className="comment-author">
-                  {comment.user?.name || 'Anonymous User'}
+                  <p 
+                      className="post-author-name"
+                      onClick={() => handleAuthorClick(comment.user.id)}
+                    >
+                    {comment.user?.name || 'Anonymous User'}
+                  </p>
                 </span>
                 <span className="comment-date">
                   {new Date(comment.createdAt).toLocaleString()}
