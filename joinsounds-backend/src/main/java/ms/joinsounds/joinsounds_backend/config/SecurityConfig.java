@@ -29,12 +29,13 @@ public class SecurityConfig {
         this.jwtAuthFilter = jwtAuthFilter;
     }
 
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
         httpSecurity.csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(request-> request.requestMatchers("/auth/**", "/public/**").permitAll()
+                .authorizeHttpRequests(request-> request
+                        .requestMatchers("/auth/**", "/public/**").permitAll()
+                        .requestMatchers("/ws/**").permitAll() // Zezwól na WebSocket
                         .requestMatchers("/admin/**").hasAnyAuthority("ADMIN")
                         .requestMatchers("/moderator/**").hasAnyAuthority("MODERATOR", "ADMIN")
                         .requestMatchers("/user/**").hasAnyAuthority("USER")
@@ -46,6 +47,7 @@ public class SecurityConfig {
                 );
         return httpSecurity.build();
     }
+
     @Bean
     public AuthenticationProvider authenticationProvider(){
         DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();

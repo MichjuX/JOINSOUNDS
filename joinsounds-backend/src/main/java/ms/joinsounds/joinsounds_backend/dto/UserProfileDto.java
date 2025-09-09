@@ -5,12 +5,14 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class UserProfileDto {
     private String username;
+    private UUID id;
     private String profilePictureUrl;
     private String bio;
     private List<String> tools;

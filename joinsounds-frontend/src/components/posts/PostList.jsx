@@ -5,7 +5,7 @@ import "./PostList.css";
 import UserService from "../service/UserService";
 import AudioPlayer from "../common/AudioPlayer";
 import { useNavigate } from "react-router-dom";
-import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; // Import domyślnego obrazka
+import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; 
 
 function PostList({ 
   posts, 

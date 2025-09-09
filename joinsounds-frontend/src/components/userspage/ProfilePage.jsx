@@ -7,6 +7,7 @@ import UserService from '../service/UserService';
 import PostService from '../service/PostService';
 import { MdOutlineRemoveCircleOutline, MdAddAPhoto } from "react-icons/md";
 import joinsoundsSquare from '../../assets/images/JOINSOUNDS_square.png';
+import ChatWindow from '../chat/ChatWindow';
 
 function ProfilePage() {
     const { userId } = useParams();
@@ -17,6 +18,7 @@ function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [currentUser, setCurrentUser] = useState(null);
+    const [showChat, setShowChat] = useState(false); // Stan dla czatu
     
     const fileInputRef = React.useRef();
 
@@ -31,16 +33,18 @@ function ProfilePage() {
         try {
             const profileData = await ProfileService.getUserProfile(userId);
             
-            // Jeśli jest zdjęcie profilowe, utwórz pełny URL używając PostService
             if (profileData.profilePictureUrl) {
                 profileData.profilePictureUrl = PostService.getAuthorizedFileUrl(profileData.profilePictureUrl);
             }
             
-            // Pobierz ID aktualnego użytkownika tylko jeśli jest token
             if (token) {
                 try {
                     const currentUserId = await UserService.getCurrentUserId(token);
-                    setCurrentUser(currentUserId ? { id: currentUserId } : null);
+                    const currentUserProfile = await ProfileService.getUserProfile(currentUserId);
+                    if (currentUserProfile.profilePictureUrl) {
+                        currentUserProfile.profilePictureUrl = PostService.getAuthorizedFileUrl(currentUserProfile.profilePictureUrl);
+                    }
+                    setCurrentUser(currentUserProfile);
                 } catch (err) {
                     console.error('Error fetching current user ID:', err);
                     setCurrentUser(null);
@@ -138,7 +142,8 @@ function ProfilePage() {
     };
 
     // Dodaj zabezpieczenie przed null - FIXED
-    const isOwnProfile = currentUser && currentUser.id === userId;
+    const isOwnProfile = currentUser && userId && currentUser.id === userId;
+    const isLoggedIn = !!token;
 
     if (loading) {
         return (
@@ -164,8 +169,34 @@ function ProfilePage() {
         );
     }
 
+    // CHAT ///////////////////////////////////////////////
+
+    // Funkcja do otwarcia czatu
+    const handleOpenChat = () => {
+        if (!token) {
+            alert('You must be logged in to start a chat');
+            return;
+        }
+        setShowChat(true);
+    };
+
     return (
         <div className="profile-container">
+
+
+            {/* Przycisk czatu - pokazuj tylko jeśli użytkownik jest zalogowany i nie przegląda własnego profilu */}
+            {isLoggedIn && !isOwnProfile && (
+                <button
+                    className="chat-with-user-btn"
+                    onClick={handleOpenChat}
+                    title="Chat with this user"
+                > Chat with {profile.username}
+                    {/* <FaComments /> Chat with {profile.username} */}
+                </button>
+            )}
+
+
+            
             <div className="profile-header">
                 <div className="profile-avatar-section">
                     <div className="profile-avatar-container">
@@ -273,6 +304,32 @@ function ProfilePage() {
                     </div>
                 )}
             </div>
+
+            {/* {showChat && (
+                <ChatWindow
+                    currentUser={{
+                    id: currentUser.id,
+                    username: currentUser.username, // pobierz z UserService lub API
+                    profilePictureUrl: currentUser.profilePictureUrl // też z API
+                    }}
+                    otherUser={{
+                    id: profile.id,
+                    username: profile.username,
+                    profilePictureUrl: profile.profilePictureUrl
+                    }}
+                    onClose={() => setShowChat(false)}
+                />
+            )} */}
+
+            {showChat && (
+                <ChatWindow
+                    currentUserId={currentUser.id}
+                    otherUserId={profile.id}
+                    onClose={() => setShowChat(false)}
+                />
+            )}
+
+
 
             {isEditing && (
                 <ProfileEditModal

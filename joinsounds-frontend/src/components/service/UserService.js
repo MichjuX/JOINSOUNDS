@@ -116,6 +116,7 @@ class UserService {
             throw err;
         }
     }
+    
     static async getCurrentUserId(token){
         try{
             const response = await axios.get(`${UserService.BASE_URL}/public/getCurrentUserId`,
