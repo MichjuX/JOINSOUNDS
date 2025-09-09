@@ -1,46 +1,96 @@
-import React, { useState } from "react";
-import useChat from "./useChat";
+import React, { useState, useEffect, useRef } from "react";
+import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png";
+import "./ChatWindow.css";
 
-function ChatWindow({ currentUserId, otherUserId, onClose }) {
-  const { messages, sendMessage } = useChat(currentUserId, otherUserId);
+const ChatWindow = ({ currentUser, otherUser, messages = [], sendMessage, onClose }) => {
   const [newMessage, setNewMessage] = useState("");
+  const messagesEndRef = useRef(null);
+
+  // przewijanie do najnowszej wiadomości
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   const handleSend = () => {
-    sendMessage(newMessage);
+    if (newMessage.trim() === "") return;
+
+    sendMessage({
+      senderId: currentUser.id,
+      recipientId: otherUser.id,
+      content: newMessage.trim(),
+    });
+
     setNewMessage("");
+  };
+
+  const handleKeyDown = (e) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSend();
+    }
   };
 
   return (
     <div className="chat-window">
+      {/* Główny nagłówek */}
       <div className="chat-header">
-        <h3>Chat</h3>
-        <button onClick={onClose}>X</button>
+        <div className="chat-user-info">
+          <img
+            src={otherUser.profilePictureUrl || joinsoundsSquare}
+            alt={otherUser.username}
+            className="chat-avatar"
+          />
+          <span className="chat-username">{otherUser.username}</span>
+        </div>
+        <button className="chat-close-btn" onClick={onClose}>
+          ✖
+        </button>
       </div>
 
+      {/* Wiadomości */}
       <div className="chat-messages">
-        {messages.map((m) => (
-          <div
-            key={m.id}
-            className={`chat-message ${
-              m.sender.id === currentUserId ? "sent" : "received"
-            }`}
-          >
-            <span>{m.content}</span>
-          </div>
-        ))}
+        {messages.length > 0 ? (
+          messages.map((msg, idx) => {
+            const isMine = msg.sender.id === currentUser.id;
+            const sender = isMine ? currentUser : otherUser;
+
+            return (
+              <div key={idx} className={`chat-message ${isMine ? "mine" : "theirs"}`}>
+                {!isMine && (
+                  <img
+                    src={sender.profilePictureUrl || joinsoundsSquare}
+                    alt={sender.username}
+                    className="message-avatar"
+                  />
+                )}
+                <div className="message-content">
+                  {!isMine && <span className="message-username">{sender.username}</span>}
+                  <p>{msg.content}</p>
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          <p className="no-messages">No messages yet</p>
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
+      {/* Input */}
       <div className="chat-input">
-        <input
-          type="text"
+        <textarea
           value={newMessage}
           onChange={(e) => setNewMessage(e.target.value)}
-          placeholder="Type a message..."
+          onKeyDown={handleKeyDown}
+          placeholder="Type your message..."
+          rows={1}
         />
-        <button onClick={handleSend}>Send</button>
+        <button onClick={handleSend} className="send-btn">
+          ➤
+        </button>
       </div>
     </div>
   );
-}
+};
 
 export default ChatWindow;

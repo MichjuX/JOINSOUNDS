@@ -12,7 +12,7 @@ const useChat = (currentUserId, otherUserId) => {
     const fetchHistory = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8080/public/history/${currentUserId}/${otherUserId}`
+          `http://172.24.188.59:8080/public/history/${currentUserId}/${otherUserId}`
         );
         setMessages(res.data);
       } catch (err) {
@@ -27,7 +27,7 @@ const useChat = (currentUserId, otherUserId) => {
 
   // 🔹 2. WebSocket nasłuchuje na nowe wiadomości
   useEffect(() => {
-    const socket = new SockJS("http://localhost:8080/ws");
+    const socket = new SockJS("http://172.24.188.59:8080/ws");
     const client = new Client({
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
@@ -53,7 +53,7 @@ const useChat = (currentUserId, otherUserId) => {
   }, [currentUserId, otherUserId]);
 
   // 🔹 3. Funkcja wysyłania
-  const sendMessage = (content) => {
+  const sendMessage = ({ content }) => {
     if (stompClientRef.current && content.trim() !== "") {
       stompClientRef.current.publish({
         destination: "/app/chat.sendMessage",

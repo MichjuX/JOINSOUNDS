@@ -8,6 +8,7 @@ import PostService from '../service/PostService';
 import { MdOutlineRemoveCircleOutline, MdAddAPhoto } from "react-icons/md";
 import joinsoundsSquare from '../../assets/images/JOINSOUNDS_square.png';
 import ChatWindow from '../chat/ChatWindow';
+import useChat from '../chat/useChat'; // 🔹 nasz hook do chatu
 
 function ProfilePage() {
     const { userId } = useParams();
@@ -18,7 +19,7 @@ function ProfilePage() {
     const [isEditing, setIsEditing] = useState(false);
     const [uploadProgress, setUploadProgress] = useState(0);
     const [currentUser, setCurrentUser] = useState(null);
-    const [showChat, setShowChat] = useState(false); // Stan dla czatu
+    const [showChat, setShowChat] = useState(false);
     
     const fileInputRef = React.useRef();
 
@@ -141,9 +142,14 @@ function ProfilePage() {
         }
     };
 
-    // Dodaj zabezpieczenie przed null - FIXED
     const isOwnProfile = currentUser && userId && currentUser.id === userId;
     const isLoggedIn = !!token;
+
+    // 🔹 Hook czatu — tylko jeśli mamy obu użytkowników
+    const { messages, sendMessage } = useChat(
+        currentUser?.id,
+        profile?.id
+    );
 
     if (loading) {
         return (
@@ -169,9 +175,6 @@ function ProfilePage() {
         );
     }
 
-    // CHAT ///////////////////////////////////////////////
-
-    // Funkcja do otwarcia czatu
     const handleOpenChat = () => {
         if (!token) {
             alert('You must be logged in to start a chat');
@@ -183,62 +186,58 @@ function ProfilePage() {
     return (
         <div className="profile-container">
 
-
-            {/* Przycisk czatu - pokazuj tylko jeśli użytkownik jest zalogowany i nie przegląda własnego profilu */}
+            {/* Przycisk czatu */}
             {isLoggedIn && !isOwnProfile && (
                 <button
                     className="chat-with-user-btn"
                     onClick={handleOpenChat}
                     title="Chat with this user"
-                > Chat with {profile.username}
-                    {/* <FaComments /> Chat with {profile.username} */}
+                >
+                    Chat with {profile.username}
                 </button>
             )}
-
-
             
             <div className="profile-header">
                 <div className="profile-avatar-section">
                     <div className="profile-avatar-container">
                         <img
-                        src={profile.profilePictureUrl || joinsoundsSquare}
-                        alt={`Avatar ${profile.username}`}
-                        className="profile-avatar"
+                            src={profile.profilePictureUrl || joinsoundsSquare}
+                            alt={`Avatar ${profile.username}`}
+                            className="profile-avatar"
                         />
-                        
-                </div>
-                {isOwnProfile && (
-                            <div className="profile-avatar-actions">
-                                <label className="avatar-upload-btn">
-                                    <input
-                                        type="file"
-                                        ref={fileInputRef}
-                                        onChange={handleImageUpload}
-                                        accept="image/*"
-                                        style={{ display: 'none' }}
-                                    />
-                                    <MdAddAPhoto /> Change
-                                </label>
-                                {profile.profilePictureUrl && (
-                                    <button
-                                        className="avatar-remove-btn"
-                                        onClick={handleRemovePicture}
-                                    >
-                                        <MdOutlineRemoveCircleOutline /> Remove
-                                    </button>
-                                )}
-                            </div>
-                        )}
                     </div>
-                    {uploadProgress > 0 && (
-                        <div className="upload-progress">
-                            <div
-                                className="progress-bar"
-                                style={{ width: `${uploadProgress}%` }}
-                            />
-                            <span>{uploadProgress}%</span>
+                    {isOwnProfile && (
+                        <div className="profile-avatar-actions">
+                            <label className="avatar-upload-btn">
+                                <input
+                                    type="file"
+                                    ref={fileInputRef}
+                                    onChange={handleImageUpload}
+                                    accept="image/*"
+                                    style={{ display: 'none' }}
+                                />
+                                <MdAddAPhoto /> Change
+                            </label>
+                            {profile.profilePictureUrl && (
+                                <button
+                                    className="avatar-remove-btn"
+                                    onClick={handleRemovePicture}
+                                >
+                                    <MdOutlineRemoveCircleOutline /> Remove
+                                </button>
+                            )}
                         </div>
                     )}
+                </div>
+                {uploadProgress > 0 && (
+                    <div className="upload-progress">
+                        <div
+                            className="progress-bar"
+                            style={{ width: `${uploadProgress}%` }}
+                        />
+                        <span>{uploadProgress}%</span>
+                    </div>
+                )}
                 <div className="profile-info">
                     <h1 className="profile-username">{profile.username}</h1>
                     <div className="profile-stats">
@@ -305,31 +304,15 @@ function ProfilePage() {
                 )}
             </div>
 
-            {/* {showChat && (
-                <ChatWindow
-                    currentUser={{
-                    id: currentUser.id,
-                    username: currentUser.username, // pobierz z UserService lub API
-                    profilePictureUrl: currentUser.profilePictureUrl // też z API
-                    }}
-                    otherUser={{
-                    id: profile.id,
-                    username: profile.username,
-                    profilePictureUrl: profile.profilePictureUrl
-                    }}
-                    onClose={() => setShowChat(false)}
-                />
-            )} */}
-
             {showChat && (
                 <ChatWindow
-                    currentUserId={currentUser.id}
-                    otherUserId={profile.id}
+                    currentUser={currentUser}
+                    otherUser={profile}
+                    messages={messages}
+                    sendMessage={sendMessage}
                     onClose={() => setShowChat(false)}
                 />
             )}
-
-
 
             {isEditing && (
                 <ProfileEditModal
