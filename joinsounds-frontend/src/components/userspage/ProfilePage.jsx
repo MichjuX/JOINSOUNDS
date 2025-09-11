@@ -310,7 +310,13 @@ function ProfilePage() {
                     otherUser={profile}
                     messages={messages}
                     sendMessage={sendMessage}
-                    onClose={() => setShowChat(false)}
+                    onClose={() => {
+                        setShowChat(false);
+                        localStorage.setItem("activeChat", ""); // czat zamknięty
+                        }}
+                    onOpen={() => {
+                        localStorage.setItem("activeChat", profile.id); // zapamiętaj aktywnego rozmówcę
+                    }}
                 />
             )}
 

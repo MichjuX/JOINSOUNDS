@@ -5,7 +5,7 @@ import ms.joinsounds.joinsounds_backend.entity.ChatMessage;
 import ms.joinsounds.joinsounds_backend.repository.ChatMessageRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.SendTo;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 import java.time.LocalDateTime;
@@ -17,11 +17,10 @@ public class ChatWebSocketController {
 
     private final ChatMessageRepository chatMessageRepository;
     private final UsersRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
-    // Odbiera wiadomość z frontu (/app/chat.sendMessage) i rozsyła na /topic/chat.{receiverId}
     @MessageMapping("/chat.sendMessage")
-    @SendTo("/topic/chat")
-    public ChatMessage sendMessage(ChatMessageDto dto) {
+    public void sendMessage(ChatMessageDto dto) {
         var sender = userRepository.findById(dto.senderId())
                 .orElseThrow();
         var receiver = userRepository.findById(dto.receiverId())
@@ -33,9 +32,14 @@ public class ChatWebSocketController {
         msg.setContent(dto.content());
         msg.setTimestamp(LocalDateTime.now());
 
-        return chatMessageRepository.save(msg);
+        chatMessageRepository.save(msg);
+
+        // 🔹 Wysyłamy TYLKO do odbiorcy
+        messagingTemplate.convertAndSend("/topic/chat." + dto.receiverId(), msg);
+
+        // 🔹 Opcjonalnie wysyłamy też do nadawcy (żeby zobaczył swoją wiadomość)
+        messagingTemplate.convertAndSend("/topic/chat." + dto.senderId(), msg);
     }
 
     public record ChatMessageDto(UUID senderId, UUID receiverId, String content) {}
 }
-

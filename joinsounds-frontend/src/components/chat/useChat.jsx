@@ -32,7 +32,7 @@ const useChat = (currentUserId, otherUserId) => {
       webSocketFactory: () => socket,
       reconnectDelay: 5000,
       onConnect: () => {
-        client.subscribe("/topic/chat", (payload) => {
+        client.subscribe(`/topic/chat.${currentUserId}`, (payload) => {
           const msg = JSON.parse(payload.body);
           if (
             (msg.sender.id === currentUserId && msg.receiver.id === otherUserId) ||

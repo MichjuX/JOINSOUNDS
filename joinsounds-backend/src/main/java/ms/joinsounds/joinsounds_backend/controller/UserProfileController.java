@@ -35,11 +35,11 @@ public class UserProfileController {
         UserProfile userProfileEntity = _userProfileRepository.findByUser(user);
 
         UserProfileDto userProfile = new UserProfileDto();
+        userProfile.setId(user.getId());
         userProfile.setUsername(user.getName());
         userProfile.setPostCount(_postRepository.countByUser(user));
 
         if (userProfileEntity != null) {
-            userProfile.setId(user.getId());
             userProfile.setBio(userProfileEntity.getBio());
             userProfile.setTools(userProfileEntity.getTools());
             userProfile.setGenres(userProfileEntity.getGenres());
