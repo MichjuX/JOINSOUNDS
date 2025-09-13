@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Navbar from './components/common/navbar';
+import Navbar from './components/common/Navbar';
 import LoginPage from './components/auth/LoginPage';
 import UserRegistrationPage from './components/auth/UserRegistrationPage';
 import AdminRegistrationPage from './components/auth/AdminRegistrationPage';
@@ -14,6 +14,7 @@ import FullPostPage from './components/pages/FullPostPage';
 import EditPostPage from './components/pages/EditPostPage';
 import AccountVerificationPage from './components/auth/AccountVerificationPage';
 import TagPage from './components/pages/TagPage';
+import UserPostsPage from './components/pages/UserPostsPage';
 
 function App() {
   return (
@@ -27,6 +28,7 @@ function App() {
             {/* <Route path="/profile" element={<ProfilePage />} /> */}
             <Route path="/post/:id" element={<FullPostPage />} />
             <Route path="/tag/:tag" element={<TagPage />} />
+            <Route path="/posts/user/:userId" element={<UserPostsPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
             {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 

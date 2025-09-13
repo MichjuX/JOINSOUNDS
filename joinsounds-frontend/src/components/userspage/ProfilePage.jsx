@@ -9,6 +9,9 @@ import { MdOutlineRemoveCircleOutline, MdAddAPhoto } from "react-icons/md";
 import joinsoundsSquare from '../../assets/images/JOINSOUNDS_square.png';
 import ChatWindow from '../chat/ChatWindow';
 import useChat from '../chat/useChat'; // 🔹 nasz hook do chatu
+import { Button } from '@mui/material';
+import '../common/Buttons.css';
+import { useNavigate } from 'react-router-dom';
 
 function ProfilePage() {
     const { userId } = useParams();
@@ -20,6 +23,7 @@ function ProfilePage() {
     const [uploadProgress, setUploadProgress] = useState(0);
     const [currentUser, setCurrentUser] = useState(null);
     const [showChat, setShowChat] = useState(false);
+    const navigate = useNavigate();
     
     const fileInputRef = React.useRef();
 
@@ -182,6 +186,9 @@ function ProfilePage() {
         }
         setShowChat(true);
     };
+    const handlePostRedirect = () => {
+        navigate(`/posts/user/${profile.id}`);
+    };
 
     return (
         <div className="profile-container">
@@ -300,6 +307,19 @@ function ProfilePage() {
                         >
                             Add Informations
                         </button>
+                    </div>
+                )}
+
+                {profile.postCount > 0 && (
+                    <div className="profile-section">
+                        <h3>User's Posts</h3>
+                        <div className="tags-list">
+                            <Button className='submit-btn'
+                            onClick={handlePostRedirect}
+                            >
+                                View Posts
+                            </Button>
+                        </div>
                     </div>
                 )}
             </div>

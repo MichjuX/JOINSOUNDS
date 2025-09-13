@@ -109,6 +109,25 @@ class PostService {
         }
     }
 
+    static async getAllPostsByUser(userId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
+        try {
+            const response = await axios.get(`${this.BASE_URL}/public/post/all/user/${userId}`, {
+                params: {
+                    page,
+                    size,
+                    sort: `${sortBy},${sortDirection}`
+                },
+                ...config
+            });
+            return response.data;
+        } catch (error) {
+            if (!axios.isCancel(error)) {
+                console.error("Error getting posts:", error);
+                throw error;
+            }
+        }   
+    }
+
     static async getPostById(postId, token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/${postId}`);

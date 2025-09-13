@@ -85,6 +85,21 @@ public class PostController {
         return ResponseEntity.ok(postsPage);
     }
 
+    @GetMapping("/public/post/all/user/{userId}")
+    public ResponseEntity<Page<PostDto>> getAllPostsByUser(
+            @PathVariable UUID userId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size,
+            @RequestParam(defaultValue = "createdAt,desc") String sort) {
+
+        String[] sortParams = sort.split(",");
+        Sort.Direction direction = Sort.Direction.fromString(sortParams[1]);
+        Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortParams[0]));
+
+        Page<PostDto> postsPage = _postService.getAllPostsByUser(userId, pageable);
+        return ResponseEntity.ok(postsPage);
+    }
+
 
 
     @DeleteMapping("/authenticated/post/delete/{id}")

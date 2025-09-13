@@ -1,5 +1,6 @@
 package ms.joinsounds.joinsounds_backend.repository;
 
+import com.fasterxml.jackson.databind.ser.std.UUIDSerializer;
 import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import org.springframework.data.domain.Page;
@@ -26,4 +27,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     // Wersja z wieloma tagami
     @Query("SELECT p FROM Post p JOIN p.tags t WHERE t.name IN :tagNames")
     List<Post> findByTagNames(@Param("tagNames") List<String> tagNames);
+
+    Page<Post> findByUserId(UUID userId, Pageable pageable);
 }

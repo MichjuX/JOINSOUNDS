@@ -47,6 +47,12 @@ public class PostService {
         return getPostDtos(postsPage);
     }
 
+    public Page<PostDto> getAllPostsByUser(UUID userId, Pageable pageable) {
+        Page<Post> postsPage = _postRepository.findByUserId(userId, pageable);
+
+        return getPostDtos(postsPage);
+    }
+
     private Page<PostDto> getPostDtos(Page<Post> postsPage) {
         return postsPage.map(post -> {
             PostDto postDto = new PostDto();
