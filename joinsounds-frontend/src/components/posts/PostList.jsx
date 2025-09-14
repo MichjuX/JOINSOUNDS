@@ -4,6 +4,7 @@ import PostService from "../service/PostService";
 import "./PostList.css";
 import UserService from "../service/UserService";
 import AudioPlayer from "../common/AudioPlayer";
+import CommentSection from "./CommentSection";
 import { useNavigate } from "react-router-dom";
 import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; 
 
@@ -251,6 +252,18 @@ function PostList({
               )}
             </div>
 
+            {/* Sekcja komentarzy dla postów bez audio */}
+            {!post.audioFilePath && (
+              <CommentSection 
+                postId={post.id}
+                currentUserId={currentUserId}
+                token={token}
+                getProfilePictureUrl={getProfilePictureUrl}
+                handleAuthorClick={handleAuthorClick}
+              />
+            )}
+
+            {/* AudioPlayer tylko dla postów z audio */}
             {post.audioFilePath && (
               <AudioPlayer 
                 audioUrl={getAudioUrl(post.audioFilePath)}
@@ -260,6 +273,7 @@ function PostList({
                 onPause={handlePause}
                 onEnd={handlePause}
                 postId={post.id}
+                currentUserId={currentUserId}
               />
             )}
           </div>

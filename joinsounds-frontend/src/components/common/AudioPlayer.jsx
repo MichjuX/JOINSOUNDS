@@ -8,6 +8,7 @@ import "./AudioPlayer.css";
 import { useNavigate } from 'react-router-dom';
 import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; 
 import PostService from '../service/PostService';
+import UserService from '../service/UserService';
 
 const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
   const waveformRef = useRef(null);
@@ -154,7 +155,8 @@ const CommentPlayer = ({ audioUrl, startTime, endTime, color }) => {
 const AudioPlayer = ({ 
   audioUrl, 
   postId,
-  initialComments = []
+  initialComments = [],
+  currentUserId
 }) => {
   const waveformRef = useRef(null);
   const wavesurferRef = useRef(null);
@@ -360,6 +362,17 @@ const AudioPlayer = ({
   
   const deleteComment = async (commentId) => {
     try {
+      // Sprawdź uprawnienia przed usunięciem
+      const commentToDelete = comments.find(c => c.id === commentId);
+      if (!commentToDelete) return;
+      
+      const canDelete = currentUserId === commentToDelete.user?.id || UserService.isModeratorOrAdmin();
+      
+      if (!canDelete) {
+        alert("You don't have permission to delete this comment");
+        return;
+      }
+
       await CommentService.deleteComment(commentId, token);
       setComments(prev => prev.filter(c => c.id !== commentId));
       
@@ -528,15 +541,17 @@ const AudioPlayer = ({
                 <span className="comment-date">
                   {new Date(comment.createdAt).toLocaleString()}
                 </span>
-                <button 
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    deleteComment(comment.id);
-                  }}
-                  className="delete-comment-btn"
-                >
-                  <FaTrash />
-                </button>
+                {(currentUserId === comment.user?.id || UserService.isModeratorOrAdmin()) && (
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      deleteComment(comment.id);
+                    }}
+                    className="delete-comment-btn"
+                  >
+                    <FaTrash />
+                  </button>
+                )}
               </div>
               
               <div className="comment-content">

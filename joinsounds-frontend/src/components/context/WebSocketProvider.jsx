@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import SockJS from 'sockjs-client';
 import UserService from '../service/UserService';
@@ -16,9 +16,11 @@ export const useWebSocket = () => {
 export const WebSocketProvider = ({ children }) => {
     const [stompClient, setStompClient] = useState(null);
     const [isConnected, setIsConnected] = useState(false);
+    const clientRef = useRef(null);
+    const reconnectAttemptRef = useRef(0);
 
     useEffect(() => {
-        let clientInstance = null;
+        let isMounted = true;
 
         const connectWebSocket = async () => {
             if (!UserService.isAuthenticated()) {
@@ -41,7 +43,16 @@ export const WebSocketProvider = ({ children }) => {
 
                 console.log('Creating WebSocket connection for user:', userId);
 
-                clientInstance = new Client({
+                // Clean up existing connection first
+                if (clientRef.current) {
+                    try {
+                        clientRef.current.deactivate();
+                    } catch (error) {
+                        console.error('Error deactivating previous connection:', error);
+                    }
+                }
+
+                const clientInstance = new Client({
                     webSocketFactory: () => new SockJS('http://172.24.188.59:8080/ws'),
                     reconnectDelay: 5000,
                     connectHeaders: { 
@@ -49,38 +60,65 @@ export const WebSocketProvider = ({ children }) => {
                     },
                     debug: (str) => console.log('STOMP Debug:', str),
                     onConnect: () => {
+                        if (!isMounted) return;
                         console.log('WebSocket connected successfully');
                         setIsConnected(true);
+                        reconnectAttemptRef.current = 0;
                     },
                     onDisconnect: () => {
+                        if (!isMounted) return;
                         console.log('WebSocket disconnected');
                         setIsConnected(false);
                     },
                     onStompError: (frame) => {
+                        if (!isMounted) return;
                         console.error('STOMP error:', frame);
                         setIsConnected(false);
                     },
                     onWebSocketError: (error) => {
+                        if (!isMounted) return;
                         console.error('WebSocket error:', error);
                         setIsConnected(false);
                     }
                 });
 
-                clientInstance.activate();
+                clientRef.current = clientInstance;
                 setStompClient(clientInstance);
+                clientInstance.activate();
 
             } catch (error) {
                 console.error('WebSocket connection error:', error);
             }
         };
 
-        connectWebSocket();
+        // Check authentication status periodically
+        const checkAuthAndConnect = () => {
+            if (UserService.isAuthenticated()) {
+                connectWebSocket();
+            } else {
+                // Clean up if not authenticated
+                if (clientRef.current) {
+                    clientRef.current.deactivate();
+                    setStompClient(null);
+                    setIsConnected(false);
+                }
+            }
+        };
+
+        // Initial connection
+        checkAuthAndConnect();
+
+        // Set up interval to check authentication status
+        const authCheckInterval = setInterval(checkAuthAndConnect, 30000); // Check every 30 seconds
 
         return () => {
+            isMounted = false;
+            clearInterval(authCheckInterval);
+            
             console.log('Cleaning up WebSocket connection');
-            if (clientInstance) {
+            if (clientRef.current) {
                 try {
-                    clientInstance.deactivate();
+                    clientRef.current.deactivate();
                 } catch (error) {
                     console.error('Error deactivating WebSocket:', error);
                 }
