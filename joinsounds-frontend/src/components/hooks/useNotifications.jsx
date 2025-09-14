@@ -1,14 +1,14 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Client } from '@stomp/stompjs';
-import SockJS from 'sockjs-client';
+import { useState, useEffect, useCallback, useContext } from 'react';
 import NotificationService from '../service/NotificationService';
 import UserService from '../service/UserService';
+import { WebSocketContext } from '../context/WebSocketProvider';
 
 export const useNotifications = () => {
     const [notifications, setNotifications] = useState([]);
     const [unreadCount, setUnreadCount] = useState(0);
-    const [stompClient, setStompClient] = useState(null);
     const [userId, setUserId] = useState(null);
+    
+    const { stompClient, isConnected } = useContext(WebSocketContext);
 
     const fetchUserId = useCallback(async () => {
         try {
@@ -30,7 +30,12 @@ export const useNotifications = () => {
             if (!token) return;
 
             const notificationsData = await NotificationService.getUserNotifications(token);
-            setNotifications(notificationsData);
+            
+            const uniqueNotifications = Array.from(
+                new Map(notificationsData.map(item => [item.id, item])).values()
+            );
+            
+            setNotifications(uniqueNotifications);
             
             const count = await NotificationService.getUnreadCount(token);
             setUnreadCount(count);
@@ -38,64 +43,6 @@ export const useNotifications = () => {
             console.error('Error fetching notifications:', error);
         }
     }, []);
-
-    const setupWebSocket = useCallback(async () => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
-
-        // Pobierz userId przed utworzeniem WebSocket
-        const currentUserId = await fetchUserId();
-        if (!currentUserId) return;
-
-        const client = new Client({
-            webSocketFactory: () => new SockJS('http://172.24.188.59:8080/ws'),
-            reconnectDelay: 5000,
-            connectHeaders: {
-                Authorization: `Bearer ${token}`
-            },
-            debug: (str) => {
-                console.log('STOMP Debug:', str);
-            },
-            onConnect: () => {
-                console.log('WebSocket connected for user:', currentUserId);
-                
-                // Subskrybuj na temat powiadomień dla tego użytkownika
-                client.subscribe(`/topic/notifications.${currentUserId}`, (message) => {
-                    console.log('Received notification:', message.body);
-                    const notification = JSON.parse(message.body);
-                    setNotifications(prev => [notification, ...prev]);
-                    setUnreadCount(prev => prev + 1);
-                    
-                    // Pokazanie powiadomienia w przeglądarce
-                    if ('Notification' in window && Notification.permission === 'granted') {
-                        new Notification('Nowe powiadomienie', {
-                            body: notification.message,
-                            icon: '/logo.png'
-                        });
-                    }
-                });
-
-                // Dodatkowo subskrybuj na ogólny temat dla debugowania
-                client.subscribe(`/topic/notifications`, (message) => {
-                    console.log('Received general notification:', message.body);
-                });
-            },
-            onDisconnect: () => {
-                console.log('WebSocket disconnected');
-            },
-            onStompError: (frame) => {
-                console.error('WebSocket error:', frame);
-            },
-            onWebSocketError: (error) => {
-                console.error('WebSocket connection error:', error);
-            }
-        });
-        
-        client.activate();
-        setStompClient(client);
-
-        return client;
-    }, [fetchUserId]);
 
     const markAsRead = async (notificationId) => {
         try {
@@ -117,7 +64,6 @@ export const useNotifications = () => {
             const token = localStorage.getItem("token");
             if (!token) return;
 
-            // Oznacz wszystkie nieprzeczytane powiadomienia
             const unreadNotifications = notifications.filter(n => !n.read);
             for (const notification of unreadNotifications) {
                 await NotificationService.markAsRead(notification.id, token);
@@ -131,26 +77,73 @@ export const useNotifications = () => {
     };
 
     useEffect(() => {
-        let client = null;
+        if (UserService.isAuthenticated()) {
+            fetchNotifications();
+            fetchUserId();
+        }
+    }, [fetchNotifications, fetchUserId]);
 
-        const initialize = async () => {
-            if (UserService.isAuthenticated()) {
-                await fetchNotifications();
-                client = await setupWebSocket();
-            }
-        };
+    useEffect(() => {
+        // Sprawdź czy klient STOMP istnieje, jest połączony i mamy user ID
+        if (!stompClient || !isConnected || !userId) {
+            console.log('WebSocket not ready for subscription:', { 
+                hasStompClient: !!stompClient, 
+                isConnected, 
+                hasUserId: !!userId 
+            });
+            return;
+        }
 
-        initialize();
+        console.log('Setting up notification subscription for user:', userId);
 
-        return () => {
-            if (stompClient) {
-                stompClient.deactivate();
-            }
-            if (client) {
-                client.deactivate();
-            }
-        };
-    }, [fetchNotifications, setupWebSocket]);
+        try {
+            const subscription = stompClient.subscribe(
+                `/topic/notifications.${userId}`, 
+                (message) => {
+                    try {
+                        console.log('Received notification:', message.body);
+                        const notification = JSON.parse(message.body);
+                        
+                        setNotifications(prev => {
+                            const alreadyExists = prev.some(n => n.id === notification.id);
+                            if (alreadyExists) {
+                                console.warn('Duplicate notification detected:', notification.id);
+                                return prev;
+                            }
+                            console.log('Adding new notification:', notification.id);
+                            return [notification, ...prev];
+                        });
+                        
+                        setUnreadCount(prev => prev + 1);
+                        
+                        if ('Notification' in window && Notification.permission === 'granted') {
+                            new Notification('Nowe powiadomienie', {
+                                body: notification.message,
+                                icon: '/logo.png'
+                            });
+                        }
+                    } catch (error) {
+                        console.error('Error processing notification:', error);
+                    }
+                }
+            );
+
+            console.log('Successfully subscribed to notifications');
+
+            return () => {
+                try {
+                    if (subscription) {
+                        subscription.unsubscribe();
+                        console.log('Unsubscribed from notifications');
+                    }
+                } catch (error) {
+                    console.error('Error unsubscribing:', error);
+                }
+            };
+        } catch (error) {
+            console.error('Error setting up subscription:', error);
+        }
+    }, [stompClient, isConnected, userId]);
 
     return { 
         notifications, 
@@ -158,6 +151,6 @@ export const useNotifications = () => {
         markAsRead, 
         markAllAsRead, 
         fetchNotifications,
-        userId 
+        userId
     };
 };

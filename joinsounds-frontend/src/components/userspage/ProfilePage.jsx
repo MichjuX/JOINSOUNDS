@@ -12,6 +12,7 @@ import useChat from '../chat/useChat'; // 🔹 nasz hook do chatu
 import { Button } from '@mui/material';
 import '../common/Buttons.css';
 import { useNavigate } from 'react-router-dom';
+import AutoLink from '../common/AutoLink';
 
 function ProfilePage() {
     const { userId } = useParams();
@@ -268,7 +269,9 @@ function ProfilePage() {
                 {profile.bio && (
                     <div className="profile-section">
                         <h3>About Me</h3>
-                        <p className="profile-bio">{profile.bio}</p>
+                        <p className="profile-bio">
+                            <AutoLink text={profile.bio} />
+                        </p>
                     </div>
                 )}
 

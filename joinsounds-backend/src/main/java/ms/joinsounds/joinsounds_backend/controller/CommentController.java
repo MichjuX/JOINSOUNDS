@@ -40,7 +40,7 @@ public class CommentController {
 
 
         // Notyfikacje
-        if(comment.getUser().getId()!=postOwner.getId()) {
+        if(!user.getId().equals(postOwner.getId())) {
             _notificationService.createNotification(postOwner.getId(),
                     "POST_COMMENT",
                     "New comment on your post",

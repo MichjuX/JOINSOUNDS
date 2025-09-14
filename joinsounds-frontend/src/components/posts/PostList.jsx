@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "../common/Buttons.css";
 import PostService from "../service/PostService";
 import "./PostList.css";
@@ -18,12 +18,38 @@ function PostList({
   token 
 }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
+  const [expandedPosts, setExpandedPosts] = useState({});
+  const [needsExpandButton, setNeedsExpandButton] = useState({});
+  const contentRefs = useRef({});
   const navigate = useNavigate();
   
-  const truncateText = (text, maxLength = 200) => {
-    if (text.length <= maxLength) return text;
-    return text.substring(0, maxLength) + '...';
+  // Funkcja do rozwijania i zwijania tekstu
+  const toggleExpand = (postId) => {
+    setExpandedPosts(prev => ({
+      ...prev,
+      [postId]: !prev[postId]
+    }));
   };
+
+  // Funkcja do sprawdzania czy tekst jest zbyt długi
+  const checkTextOverflow = (postId) => {
+    const element = contentRefs.current[postId];
+    if (!element) return false;
+    
+    // Sprawdzamy czy tekst przekracza maksymalną wysokość (5 linii)
+    return element.scrollHeight > element.clientHeight;
+  };
+
+  useEffect(() => {
+    // Po załadowaniu komponentu sprawdzamy każdy post
+    const newNeedsExpandButton = {};
+    posts.forEach(post => {
+      if (post.content) {
+        newNeedsExpandButton[post.id] = checkTextOverflow(post.id);
+      }
+    });
+    setNeedsExpandButton(newNeedsExpandButton);
+  }, [posts]);
 
   const getAudioType = (filename) => {
     const ext = filename?.split('.').pop()?.toLowerCase();
@@ -98,7 +124,7 @@ function PostList({
   if (loading) return <div className="loading">Loading posts...</div>;
   if (posts.length === 0 && !loading) return <p>No posts available. Be the first to post!</p>;
 
-return (
+  return (
     <div className="posts-list">
       {posts.map(post => (
         <div key={post.id} className="post-card-wrapper">
@@ -145,7 +171,23 @@ return (
               {post.title}
             </h3>
             
-            <p>{truncateText(post.content)}</p>
+            {/* Sekcja z tekstem z możliwością przewijania */}
+            <div 
+              ref={el => contentRefs.current[post.id] = el}
+              className={`post-content ${expandedPosts[post.id] ? 'expanded' : ''} ${needsExpandButton[post.id] ? 'has-gradient' : ''}`}
+            >
+              <p>{post.content}</p>
+            </div>
+            
+            {/* Przycisk do rozwijania/zwijania długiego tekstu */}
+            {needsExpandButton[post.id] && (
+              <button 
+                className="toggle-text-btn"
+                onClick={() => toggleExpand(post.id)}
+              >
+                {expandedPosts[post.id] ? 'Show less' : 'Show more'}
+              </button>
+            )}
             
             {/* Tags display section */}
             {post.tags && post.tags.length > 0 && (

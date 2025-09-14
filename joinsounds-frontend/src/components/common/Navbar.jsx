@@ -119,23 +119,25 @@ function Navbar() {
                                             {notifications.length === 0 ? (
                                                 <p className="no-notifications">Brak powiadomień</p>
                                             ) : (
-                                                notifications.map(notification => (
-                                                    <div 
-                                                        key={notification.id} 
-                                                        className={`notification-item ${notification.read ? '' : 'unread'}`}
-                                                        onClick={() => handleNotificationClick(notification)}
-                                                    >
-                                                        <div className="notification-content">
-                                                            <p className="notification-message">{notification.message}</p>
-                                                            <small className="notification-time">
-                                                                {new Date(notification.createdAt).toLocaleString()}
-                                                            </small>
+                                                // Usuń duplikaty przed renderowaniem
+                                                Array.from(new Map(notifications.map(item => [item.id, item])).values())
+                                                    .map(notification => (
+                                                        <div 
+                                                            key={notification.id} 
+                                                            className={`notification-item ${notification.read ? '' : 'unread'}`}
+                                                            onClick={() => handleNotificationClick(notification)}
+                                                        >
+                                                            <div className="notification-content">
+                                                                <p className="notification-message">{notification.message}</p>
+                                                                <small className="notification-time">
+                                                                    {new Date(notification.createdAt).toLocaleString()}
+                                                                </small>
+                                                            </div>
+                                                            {!notification.read && (
+                                                                <div className="unread-dot"></div>
+                                                            )}
                                                         </div>
-                                                        {!notification.read && (
-                                                            <div className="unread-dot"></div>
-                                                        )}
-                                                    </div>
-                                                ))
+                                                    ))
                                             )}
                                         </div>
                                     </div>

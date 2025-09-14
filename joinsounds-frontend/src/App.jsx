@@ -15,12 +15,16 @@ import EditPostPage from './components/pages/EditPostPage';
 import AccountVerificationPage from './components/auth/AccountVerificationPage';
 import TagPage from './components/pages/TagPage';
 import UserPostsPage from './components/pages/UserPostsPage';
+import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
+import { WebSocketProvider } from './components/context/WebSocketProvider' //
 
 function App() {
   return (
     <BrowserRouter>
+    <WebSocketProvider>
       <div className="App">
         <Navbar />
+        <ConfirmPopup />
         <div className="content" style={{ minHeight: 'calc(100vh - 120px)' }}>
           <Routes>
             <Route path="/" element={<HomePage />} />
@@ -60,6 +64,7 @@ function App() {
         </div>
         {/* <FooterComponent /> */}
       </div>
+    </WebSocketProvider>
     </BrowserRouter>
   );
 }

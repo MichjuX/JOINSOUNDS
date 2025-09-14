@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png";
 import "./ChatWindow.css";
+import AutoLink from "../common/AutoLink";
 
 const ChatWindow = ({ currentUser, otherUser, messages = [], sendMessage, onClose }) => {
   const [newMessage, setNewMessage] = useState("");
@@ -65,7 +66,7 @@ const ChatWindow = ({ currentUser, otherUser, messages = [], sendMessage, onClos
                 )}
                 <div className="message-content">
                   {!isMine && <span className="message-username">{sender.username}</span>}
-                  <p>{msg.content}</p>
+                  <p><AutoLink text={msg.content} /></p>
                 </div>
               </div>
             );

@@ -11,7 +11,7 @@
   border-radius: 8px;
   overflow: hidden;
   animation: fadeIn 0.3s ease-in;
-  z-index: 9999; /* żeby było nad resztą */
+  z-index: 100; /* żeby było nad resztą */
 }
 
 /* Header */
