@@ -51,15 +51,6 @@ const AutoLink = ({ text, className = '' }) => {
     });
   };
 
-  const isExternalUrl = (url) => {
-    try {
-      const parsedUrl = new URL(url.startsWith('http') ? url : `http://${url}`);
-      return parsedUrl.hostname !== window.location.hostname;
-    } catch {
-      return true; // W przypadku błędu traktuj jako external
-    }
-  };
-
   return (
     <TextContainer className={className}>
       {/* <ConfirmPopup /> */}

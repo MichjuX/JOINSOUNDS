@@ -43,10 +43,28 @@ public class Post {
             inverseJoinColumns = @JoinColumn(name = "tag_id")
     )
     @EqualsAndHashCode.Exclude
-    @JsonIgnore // Zapobiega serializacji cyklicznej
+    @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
-    // W encji Post
+    // Nowa relacja dla like'ów
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @EqualsAndHashCode.Exclude
+    @JsonIgnore
+    private Set<PostLike> likes = new HashSet<>();
+
+    // Metoda pomocnicza do pobierania liczby like'ów
+    @Transient
+    public int getLikeCount() {
+        return likes.size();
+    }
+
+    // Metoda pomocnicza do sprawdzania czy użytkownik polubił post
+    @Transient
+    public boolean isLikedByUser(User user) {
+        if (user == null) return false;
+        return likes.stream().anyMatch(like -> like.getUser().equals(user));
+    }
+
     public void setTags(Set<Tag> tags) {
         this.tags.clear();
         if (tags != null) {

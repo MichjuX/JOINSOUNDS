@@ -178,4 +178,16 @@ public class PostController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    @PostMapping("/authenticated/post/like/{id}")
+    public ResponseEntity<Void> likePost(@PathVariable UUID id) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User user = (User) authentication.getPrincipal();
+        Post post = _postRepository.findById(id).orElse(null);
+        if (post != null) {
+            _postService.likePost(user, post);
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 }

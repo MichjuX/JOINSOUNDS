@@ -6,8 +6,10 @@ import lombok.RequiredArgsConstructor;
 import ms.joinsounds.joinsounds_backend.dto.PostDto;
 import ms.joinsounds.joinsounds_backend.dto.PostRequest;
 import ms.joinsounds.joinsounds_backend.entity.Post;
+import ms.joinsounds.joinsounds_backend.entity.PostLike;
 import ms.joinsounds.joinsounds_backend.entity.Tag;
 import ms.joinsounds.joinsounds_backend.entity.User;
+import ms.joinsounds.joinsounds_backend.repository.PostLikeRepository;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
 import ms.joinsounds.joinsounds_backend.repository.UserProfileRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
@@ -16,10 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +29,7 @@ public class PostService {
     private final FileStorageService _fileStorageService;
     private final TagService _tagService;
     private final UserProfileRepository _userProfileRepository;
+    private final PostLikeRepository _postLikeRepository;
 
 
     public Page<PostDto> getAllPosts(Pageable pageable) {
@@ -141,4 +141,17 @@ public class PostService {
         }
     }
 
+    public void likePost(User user, Post post) {
+        Optional<PostLike> postLike = _postLikeRepository.findByPostAndUser(post, user);
+        if (postLike.isPresent()) {
+            _postLikeRepository.delete(postLike.get());
+            return;
+        } else {
+            PostLike newLike = new PostLike();
+            newLike.setPost(post);
+            newLike.setUser(user);
+            _postLikeRepository.save(newLike);
+        }
+
+    }
 }
