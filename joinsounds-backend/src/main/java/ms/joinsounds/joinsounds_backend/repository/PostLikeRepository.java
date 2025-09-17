@@ -6,6 +6,7 @@ import ms.joinsounds.joinsounds_backend.entity.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -15,4 +16,6 @@ public interface PostLikeRepository extends JpaRepository<PostLike, UUID> {
     boolean existsByPostAndUser(Post post, User user);
     long countByPost(Post post);
     void deleteByPostAndUser(Post post, User user);
+
+    List<PostLike> findAllByPost(Post post);
 }

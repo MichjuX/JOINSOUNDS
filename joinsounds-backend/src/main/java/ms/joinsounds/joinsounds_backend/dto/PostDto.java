@@ -3,6 +3,7 @@ package ms.joinsounds.joinsounds_backend.dto;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.Data;
+import ms.joinsounds.joinsounds_backend.entity.PostLike;
 import ms.joinsounds.joinsounds_backend.entity.User;
 
 import java.time.LocalDateTime;
@@ -23,5 +24,7 @@ public class PostDto {
     private UserDto user;
     private List<String> tags;
     private String userProfilePicturePath;
+    private Boolean isLikedByCurrentUser;
+    private Integer likeCount;
 }
 

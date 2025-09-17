@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import UserService from "../service/UserService";
 import { useNotifications } from "../hooks/useNotifications";
+import { MdNotificationsNone, MdNotifications } from "react-icons/md"; // ✅ import ikon
 import logo from "../../assets/images/JOINSOUNDS.png";
 import "./Navbar.css";
 
@@ -40,8 +41,7 @@ function Navbar() {
 
     const handleNotificationClick = (notification) => {
         markAsRead(notification.id);
-        // Nawigacja w zależności od typu powiadomienia
-        if (notification.relatedEntityType === 'POST') {
+        if (notification.relatedEntityType === "POST") {
             navigate(`/post/${notification.relatedEntityId}`);
         }
         setNotificationsOpen(false);
@@ -57,10 +57,10 @@ function Navbar() {
     };
 
     const requestNotificationPermission = () => {
-        if ('Notification' in window) {
-            Notification.requestPermission().then(permission => {
-                if (permission === 'granted') {
-                    console.log('Notification permission granted');
+        if ("Notification" in window) {
+            Notification.requestPermission().then((permission) => {
+                if (permission === "granted") {
+                    console.log("Notification permission granted");
                 }
             });
         }
@@ -69,8 +69,6 @@ function Navbar() {
     useEffect(() => {
         setIsAuthenticated(UserService.isAuthenticated());
         setIsAdmin(UserService.isAdmin());
-        
-        // Poproś o pozwolenie na powiadomienia przy pierwszym renderowaniu
         if (isAuthenticated) {
             requestNotificationPermission();
         }
@@ -89,13 +87,17 @@ function Navbar() {
                 </div>
                 <ul className={isOpen ? "nav-menu active" : "nav-menu"}>
                     {isAuthenticated && (
-                        <li className="nav-item notification-item">
+                        <li className="nav-item">
                             <div className="notification-bell-container">
                                 <button 
                                     className="notification-bell-btn"
                                     onClick={toggleNotifications}
                                 >
-                                    🔔
+                                    {unreadCount > 0 ? (
+                                        <MdNotifications size={24} />
+                                    ) : (
+                                        <MdNotificationsNone size={24} />
+                                    )}
                                     {unreadCount > 0 && (
                                         <span className="notification-badge">{unreadCount}</span>
                                     )}
@@ -119,12 +121,11 @@ function Navbar() {
                                             {notifications.length === 0 ? (
                                                 <p className="no-notifications">Brak powiadomień</p>
                                             ) : (
-                                                // Usuń duplikaty przed renderowaniem
                                                 Array.from(new Map(notifications.map(item => [item.id, item])).values())
                                                     .map(notification => (
                                                         <div 
                                                             key={notification.id} 
-                                                            className={`notification-item ${notification.read ? '' : 'unread'}`}
+                                                            className={`notification-item ${notification.read ? "" : "unread"}`}
                                                             onClick={() => handleNotificationClick(notification)}
                                                         >
                                                             <div className="notification-content">
@@ -133,9 +134,7 @@ function Navbar() {
                                                                     {new Date(notification.createdAt).toLocaleString()}
                                                                 </small>
                                                             </div>
-                                                            {!notification.read && (
-                                                                <div className="unread-dot"></div>
-                                                            )}
+                                                            {!notification.read && <div className="unread-dot"></div>}
                                                         </div>
                                                     ))
                                             )}

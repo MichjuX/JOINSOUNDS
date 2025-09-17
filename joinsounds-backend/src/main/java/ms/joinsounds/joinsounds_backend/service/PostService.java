@@ -15,6 +15,8 @@ import ms.joinsounds.joinsounds_backend.repository.UserProfileRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
@@ -30,6 +32,7 @@ public class PostService {
     private final TagService _tagService;
     private final UserProfileRepository _userProfileRepository;
     private final PostLikeRepository _postLikeRepository;
+    private final PostLikeService _postLikeService;
 
 
     public Page<PostDto> getAllPosts(Pageable pageable) {
@@ -63,6 +66,9 @@ public class PostService {
             postDto.setIsFinished(post.getIsFinished());
             postDto.setUserProfilePicturePath(_userProfileRepository.findProfilePicturePathByUserId(post.getUser().getId()));
 
+            postDto.setIsLikedByCurrentUser(_isLikedByCurrentUser(post));
+            postDto.setLikeCount(_postLikeService.getPostLikesCount(post));
+
             if (post.getUser() != null) {
                 postDto.setUser(_userService.convertToDto(post.getUser()));
             }
@@ -85,6 +91,11 @@ public class PostService {
                 postDto.setTitle(post.getTitle());
                 postDto.setContent(post.getContent());
                 postDto.setIsFinished(post.getIsFinished());
+//                postDto.setPostLike(_postLikeService.getPostLikes(post));
+
+                postDto.setIsLikedByCurrentUser(_isLikedByCurrentUser(post));
+                postDto.setLikeCount(_postLikeService.getPostLikesCount(post));
+
                 if (post.getUser() != null) {
                     postDto.setUser(_userService.convertToDto(post.getUser()));
                 }
@@ -97,6 +108,12 @@ public class PostService {
                 return postDto;
             }
             return new PostDto();
+    }
+
+    private Boolean _isLikedByCurrentUser(Post post) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        User currentUser = authentication.getPrincipal() instanceof User ? (User) authentication.getPrincipal() : null;
+        return _postLikeService.isPostLikedByUser(post, currentUser);
     }
 
     public void deletePostByModerator(UUID id, String role) {

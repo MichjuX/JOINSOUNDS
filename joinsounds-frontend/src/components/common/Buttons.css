@@ -114,3 +114,17 @@ button:hover {
     transform: translateY(-2px);
     transition: all 0.3s ease;
 }
+.like-btn {
+    background: none;
+    border: none;
+    color: #ff5100;
+    cursor: pointer;
+    padding: 5px 0;
+    font-size: 0.9em;
+    margin-top: 5px;
+    font-weight: 500;
+    transition: all 0.2s ease;
+}
+.like-btn:hover {
+    color: #ff7b45;
+}

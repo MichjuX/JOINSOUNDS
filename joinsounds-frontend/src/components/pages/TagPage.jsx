@@ -43,7 +43,8 @@ function TagPage() {
           size,
           sortBy,
           sortDirection,
-          { signal: abortController.signal }
+          { signal: abortController.signal },
+          token
         );
         setPosts(response.content);
         setTotalPages(response.totalPages);
@@ -205,6 +206,7 @@ function TagPage() {
           onAdminDelete={handleAdminDelete}
           getAudioType={getAudioType}
           token={token}
+          onUpdatePosts={setPosts}
         />
 
         {posts.length > 0 && (

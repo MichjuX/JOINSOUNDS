@@ -40,6 +40,20 @@ class PostService {
         }
     }
 
+    static async toggleLike(postId, token) {
+        try {
+            const response = await axios.post(`${this.BASE_URL}/authenticated/post/like/${postId}`, {}, {
+                headers: {
+                    'Authorization': `Bearer ${token}`
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error liking post:", error);
+            throw error;
+        }
+    }
+
     static async uploadFile(file, token, onProgress) {
         try {
             const formData = new FormData();
@@ -71,26 +85,28 @@ class PostService {
         }
     }
 
-    static async getAllPosts(page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
-        try {
-            const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
-                params: { 
-                    page, 
-                    size,
-                    sort: `${sortBy},${sortDirection}`
-                },
-                ...config
-            });
-            return response.data;
-        } catch (error) {
-            if (!axios.isCancel(error)) {
-                console.error("Error getting posts:", error);
-                throw error;
-            }
+    static async getAllPosts(page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}, token) {
+    try {
+        const response = await axios.get(`${this.BASE_URL}/public/post/all`, {
+            params: { 
+                page, 
+                size,
+                sort: `${sortBy},${sortDirection}`
+            },
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+            ...config
+        });
+        return response.data;
+    } catch (error) {
+        if (!axios.isCancel(error)) {
+            console.error("Error getting posts:", error);
+            throw error;
         }
     }
+}
 
-    static async getAllPostsByTag(tag, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
+
+    static async getAllPostsByTag(tag, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}, token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/all/tag/${tag}`, {
                 params: { 
@@ -98,6 +114,7 @@ class PostService {
                     size,
                     sort: `${sortBy},${sortDirection}`
                 },
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
                 ...config
             });
             return response.data;
@@ -109,7 +126,7 @@ class PostService {
         }
     }
 
-    static async getAllPostsByUser(userId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}) {
+    static async getAllPostsByUser(userId, page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc', config = {}, token) {
         try {
             const response = await axios.get(`${this.BASE_URL}/public/post/all/user/${userId}`, {
                 params: {
@@ -117,6 +134,7 @@ class PostService {
                     size,
                     sort: `${sortBy},${sortDirection}`
                 },
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
                 ...config
             });
             return response.data;

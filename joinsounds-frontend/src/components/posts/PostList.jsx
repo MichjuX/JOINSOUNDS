@@ -7,6 +7,8 @@ import AudioPlayer from "../common/AudioPlayer";
 import CommentSection from "./CommentSection";
 import { useNavigate } from "react-router-dom";
 import joinsoundsSquare from "../../assets/images/JOINSOUNDS_square.png"; 
+import { Button } from "@mui/material";
+import { IoMdHeart, IoMdHeartEmpty } from "react-icons/io";
 
 function PostList({ 
   posts, 
@@ -16,7 +18,8 @@ function PostList({
   onEdit,
   onDelete, 
   onAdminDelete,
-  token 
+  token,
+  onUpdatePosts
 }) {
   const [currentlyPlayingId, setCurrentlyPlayingId] = useState(null);
   const [expandedPosts, setExpandedPosts] = useState({});
@@ -122,6 +125,31 @@ function PostList({
     }
   };
 
+  const handleLike = async (postId) => {
+    // od razu aktualizujemy stan UI
+    onUpdatePosts(prevPosts =>
+      prevPosts.map(post =>
+        post.id === postId
+          ? {
+              ...post,
+              isLikedByCurrentUser: !post.isLikedByCurrentUser,
+              likeCount: post.isLikedByCurrentUser 
+                ? post.likeCount - 1 
+                : post.likeCount + 1
+            }
+          : post
+      )
+    );
+
+    try {
+      await PostService.toggleLike(postId, token);
+    } catch (error) {
+      console.error("Error liking post:", error);
+    }
+  };
+
+
+
   if (loading) return <div className="loading">Loading posts...</div>;
   if (posts.length === 0 && !loading) return <p>No posts available. Be the first to post!</p>;
 
@@ -164,13 +192,18 @@ function PostList({
                 </div>
               )}
             </div>
-            
-            <h3>
-              {post.isFinished && (
-                <span className="finished-badge">FINISHED <br /></span>
-              )}
-              {post.title}
-            </h3>
+            <div className="post-title-section">
+              <h3>
+                {post.isFinished && (
+                  <span className="finished-badge">FINISHED <br /></span>
+                )}
+                {post.title}
+              </h3>
+              <button className="like-btn" onClick={() => handleLike(post.id)}>
+                {post.isLikedByCurrentUser ? <IoMdHeart size={24} /> : <IoMdHeartEmpty size={24} />}
+                <span className="like-count">{post.likeCount}</span>
+              </button>
+            </div>
             
             {/* Sekcja z tekstem z możliwością przewijania */}
             <div 

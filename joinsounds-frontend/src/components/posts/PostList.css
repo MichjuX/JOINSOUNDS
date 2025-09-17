@@ -99,6 +99,32 @@ h2 {
     margin-bottom: 15px;
 }
 
+/* Tytuł i like button */
+.post-title-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center; /* <-- wyrównuje serce do środka wysokości h3 */
+}
+
+.like-btn {
+  display: flex;
+  flex-direction: column; /* <-- licznik pod sercem */
+  align-items: center;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #ff5100;
+  padding: 0;
+}
+
+.like-count {
+  font-size: 0.8rem;
+  color: #aaa;
+  margin-top: 4px; /* odstęp od serca */
+}
+
+
+
 /* Styl dla zawartości posta z ograniczeniem i przewijaniem */
 .post-content {
     max-height: 7.5em; /* 5 linii * 1.5em (wysokość linii) */
