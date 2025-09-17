@@ -29,4 +29,12 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
     List<Post> findByTagNames(@Param("tagNames") List<String> tagNames);
 
     Page<Post> findByUserId(UUID userId, Pageable pageable);
+
+    @Query("SELECT DISTINCT p " +
+            "FROM Post p " +
+            "JOIN p.tags t " +
+            "WHERE t.name IN :preferredTags " +
+            "AND p.id NOT IN (SELECT l.post.id FROM PostLike l WHERE l.user.id = :userId)")
+    List<Post> findRecommendedPosts(@Param("preferredTags") List<String> preferredTags,
+                                    @Param("userId") UUID userId);
 }
