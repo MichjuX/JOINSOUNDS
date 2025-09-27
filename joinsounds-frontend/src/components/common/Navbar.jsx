@@ -44,6 +44,9 @@ function Navbar() {
         if (notification.relatedEntityType === "POST") {
             navigate(`/post/${notification.relatedEntityId}`);
         }
+        if (notification.relatedEntityType === "CHAT") {
+            navigate(`/profile/${notification.relatedEntityId}`);
+        }
         setNotificationsOpen(false);
     };
 

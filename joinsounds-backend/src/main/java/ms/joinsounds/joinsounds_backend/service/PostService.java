@@ -56,7 +56,7 @@ public class PostService {
         return getPostDtos(postsPage);
     }
 
-    private Page<PostDto> getPostDtos(Page<Post> postsPage) {
+    public Page<PostDto> getPostDtos(Page<Post> postsPage) {
         return postsPage.map(post -> {
             PostDto postDto = new PostDto();
             postDto.setId(post.getId());

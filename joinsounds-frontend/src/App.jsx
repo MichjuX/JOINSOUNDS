@@ -16,7 +16,8 @@ import AccountVerificationPage from './components/auth/AccountVerificationPage';
 import TagPage from './components/pages/TagPage';
 import UserPostsPage from './components/pages/UserPostsPage';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
-import { WebSocketProvider } from './components/context/WebSocketProvider' //
+import { WebSocketProvider } from './components/context/WebSocketProvider'
+import RecommendedPostPage from './components/pages/RecommendedPostPage';
 
 function App() {
   return (
@@ -57,6 +58,7 @@ function App() {
             {UserService.isAuthenticated() && (
               <>
                 <Route path="/post/edit/:id" element={<EditPostPage />} />
+                <Route path="/recommendations" element={<RecommendedPostPage />} />
               </>
             )}
             {/* Redirect to login if not authenticated */}

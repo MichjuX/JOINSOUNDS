@@ -58,7 +58,7 @@ export const WebSocketProvider = ({ children }) => {
                     connectHeaders: { 
                         Authorization: `Bearer ${token}` 
                     },
-                    debug: (str) => console.log('STOMP Debug:', str),
+                    // debug: (str) => console.log('STOMP Debug:', str),
                     onConnect: () => {
                         if (!isMounted) return;
                         console.log('WebSocket connected successfully');

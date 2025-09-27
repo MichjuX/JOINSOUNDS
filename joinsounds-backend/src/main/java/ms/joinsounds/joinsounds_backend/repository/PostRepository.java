@@ -37,4 +37,16 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
             "AND p.id NOT IN (SELECT l.post.id FROM PostLike l WHERE l.user.id = :userId)")
     List<Post> findRecommendedPosts(@Param("preferredTags") List<String> preferredTags,
                                     @Param("userId") UUID userId);
+
+    @Query("SELECT DISTINCT p " +
+            "FROM Post p " +
+            "JOIN p.tags t " +
+            "WHERE t.name IN :preferredTags " +
+            "AND p.user.id <> :userId " +                  // wyklucz własne posty
+            "AND p.id NOT IN (SELECT l.post.id FROM PostLike l WHERE l.user.id = :userId)")
+    Page<Post> findRecommendedPosts(@Param("preferredTags") List<String> preferredTags,
+                                    @Param("userId") UUID userId,
+                                    Pageable pageable);
+
+
 }

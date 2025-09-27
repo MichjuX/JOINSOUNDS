@@ -105,7 +105,7 @@ public class PostController {
     @DeleteMapping("/authenticated/post/delete/{id}")
     public ResponseEntity<Void> deletePost(@PathVariable UUID id) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User user = (User) authentication.getPrincipal();
+            User user = (User) authentication.getPrincipal();
         Post post = _postRepository.findById(id).orElse(null);
         String audioFilePath = "";
         if (post != null ) {
