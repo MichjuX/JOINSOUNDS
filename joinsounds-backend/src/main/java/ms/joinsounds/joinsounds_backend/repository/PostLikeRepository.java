@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -29,4 +30,11 @@ public interface PostLikeRepository extends JpaRepository<PostLike, UUID> {
             "GROUP BY t.name " +
             "ORDER BY COUNT(l) DESC")
     List<Object[]> countLikesByTagForUser(@Param("userId") UUID userId);
+
+    // Statystyki dla konkretnego użytkownika
+    @Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.user.id = :userId")
+    long countTotalLikesByUser(@Param("userId") UUID userId);
+
+    @Query("SELECT COUNT(pl) FROM PostLike pl WHERE pl.user.id = :userId AND pl.createdAt >= :startDate")
+    long countLikesSinceByUser(@Param("userId") UUID userId, @Param("startDate") LocalDateTime startDate);
 }
