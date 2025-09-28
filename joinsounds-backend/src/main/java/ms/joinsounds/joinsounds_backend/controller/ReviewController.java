@@ -6,6 +6,7 @@ import ms.joinsounds.joinsounds_backend.entity.Review;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.ReviewRepository;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
+import ms.joinsounds.joinsounds_backend.service.NotificationService;
 import ms.joinsounds.joinsounds_backend.service.ReviewService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -25,6 +26,7 @@ public class ReviewController {
     private final UsersRepository _usersRepository;
     private final ReviewRepository _reviewRepository;
     private final ReviewService _reviewService;
+    private final NotificationService _notificationService;
 
     @PostMapping("/authenticated/review/create")
     public Review createReview(@RequestBody Review reviewRequest) {
@@ -38,6 +40,12 @@ public class ReviewController {
         review.setContent(reviewRequest.getContent());
         review.setUserFrom(user);
         review.setUserAbout(userAbout);
+
+        _notificationService.createNotification(userAbout.getId(),
+                "PROFILE_REVIEW",
+                user.getName() + " left you a new review.",
+                review.getId(),
+                "REVIEW");
 
         return _reviewRepository.save(review);
     }

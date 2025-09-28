@@ -18,8 +18,10 @@ public class ReviewService {
             reviewDto.setId(review.getId());
             reviewDto.setRating(review.getRating());
             reviewDto.setContent(review.getContent());
+            reviewDto.setCreatedAt(review.getCreatedAt());
             reviewDto.setUserAboutId(review.getUserAbout().getId());
             reviewDto.setUserFromUsername(review.getUserFrom().getName());
+            reviewDto.setUserFromId(review.getUserFrom().getId());
 
             UserProfile userFromProfile = _userProfileRepository.findByUser(review.getUserFrom());
             reviewDto.setUserFromProfilePicturePath(userFromProfile.getProfilePicturePath());

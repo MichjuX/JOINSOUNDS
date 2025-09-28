@@ -5,10 +5,11 @@ import ProfileEditModal from './ProfileEditModal';
 import './ProfilePage.css';
 import UserService from '../service/UserService';
 import PostService from '../service/PostService';
-import { MdOutlineRemoveCircleOutline, MdAddAPhoto } from "react-icons/md";
+import ReviewService from '../service/ReviewService';
+import { MdOutlineRemoveCircleOutline, MdAddAPhoto, MdStar, MdStarBorder, MdEdit, MdDelete } from "react-icons/md";
 import joinsoundsSquare from '../../assets/images/JOINSOUNDS_square.png';
 import ChatWindow from '../chat/ChatWindow';
-import useChat from '../chat/useChat'; // 🔹 nasz hook do chatu
+import useChat from '../chat/useChat';
 import { Button } from '@mui/material';
 import '../common/Buttons.css';
 import { useNavigate } from 'react-router-dom';
@@ -26,11 +27,29 @@ function ProfilePage() {
     const [showChat, setShowChat] = useState(false);
     const navigate = useNavigate();
     
+    // Review states
+    const [reviews, setReviews] = useState([]);
+    const [reviewsLoading, setReviewsLoading] = useState(false);
+    const [showReviewForm, setShowReviewForm] = useState(false);
+    const [editingReview, setEditingReview] = useState(null);
+    const [reviewForm, setReviewForm] = useState({
+        rating: 5,
+        content: ''
+    });
+    const [reviewsPage, setReviewsPage] = useState(0);
+    const [hasMoreReviews, setHasMoreReviews] = useState(true);
+
     const fileInputRef = React.useRef();
 
     useEffect(() => {
         fetchProfile();
     }, [userId]);
+
+    useEffect(() => {
+        if (profile && !isOwnProfile) {
+            fetchReviews(0, true);
+        }
+    }, [profile]);
 
     const fetchProfile = async () => {
         setLoading(true);
@@ -64,6 +83,48 @@ function ProfilePage() {
             setError(error.message);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const fetchReviews = async (page = 0, reset = false) => {
+        if (!profile || isOwnProfile) return;
+        
+        setReviewsLoading(true);
+        try {
+            const response = await ReviewService.getAllReviewsForUser(
+                profile.id, 
+                page, 
+                10, 
+                'createdAt', 
+                'desc',
+                {},
+                token
+            );
+            
+            // Przetwarzanie danych recenzji - tworzenie poprawnej struktury
+            const processedReviews = (response.content || []).map(review => ({
+                ...review,
+                userFrom: {
+                    id: review.userFromId,
+                    username: review.userFromUsername,
+                    profilePictureUrl: review.userFromProfilePicturePath 
+                        ? PostService.getAuthorizedFileUrl(review.userFromProfilePicturePath)
+                        : null
+                }
+            }));
+            
+            if (reset) {
+                setReviews(processedReviews);
+            } else {
+                setReviews(prev => [...prev, ...processedReviews]);
+            }
+            
+            setReviewsPage(page);
+            setHasMoreReviews(!response.last);
+        } catch (error) {
+            console.error('Error fetching reviews:', error);
+        } finally {
+            setReviewsLoading(false);
         }
     };
 
@@ -147,14 +208,93 @@ function ProfilePage() {
         }
     };
 
+    // Review handlers
+    const handleReviewSubmit = async (e) => {
+        e.preventDefault();
+        if (!token) {
+            alert('You must be logged in to submit a review');
+            return;
+        }
+
+        try {
+            const reviewData = {
+                rating: reviewForm.rating,
+                content: reviewForm.content,
+                userAbout: { id: profile.id }
+            };
+
+            if (editingReview) {
+                await ReviewService.updateReview(editingReview.id, reviewData, token);
+            } else {
+                await ReviewService.createReview(reviewData, token);
+            }
+
+            setReviewForm({ rating: 5, content: '' });
+            setShowReviewForm(false);
+            setEditingReview(null);
+            fetchReviews(0, true); // Refresh reviews
+        } catch (error) {
+            alert('Error submitting review: ' + error.message);
+        }
+    };
+
+    const handleEditReview = (review) => {
+        setReviewForm({
+            rating: review.rating,
+            content: review.content
+        });
+        setEditingReview(review);
+        setShowReviewForm(true);
+    };
+
+    const handleDeleteReview = async (reviewId) => {
+        if (!window.confirm('Are you sure you want to delete this review?')) return;
+
+        try {
+            await ReviewService.deleteReview(reviewId, token);
+            fetchReviews(0, true); // Refresh reviews
+        } catch (error) {
+            alert('Error deleting review: ' + error.message);
+        }
+    };
+
+    const canUserReview = () => {
+        if (!currentUser || !profile) return false;
+        return !reviews.some(review => review.userFromId === currentUser.id);
+    };
+
     const isOwnProfile = currentUser && userId && currentUser.id === userId;
     const isLoggedIn = !!token;
 
-    // 🔹 Hook czatu — tylko jeśli mamy obu użytkowników
+    // Calculate average rating
+    const averageRating = reviews.length > 0 
+        ? (reviews.reduce((sum, review) => sum + review.rating, 0) / reviews.length).toFixed(1)
+        : 0;
+
+    // Hook czatu
     const { messages, sendMessage } = useChat(
         currentUser?.id,
         profile?.id
     );
+
+    // StarRating component
+    const StarRating = ({ rating, onRatingChange, editable = false }) => {
+        return (
+            <div className="star-rating">
+                {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                        key={star}
+                        type="button"
+                        className={editable ? "star-button" : ""}
+                        onClick={() => editable && onRatingChange(star)}
+                        disabled={!editable}
+                    >
+                        {star <= rating ? <MdStar /> : <MdStarBorder />}
+                    </button>
+                ))}
+            </div>
+        );
+    };
 
     if (loading) {
         return (
@@ -187,13 +327,13 @@ function ProfilePage() {
         }
         setShowChat(true);
     };
+
     const handlePostRedirect = () => {
         navigate(`/posts/user/${profile.id}`);
     };
 
     return (
         <div className="profile-container">
-
             {/* Przycisk czatu */}
             {isLoggedIn && !isOwnProfile && (
                 <button
@@ -252,6 +392,11 @@ function ProfilePage() {
                         <span className="stat-item">
                             🎵 {profile.postCount} posts
                         </span>
+                        {!isOwnProfile && reviews.length > 0 && (
+                            <span className="stat-item">
+                                ⭐ {averageRating} ({reviews.length} reviews)
+                            </span>
+                        )}
                     </div>
                 </div>
 
@@ -301,6 +446,133 @@ function ProfilePage() {
                     </div>
                 )}
 
+                {profile.postCount > 0 && (
+                    <div className="profile-section">
+                        <h3>User's Posts</h3>
+                        <div className="tags-list">
+                            <Button className='submit-btn' onClick={handlePostRedirect}>
+                                View Posts
+                            </Button>
+                        </div>
+                    </div>
+                )}
+
+
+                {/* Reviews Section */}
+                {/* {!isOwnProfile && ( */}
+                    <div className="profile-section">
+                        <div className="reviews-header">
+                            <h3>Reviews</h3>
+                            {reviews.length > 0 && (
+                                <div className="average-rating">
+                                    <span>Average: {averageRating}</span>
+                                    <StarRating rating={parseFloat(averageRating)} />
+                                </div>
+                            )}
+                        </div>
+
+                        {!isOwnProfile && isLoggedIn && canUserReview() && !showReviewForm && (
+                            <button
+                                className="add-review-btn"
+                                onClick={() => setShowReviewForm(true)}
+                            >
+                                Write a Review
+                            </button>
+                        )}
+
+                        {!isOwnProfile && showReviewForm && (
+                            <form className="review-form" onSubmit={handleReviewSubmit}>
+                                <h4>{editingReview ? 'Edit Review' : 'Write a Review'}</h4>
+                                <div className="review-rating">
+                                    <label>Rating:</label>
+                                    <StarRating 
+                                        rating={reviewForm.rating} 
+                                        onRatingChange={(rating) => setReviewForm(prev => ({...prev, rating}))}
+                                        editable={true}
+                                    />
+                                </div>
+                                <textarea
+                                    value={reviewForm.content}
+                                    onChange={(e) => setReviewForm(prev => ({...prev, content: e.target.value}))}
+                                    placeholder="Share your experience with this user..."
+                                    rows="4"
+                                    required
+                                />
+                                <div className="review-form-actions">
+                                    <button type="submit" className="submit-btn">
+                                        {editingReview ? 'Update Review' : 'Submit Review'}
+                                    </button>
+                                    <button 
+                                        type="button" 
+                                        className="cancel-btn"
+                                        onClick={() => {
+                                            setShowReviewForm(false);
+                                            setEditingReview(null);
+                                            setReviewForm({ rating: 5, content: '' });
+                                        }}
+                                    >
+                                        Cancel
+                                    </button>
+                                </div>
+                            </form>
+                        )}
+
+                        <div className="reviews-list">
+                            {reviews.map((review) => (
+                                <div key={review.id} className="review-item">
+                                    <div className="review-header">
+                                        <div className="reviewer-info">
+                                            <img 
+                                                src={review.userFrom?.profilePictureUrl || joinsoundsSquare} 
+                                                alt={review.userFrom?.username || 'User'}
+                                                className="reviewer-avatar"
+                                            />
+                                            <span className="reviewer-name">{review.userFrom?.username || 'Unknown User'}</span>
+                                        </div>
+                                        <div className="review-rating">
+                                            <StarRating rating={review.rating} />
+                                            <span className="review-date">
+                                                {new Date(review.createdAt).toLocaleDateString()}
+                                            </span>
+                                        </div>
+                                    </div>
+                                    <p className="review-content">{review.content}</p>
+                                    {currentUser && review.userFromId === currentUser.id && (
+                                        <div className="review-actions">
+                                            <button 
+                                                className="edit-review-btn"
+                                                onClick={() => handleEditReview(review)}
+                                            >
+                                                <MdEdit /> Edit
+                                            </button>
+                                            <button 
+                                                className="delete-review-btn"
+                                                onClick={() => handleDeleteReview(review.id)}
+                                            >
+                                                <MdDelete /> Delete
+                                            </button>
+                                        </div>
+                                    )}
+                                </div>
+                            ))}
+                            
+                            {reviews.length === 0 && !showReviewForm && (
+                                <p className="no-reviews">No reviews yet. Be the first to write one!</p>
+                            )}
+                            
+                            {hasMoreReviews && reviews.length > 0 && (
+                                <button 
+                                    className="load-more-reviews"
+                                    onClick={() => fetchReviews(reviewsPage + 1)}
+                                    disabled={reviewsLoading}
+                                >
+                                    {reviewsLoading ? 'Loading...' : 'Load More Reviews'}
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                {/* )} */}
+
                 {!profile.bio && !profile.tools?.length && !profile.genres?.length && isOwnProfile && (
                     <div className="profile-empty">
                         <p>Add information about yourself</p>
@@ -310,19 +582,6 @@ function ProfilePage() {
                         >
                             Add Informations
                         </button>
-                    </div>
-                )}
-
-                {profile.postCount > 0 && (
-                    <div className="profile-section">
-                        <h3>User's Posts</h3>
-                        <div className="tags-list">
-                            <Button className='submit-btn'
-                            onClick={handlePostRedirect}
-                            >
-                                View Posts
-                            </Button>
-                        </div>
                     </div>
                 )}
             </div>
@@ -335,10 +594,10 @@ function ProfilePage() {
                     sendMessage={sendMessage}
                     onClose={() => {
                         setShowChat(false);
-                        localStorage.setItem("activeChat", ""); // czat zamknięty
-                        }}
+                        localStorage.setItem("activeChat", "");
+                    }}
                     onOpen={() => {
-                        localStorage.setItem("activeChat", profile.id); // zapamiętaj aktywnego rozmówcę
+                        localStorage.setItem("activeChat", profile.id);
                     }}
                 />
             )}
