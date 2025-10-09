@@ -18,6 +18,7 @@ import UserPostsPage from './components/pages/UserPostsPage';
 import { ConfirmPopup, confirmPopup } from 'primereact/confirmpopup';
 import { WebSocketProvider } from './components/context/WebSocketProvider'
 import RecommendedPostPage from './components/pages/RecommendedPostPage';
+import DailyPostPage from './components/pages/DailyPostPage';
 
 function App() {
   return (
@@ -35,6 +36,7 @@ function App() {
             <Route path="/tag/:tag" element={<TagPage />} />
             <Route path="/posts/user/:userId" element={<UserPostsPage />} />
             <Route path="/profile/:userId" element={<ProfilePage />} />
+            <Route path="/daily" element={<DailyPostPage />} />
             {/* <Route path="/register" element={<UserRegistrationPage />} /> */}
 
             {/* Check if user is authenticated and admin before rendering admin-only routes */}

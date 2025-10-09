@@ -100,6 +100,22 @@ class ProfileService {
         if (!filename) return null;
         return `${this.BASE_URL}/public/file/${encodeURIComponent(filename)}`;
     }
+
+    static async getUserAnalytics(token) {
+        try {
+            const response = await axios.get(`${this.BASE_URL}/authenticated/analytics/user`, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error fetching user profile:", error);
+            throw error;
+        }
+    }
+
 }
 
 export default ProfileService;

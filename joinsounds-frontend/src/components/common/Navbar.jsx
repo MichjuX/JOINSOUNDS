@@ -176,6 +176,20 @@ function Navbar() {
                             </Link>
                         </li>
                     )}
+                    {isAuthenticated && currentUserId && (
+                        <li className="nav-item">
+                            <Link to={`/daily`} className="nav-links" onClick={closeMobileMenu}>
+                                Daily
+                            </Link>
+                        </li>
+                    )}
+                    {isAuthenticated && currentUserId && (
+                        <li className="nav-item">
+                            <Link to={`/recommendations`} className="nav-links" onClick={closeMobileMenu}>
+                                Recommendations
+                            </Link>
+                        </li>
+                    )}
                     {isAuthenticated && (
                         <li className="nav-item">
                             <Link to="/" className="nav-links" onClick={() => { closeMobileMenu(); handleLogout(); }}>

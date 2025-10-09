@@ -48,5 +48,6 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
                                     @Param("userId") UUID userId,
                                     Pageable pageable);
 
+    List<Post> findByIsFinishedTrue();
 
 }

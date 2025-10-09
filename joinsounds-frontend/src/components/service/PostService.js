@@ -285,6 +285,19 @@ class PostService {
             throw error;
         }
     }
+
+    static async getDailyPost(token) {
+    try {
+        const response = await axios.get(`${this.BASE_URL}/public/post/daily`, {
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+        });
+        return response.data;
+    } catch (error) {
+        console.error("Error fetching daily post:", error);
+        throw error;
+    }
+}
+
 }
 
 export default PostService;

@@ -14,6 +14,8 @@ import { Button } from '@mui/material';
 import '../common/Buttons.css';
 import { useNavigate } from 'react-router-dom';
 import AutoLink from '../common/AutoLink';
+import ProfileAnalyticsModal from './ProfileAnalyticsModal';
+
 
 function ProfilePage() {
     const { userId } = useParams();
@@ -26,6 +28,7 @@ function ProfilePage() {
     const [currentUser, setCurrentUser] = useState(null);
     const [showChat, setShowChat] = useState(false);
     const navigate = useNavigate();
+    const [showAnalytics, setShowAnalytics] = useState(false);
     
     // Review states
     const [reviews, setReviews] = useState([]);
@@ -46,9 +49,7 @@ function ProfilePage() {
     }, [userId]);
 
     useEffect(() => {
-        if (profile && !isOwnProfile) {
-            fetchReviews(0, true);
-        }
+        fetchReviews(0, true);
     }, [profile]);
 
     const fetchProfile = async () => {
@@ -87,12 +88,12 @@ function ProfilePage() {
     };
 
     const fetchReviews = async (page = 0, reset = false) => {
-        if (!profile || isOwnProfile) return;
+        // if (!profile || isOwnProfile) return;
         
         setReviewsLoading(true);
         try {
             const response = await ReviewService.getAllReviewsForUser(
-                profile.id, 
+                userId, 
                 page, 
                 10, 
                 'createdAt', 
@@ -100,6 +101,7 @@ function ProfilePage() {
                 {},
                 token
             );
+            console.log('Fetched reviews:', response);
             
             // Przetwarzanie danych recenzji - tworzenie poprawnej struktury
             const processedReviews = (response.content || []).map(review => ({
@@ -401,13 +403,22 @@ function ProfilePage() {
                 </div>
 
                 {isOwnProfile && (
-                    <button
-                        className="edit-profile-btn"
-                        onClick={() => setIsEditing(true)}
-                    >
-                        ✏️ Edit Profile
-                    </button>
+                    <div className="profile-actions">
+                        <button
+                            className="edit-profile-btn"
+                            onClick={() => setIsEditing(true)}
+                        >
+                            ✏️ Edit Profile
+                        </button>
+                        <button
+                            className="edit-profile-btn"
+                            onClick={() => setShowAnalytics(true)}
+                        >
+                            📊 View Analytics
+                        </button>
+                    </div>
                 )}
+
             </div>
 
             <div className="profile-content">
@@ -609,6 +620,14 @@ function ProfilePage() {
                     onClose={() => setIsEditing(false)}
                 />
             )}
+
+            {showAnalytics && (
+                <ProfileAnalyticsModal
+                    token={token}
+                    onClose={() => setShowAnalytics(false)}
+                />
+            )}
+
         </div>
     );
 }

@@ -1,11 +1,14 @@
 package ms.joinsounds.joinsounds_backend.controller;
 
+import lombok.RequiredArgsConstructor;
 import ms.joinsounds.joinsounds_backend.dto.PostDto;
 import ms.joinsounds.joinsounds_backend.dto.PostRequest;
 import ms.joinsounds.joinsounds_backend.entity.Post;
 import ms.joinsounds.joinsounds_backend.entity.User;
+import ms.joinsounds.joinsounds_backend.repository.CommentRepository;
 import ms.joinsounds.joinsounds_backend.repository.PostRepository;
 import ms.joinsounds.joinsounds_backend.service.FileStorageService;
+import ms.joinsounds.joinsounds_backend.service.DailyPostService;
 import ms.joinsounds.joinsounds_backend.service.PostService;
 import ms.joinsounds.joinsounds_backend.service.TagService;
 import org.springframework.data.domain.Page;
@@ -17,24 +20,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 @RestController
+@RequiredArgsConstructor
 public class PostController {
     private final PostRepository _postRepository;
     private final PostService _postService;
     private final FileStorageService _fileStorageService;
     private final TagService _tagService;
-
-    public PostController(PostRepository postRepository,
-                          PostService postService,
-                          FileStorageService fileStorageService, TagService tagService) {
-        this._postRepository = postRepository;
-        this._postService = postService;
-        this._fileStorageService = fileStorageService;
-        _tagService = tagService;
-    }
+    private final CommentRepository _commentRepository;
 
     @PostMapping("/authenticated/post/create")
     public Post createPost(@RequestBody PostRequest postRequest) {
@@ -112,6 +107,7 @@ public class PostController {
             audioFilePath = post.getAudioFilePath();
         }
         if (post != null && post.getUser().getId().equals(user.getId())) {
+            _commentRepository.deleteByPostId(post.getId());
             _postRepository.delete(post);
             if (audioFilePath != null && !audioFilePath.isEmpty()) {
                 _fileStorageService.deleteFile(audioFilePath);
@@ -120,6 +116,7 @@ public class PostController {
         }
         String role = user.getRole();
         if(post != null && (role.equals("ADMIN") || role.equals("MODERATOR"))){
+            _commentRepository.deleteByPostId(post.getId());
             _postRepository.delete(post);
             if (audioFilePath != null && !audioFilePath.isEmpty()) {
                 _fileStorageService.deleteFile(audioFilePath);
@@ -190,4 +187,18 @@ public class PostController {
         }
         return ResponseEntity.notFound().build();
     }
+
+    private final DailyPostService dailyPostService;
+
+    @GetMapping("/public/post/daily")
+    public ResponseEntity<PostDto> getPostOfTheDay() {
+        Post post = dailyPostService.getCurrentPostOfTheDay();
+        if (post == null) {
+            return ResponseEntity.noContent().build();
+        }
+
+        PostDto postDto = _postService.getPostById(post.getId());
+        return ResponseEntity.ok(postDto);
+    }
+
 }
