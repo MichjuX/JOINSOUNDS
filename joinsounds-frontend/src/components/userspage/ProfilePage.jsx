@@ -10,7 +10,7 @@ import { MdOutlineRemoveCircleOutline, MdAddAPhoto, MdStar, MdStarBorder, MdEdit
 import joinsoundsSquare from '../../assets/images/JOINSOUNDS_square.png';
 import ChatWindow from '../chat/ChatWindow';
 import useChat from '../chat/useChat';
-import { Button } from '@mui/material';
+// import { Button } from '@mui/material';
 import '../common/Buttons.css';
 import { useNavigate } from 'react-router-dom';
 import AutoLink from '../common/AutoLink';
@@ -461,9 +461,9 @@ function ProfilePage() {
                     <div className="profile-section">
                         <h3>User's Posts</h3>
                         <div className="tags-list">
-                            <Button className='submit-btn' onClick={handlePostRedirect}>
+                            <button className='submit-btn' onClick={handlePostRedirect}>
                                 View Posts
-                            </Button>
+                            </button>
                         </div>
                     </div>
                 )}
