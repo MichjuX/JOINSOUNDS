@@ -14,13 +14,13 @@ import java.util.UUID;
 @RestController
 @RequiredArgsConstructor
 public class ChatController {
-    private final ChatMessageRepository chatMessageRepository;
+    private final ChatMessageRepository _chatMessageRepository;
 
     @GetMapping("/public/history/{user1Id}/{user2Id}")
     public List<ChatMessage> getChatHistory(
             @PathVariable UUID user1Id,
             @PathVariable UUID user2Id) {
-        return chatMessageRepository.findChatHistory(user1Id, user2Id);
+        return _chatMessageRepository.findChatHistory(user1Id, user2Id);
     }
 }
 
