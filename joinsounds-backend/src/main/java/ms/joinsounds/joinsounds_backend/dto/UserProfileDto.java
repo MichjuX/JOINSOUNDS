@@ -13,7 +13,7 @@ import java.util.UUID;
 public class UserProfileDto {
     private String username;
     private UUID id;
-    private String profilePictureUrl;
+    private String profilePicturePath;
     private String bio;
     private List<String> tools;
     private List<String> genres;

@@ -28,7 +28,7 @@ public class PostController {
     private final PostRepository _postRepository;
     private final PostService _postService;
     private final FileStorageService _fileStorageService;
-    private final TagService _tagService;
+//    private final TagService _tagService;
     private final CommentRepository _commentRepository;
 
     @PostMapping("/authenticated/post/create")

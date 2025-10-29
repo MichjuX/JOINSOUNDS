@@ -1,7 +1,7 @@
 package ms.joinsounds.joinsounds_backend.service;
 
 import lombok.RequiredArgsConstructor;
-import ms.joinsounds.joinsounds_backend.dto.ReqRes;
+import ms.joinsounds.joinsounds_backend.dto.UserRequestDto;
 import ms.joinsounds.joinsounds_backend.dto.UserDto;
 import ms.joinsounds.joinsounds_backend.entity.User;
 import ms.joinsounds.joinsounds_backend.repository.UsersRepository;
@@ -28,8 +28,8 @@ public class UserService {
     private final VerificationService _verificationService;
 
     // Tu ustalamy zawsze rolę USER
-    public ReqRes register(ReqRes registrationRequest){
-        ReqRes response = new ReqRes();
+    public UserRequestDto register(UserRequestDto registrationRequest){
+        UserRequestDto response = new UserRequestDto();
 
         try {
             // Sprawdź czy email już istnieje
@@ -72,8 +72,8 @@ public class UserService {
     }
 
     // Tu ustawiamy role jaką chcemy
-    public ReqRes adminRegister(ReqRes registrationRequest){
-        ReqRes resp = new ReqRes();
+    public UserRequestDto adminRegister(UserRequestDto registrationRequest){
+        UserRequestDto resp = new UserRequestDto();
 
         try {
             // Sprawdź czy email już istnieje
@@ -103,7 +103,7 @@ public class UserService {
     }
 
     // Powielony kodzik z rejestracji
-    private void registerBase(ReqRes registrationRequest, ReqRes response, User user) {
+    private void registerBase(UserRequestDto registrationRequest, UserRequestDto response, User user) {
         user.setName(registrationRequest.getName());
         user.setPassword(_passwordEncoder.encode(registrationRequest.getPassword()));
         User userResult = _usersRepository.save(user);
@@ -114,8 +114,8 @@ public class UserService {
         }
     }
 
-    public ReqRes verifyAccount(UUID userId, String verificationCode) {
-        ReqRes response = new ReqRes();
+    public UserRequestDto verifyAccount(UUID userId, String verificationCode) {
+        UserRequestDto response = new UserRequestDto();
         try {
             Optional<User> userOptional = _usersRepository.findById(userId);
             if (userOptional.isPresent()) {
@@ -143,8 +143,8 @@ public class UserService {
 
 
 
-    public ReqRes login(ReqRes loginRequest) {
-        ReqRes response = new ReqRes();
+    public UserRequestDto login(UserRequestDto loginRequest) {
+        UserRequestDto response = new UserRequestDto();
         try {
             // Sprawdź czy podana wartość to email czy nazwa użytkownika
             Optional<User> user = loginRequest.getEmail().contains("@")
@@ -191,8 +191,8 @@ public class UserService {
         return response;
     }
 
-    public ReqRes refreshToken(ReqRes refreshTokenReqiest){
-        ReqRes response = new ReqRes();
+    public UserRequestDto refreshToken(UserRequestDto refreshTokenReqiest){
+        UserRequestDto response = new UserRequestDto();
         try{
             String ourEmail = _jwtUtils.extractUsername(refreshTokenReqiest.getToken());
             User users = _usersRepository.findByEmail(ourEmail).orElseThrow();
@@ -214,62 +214,62 @@ public class UserService {
         }
     }
 
-    public ReqRes getAllUsers() {
-        ReqRes reqRes = new ReqRes();
+    public UserRequestDto getAllUsers() {
+        UserRequestDto userRequestDto = new UserRequestDto();
 
         try {
             List<User> result = _usersRepository.findAll();
             if (!result.isEmpty()) {
-                reqRes.setUserList(result);
-                reqRes.setStatusCode(200);
-                reqRes.setMessage("Successful");
+                userRequestDto.setUserList(result);
+                userRequestDto.setStatusCode(200);
+                userRequestDto.setMessage("Successful");
             } else {
-                reqRes.setStatusCode(404);
-                reqRes.setMessage("No users found");
+                userRequestDto.setStatusCode(404);
+                userRequestDto.setMessage("No users found");
             }
-            return reqRes;
+            return userRequestDto;
         } catch (Exception e) {
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred: " + e.getMessage());
-            return reqRes;
+            userRequestDto.setStatusCode(500);
+            userRequestDto.setMessage("Error occurred: " + e.getMessage());
+            return userRequestDto;
         }
     }
 
-    public ReqRes getUsersById(UUID id) {
-        ReqRes reqRes = new ReqRes();
+    public UserRequestDto getUsersById(UUID id) {
+        UserRequestDto userRequestDto = new UserRequestDto();
         try {
             User usersById = _usersRepository.findById(id).orElseThrow(() -> new RuntimeException("User Not found"));
-            reqRes.setUser(usersById);
-            reqRes.setStatusCode(200);
-            reqRes.setMessage("Users with id '" + id + "' found successfully");
+            userRequestDto.setUser(usersById);
+            userRequestDto.setStatusCode(200);
+            userRequestDto.setMessage("Users with id '" + id + "' found successfully");
         } catch (Exception e) {
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred: " + e.getMessage());
+            userRequestDto.setStatusCode(500);
+            userRequestDto.setMessage("Error occurred: " + e.getMessage());
         }
-        return reqRes;
+        return userRequestDto;
     }
 
-    public ReqRes deleteUser(UUID userId) {
-        ReqRes reqRes = new ReqRes();
+    public UserRequestDto deleteUser(UUID userId) {
+        UserRequestDto userRequestDto = new UserRequestDto();
         try {
             Optional<User> userOptional = _usersRepository.findById(userId);
             if (userOptional.isPresent()) {
                 _usersRepository.deleteById(userId);
-                reqRes.setStatusCode(200);
-                reqRes.setMessage("User deleted successfully");
+                userRequestDto.setStatusCode(200);
+                userRequestDto.setMessage("User deleted successfully");
             } else {
-                reqRes.setStatusCode(404);
-                reqRes.setMessage("User not found for deletion");
+                userRequestDto.setStatusCode(404);
+                userRequestDto.setMessage("User not found for deletion");
             }
         } catch (Exception e) {
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred while deleting user: " + e.getMessage());
+            userRequestDto.setStatusCode(500);
+            userRequestDto.setMessage("Error occurred while deleting user: " + e.getMessage());
         }
-        return reqRes;
+        return userRequestDto;
     }
 
-    public ReqRes updateUser(UUID userId, User updatedUser) {
-        ReqRes reqRes = new ReqRes();
+    public UserRequestDto updateUser(UUID userId, User updatedUser) {
+        UserRequestDto userRequestDto = new UserRequestDto();
         try {
             Optional<User> userOptional = _usersRepository.findById(userId);
             if (userOptional.isPresent()) {
@@ -284,38 +284,38 @@ public class UserService {
                 }
 
                 User savedUser = _usersRepository.save(existingUser);
-                reqRes.setUser(savedUser);
-                reqRes.setStatusCode(200);
-                reqRes.setMessage("User updated successfully");
+                userRequestDto.setUser(savedUser);
+                userRequestDto.setStatusCode(200);
+                userRequestDto.setMessage("User updated successfully");
             } else {
-                reqRes.setStatusCode(404);
-                reqRes.setMessage("User not found for update");
+                userRequestDto.setStatusCode(404);
+                userRequestDto.setMessage("User not found for update");
             }
         } catch (Exception e) {
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred while updating user: " + e.getMessage());
+            userRequestDto.setStatusCode(500);
+            userRequestDto.setMessage("Error occurred while updating user: " + e.getMessage());
         }
-        return reqRes;
+        return userRequestDto;
     }
 
-    public ReqRes getMyInfo(String email){
-        ReqRes reqRes = new ReqRes();
+    public UserRequestDto getMyInfo(String email){
+        UserRequestDto userRequestDto = new UserRequestDto();
         try {
             Optional<User> userOptional = _usersRepository.findByEmail(email);
             if (userOptional.isPresent()) {
-                reqRes.setUser(userOptional.get());
-                reqRes.setStatusCode(200);
-                reqRes.setMessage("successful");
+                userRequestDto.setUser(userOptional.get());
+                userRequestDto.setStatusCode(200);
+                userRequestDto.setMessage("successful");
             } else {
-                reqRes.setStatusCode(404);
-                reqRes.setMessage("User not found for update");
+                userRequestDto.setStatusCode(404);
+                userRequestDto.setMessage("User not found for update");
             }
 
         }catch (Exception e){
-            reqRes.setStatusCode(500);
-            reqRes.setMessage("Error occurred while getting user info: " + e.getMessage());
+            userRequestDto.setStatusCode(500);
+            userRequestDto.setMessage("Error occurred while getting user info: " + e.getMessage());
         }
-        return reqRes;
+        return userRequestDto;
     }
 
     public UserDto convertToDto(User user) {

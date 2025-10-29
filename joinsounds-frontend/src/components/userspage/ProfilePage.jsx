@@ -15,6 +15,7 @@ import '../common/Buttons.css';
 import { useNavigate } from 'react-router-dom';
 import AutoLink from '../common/AutoLink';
 import ProfileAnalyticsModal from './ProfileAnalyticsModal';
+import { IoMdStar, IoMdStarOutline } from "react-icons/io";
 
 
 function ProfilePage() {
@@ -291,7 +292,7 @@ function ProfilePage() {
                         onClick={() => editable && onRatingChange(star)}
                         disabled={!editable}
                     >
-                        {star <= rating ? <MdStar /> : <MdStarBorder />}
+                        {star <= rating ? <IoMdStar /> : <IoMdStarOutline />}
                     </button>
                 ))}
             </div>
@@ -339,7 +340,7 @@ function ProfilePage() {
             {/* Przycisk czatu */}
             {isLoggedIn && !isOwnProfile && (
                 <button
-                    className="chat-with-user-btn"
+                    className="submit-btn"
                     onClick={handleOpenChat}
                     title="Chat with this user"
                 >

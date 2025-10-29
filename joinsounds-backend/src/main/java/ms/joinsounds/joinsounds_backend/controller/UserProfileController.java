@@ -43,13 +43,13 @@ public class UserProfileController {
             userProfile.setBio(userProfileEntity.getBio());
             userProfile.setTools(userProfileEntity.getTools());
             userProfile.setGenres(userProfileEntity.getGenres());
-            userProfile.setProfilePictureUrl(userProfileEntity.getProfilePicturePath());
+            userProfile.setProfilePicturePath(userProfileEntity.getProfilePicturePath());
         } else {
             // Domyślne wartości jeśli profil nie istnieje
             userProfile.setBio("");
             userProfile.setTools(new ArrayList<>());
             userProfile.setGenres(new ArrayList<>());
-            userProfile.setProfilePictureUrl(null);
+            userProfile.setProfilePicturePath(null);
         }
 
         return ResponseEntity.ok(userProfile);
