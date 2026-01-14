@@ -46,6 +46,7 @@ AI Assistance: The frontend layer of this application was developed with the sig
 - MySQL: Relational database storage.
 - FFmpeg: Server-side processing and compression of audio files.
 - Maven: Dependency management.
+  
 **Frontend**
 - React: Component-based library for the user interface.
 - Vite: Fast build tool for the development environment.
