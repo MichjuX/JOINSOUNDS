@@ -26,6 +26,7 @@ AI Assistance: The frontend layer of this application was developed with the sig
 ### User Profiles: Users can personalize their public profiles by adding a profile picture, a biography, a list of used tools and software, and their favorite music genres.
 <img width="878" height="924" alt="image" src="https://github.com/user-attachments/assets/4d6ea8c6-0e1d-4048-b600-3524ba85f3d5" />
 
+<img width="543" height="716" alt="image" src="https://github.com/user-attachments/assets/44603d0f-4754-40b3-b1d7-9e153b2f9bd6" />
 
 ### Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
 ### Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
