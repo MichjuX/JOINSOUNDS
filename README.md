@@ -20,10 +20,14 @@ AI Assistance: The frontend layer of this application was developed with the sig
 ### Daily Post System: A daily recommendation mechanism that randomly selects and promotes one finished project every 24 hours to all users.
 <img width="1303" height="861" alt="image" src="https://github.com/user-attachments/assets/988cf1af-f386-43c1-b1f4-826d16c54460" />
 
+### Discovery Tools: A tagging system allowing users to search and filter projects by genre, software used, or specific instruments.
+<img width="1302" height="161" alt="image" src="https://github.com/user-attachments/assets/40fc72b4-6b41-46ad-99fa-84e5ea82a5db" />
+
 - Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
 - Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
 - Project Analytics: Tools for users to track the popularity and community engagement of their projects over time.
-- Discovery Tools: A tagging system allowing users to search and filter projects by genre, software used, or specific instruments.
+
+
 
 ## 🛠️ Technology Stack
 
