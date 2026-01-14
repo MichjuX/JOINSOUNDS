@@ -14,8 +14,12 @@ AI Assistance: The frontend layer of this application was developed with the sig
 
 ## 🚀 Key Features
 
-- Time-Stamped Comments: Users can add precise comments assigned to specific time intervals of an audio track, visualized using interactive waveforms.
-- Daily Post System: A daily recommendation mechanism that randomly selects and promotes one finished project every 24 hours to all users.
+### Time-Stamped Comments: Users can add precise comments assigned to specific time intervals of an audio track, visualized using interactive waveforms.
+<img width="1292" height="1059" alt="image" src="https://github.com/user-attachments/assets/06ea8a88-2788-4a06-99ae-83fa01559e80" />
+
+### Daily Post System: A daily recommendation mechanism that randomly selects and promotes one finished project every 24 hours to all users.
+<img width="1303" height="861" alt="image" src="https://github.com/user-attachments/assets/988cf1af-f386-43c1-b1f4-826d16c54460" />
+
 - Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
 - Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
 - Project Analytics: Tools for users to track the popularity and community engagement of their projects over time.
