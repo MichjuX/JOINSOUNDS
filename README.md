@@ -30,7 +30,8 @@ AI Assistance: The frontend layer of this application was developed with the sig
 
 ### Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
 ### Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
-<img width="355" height="503" alt="image" src="https://github.com/user-attachments/assets/b3a2e5ae-b03e-48fb-b78e-565827d2a57f" />
+<img width="355" height="503" alt="image" src="https://github.com/user-attachments/assets/b3a2e5ae-b03e-48fb-b78e-565827d2a57f" /><img width="393" height="525" alt="image" src="https://github.com/user-attachments/assets/ee35cb78-22ea-4bd3-9fa9-acf353ead48e" />
+
 
 ### Project Analytics: Tools for users to track the popularity and community engagement of their projects over time.
 
