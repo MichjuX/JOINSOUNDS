@@ -23,9 +23,13 @@ AI Assistance: The frontend layer of this application was developed with the sig
 ### Discovery Tools: A tagging system allowing users to search and filter projects by genre, software used, or specific instruments.
 <img width="1302" height="161" alt="image" src="https://github.com/user-attachments/assets/40fc72b4-6b41-46ad-99fa-84e5ea82a5db" />
 
-- Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
-- Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
-- Project Analytics: Tools for users to track the popularity and community engagement of their projects over time.
+### User Profiles: Users can personalize their public profiles by adding a profile picture, a biography, a list of used tools and software, and their favorite music genres.
+<img width="878" height="924" alt="image" src="https://github.com/user-attachments/assets/4d6ea8c6-0e1d-4048-b600-3524ba85f3d5" />
+
+
+### Personalized Recommendations: An algorithm that analyzes user activity (likes and comments) to suggest posts tailored to individual tastes.
+### Real-Time Communication: A built-in chat module and notification system powered by WebSockets for instant interaction between creators.
+### Project Analytics: Tools for users to track the popularity and community engagement of their projects over time.
 
 
 
