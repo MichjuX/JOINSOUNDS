@@ -43,13 +43,13 @@ public class UserProfileController {
             userProfile.setBio(userProfileEntity.getBio());
             userProfile.setTools(userProfileEntity.getTools());
             userProfile.setGenres(userProfileEntity.getGenres());
-            userProfile.setProfilePicturePath(userProfileEntity.getProfilePicturePath());
+            userProfile.setProfilePictureUrl(userProfileEntity.getProfilePicturePath());
         } else {
             // Domyślne wartości jeśli profil nie istnieje
             userProfile.setBio("");
             userProfile.setTools(new ArrayList<>());
             userProfile.setGenres(new ArrayList<>());
-            userProfile.setProfilePicturePath(null);
+            userProfile.setProfilePictureUrl(null);
         }
 
         return ResponseEntity.ok(userProfile);
@@ -71,15 +71,13 @@ public class UserProfileController {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         User user = auth.getPrincipal() instanceof User ? (User) auth.getPrincipal() : null;
 
-        // Szukamy profilu, jeśli nie istnieje - tworzymy nowy
         UserProfile userProfile = _userProfileRepository.findByUser(user);
 
         if (userProfile == null) {
             userProfile = new UserProfile();
-            userProfile.setUser(user); // Pamiętaj o ustawieniu użytkownika!
+            userProfile.setUser(user);
         }
 
-        // Aktualizujemy dane
         userProfile.setBio(userProfileDto.getBio());
         userProfile.setTools(userProfileDto.getTools());
         userProfile.setGenres(userProfileDto.getGenres());
@@ -104,7 +102,6 @@ public class UserProfileController {
 
             String fileName = _fileStorageService.storeProfilePicture(file);
 
-            // Zaktualizuj ścieżkę w profilu użytkownika
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();
             User user = auth.getPrincipal() instanceof User ? (User) auth.getPrincipal() : null;
 
@@ -114,7 +111,6 @@ public class UserProfileController {
                 userProfile.setUser(user);
             }
 
-            // Usuń stare zdjęcie jeśli istnieje
             if (userProfile.getProfilePicturePath() != null) {
                 _fileStorageService.deleteFile(userProfile.getProfilePicturePath());
             }
@@ -138,10 +134,9 @@ public class UserProfileController {
 
             UserProfile userProfile = _userProfileRepository.findByUser(user);
             if (userProfile != null && userProfile.getProfilePicturePath() != null) {
-                // Usuń plik z dysku
+
                 _fileStorageService.deleteFile(userProfile.getProfilePicturePath());
 
-                // Usuń ścieżkę z profilu
                 userProfile.setProfilePicturePath(null);
                 _userProfileRepository.save(userProfile);
             }

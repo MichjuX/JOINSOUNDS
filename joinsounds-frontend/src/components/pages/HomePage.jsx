@@ -171,42 +171,67 @@ function HomePage() {
         });
     };
 
-    const handleAdminDelete = async (event, postId) => {
-        confirmPopup({
-            target: event.currentTarget,
-            message: 'Are you sure you want to delete this post?',
-            icon: 'pi pi-exclamation-triangle',
-            accept: async () => {
-                try {
-                    // Optymistyczne usunięcie
-                    const deletedPost = posts.find(post => post.id === postId);
-                    setPosts(prev => prev.filter(post => post.id !== postId));
-                    setTotalElements(prev => prev - 1);
-                    
-                    await PostService.adminDeletePost(postId, token);
-                    
-                    toast.current.show({ 
-                        severity: 'success', 
-                        summary: 'Deleted', 
-                        detail: 'Post has been deleted by admin', 
-                        life: 3000 
-                    });
-                } catch (error) {
-                    // Przywróć post w przypadku błędu
-                    setPosts(prev => [...prev, deletedPost]);
-                    setTotalElements(prev => prev + 1);
-                    
-                    console.error("Error deleting post:", error);
-                    toast.current.show({ 
-                        severity: 'error', 
-                        summary: 'Error', 
-                        detail: 'Failed to delete post', 
-                        life: 3000 
-                    });
-                }
-            }
-        });
-    };
+    // HomePage.js
+
+// ... (istniejący kod)
+
+// HomePage.js
+
+// ... (istniejący kod)
+
+    const handleAdminDelete = async (event, postId) => {
+        confirmPopup({
+            target: event.currentTarget,
+            message: 'Are you sure you want to delete this post as a moderator?', // Zmiana treści wiadomości
+            icon: 'pi pi-exclamation-triangle',
+            accept: async () => {
+                // Zapisz oryginalny post na potrzeby rollbacku
+                const originalPost = posts.find(post => post.id === postId); 
+
+                try {
+                    // 1. Optymistyczna AKTUALIZACJA: Zmień treść posta w UI
+                    setPosts(prev => 
+                        prev.map(post => 
+                            post.id === postId
+                                ? { 
+                                    ...post, 
+                                    // Ustawienie żądanej wiadomości
+                                    title: "Post deleted by moderator",
+                                    content: "",
+                                    // Opcjonalnie: upewnienie się, że inne elementy zostaną ukryte
+                                    audioFilePath: null,
+                                    // Dodanie flagi (jeśli backend ją obsługuje)
+                                    isDeletedByModerator: true 
+                                }
+                                : post
+                        )
+                    );
+                    
+                    // 2. Wysłanie requestu do serwera, który powinien oznaczyć post
+                    // W Service powinien być endpoint, który aktualizuje post, a nie go fizycznie usuwa.
+                    await PostService.adminDeletePost(postId, token); 
+                    
+                    toast.current.show({ 
+                        severity: 'success', 
+                        summary: 'Deleted', 
+                        detail: 'Post has been marked as deleted by moderator', // Zmiana wiadomości
+                        life: 3000 
+                    });
+                } catch (error) {
+                    // 3. Przywróć oryginalny post w przypadku błędu
+                    setPosts(prev => prev.map(post => post.id === postId ? originalPost : post)); 
+
+                    console.error("Error marking post as deleted:", error);
+                    toast.current.show({ 
+                        severity: 'error', 
+                        summary: 'Error', 
+                        detail: 'Failed to mark post as deleted', 
+                        life: 3000 
+                    });
+                }
+            }
+        });
+    };
 
   const handleSortChange = (field, direction) => {
     setSortBy(field);

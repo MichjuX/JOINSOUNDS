@@ -135,7 +135,7 @@ function UserPostsPage() {
     <div className="home-page-container">
 
       <div className="posts-container">
-        <h2>Posts By User: {userId}</h2>
+        {/* <h2>Posts By User: {userId}</h2> */}
 
         <div className="sorting-controls">
           <span>Sort by: </span>

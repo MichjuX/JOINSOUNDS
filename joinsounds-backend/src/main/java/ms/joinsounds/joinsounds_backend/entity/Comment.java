@@ -17,13 +17,10 @@ public class Comment {
 
     private String content;
 
-    // Czas rozpoczęcia regionu w sekundach
     private Double startTime;
 
-    // Czas zakończenia regionu w sekundach
     private Double endTime;
 
-    // Kolor regionu w formacie HEX lub RGBA (opcjonalny)
     private String color;
 
     @CreationTimestamp

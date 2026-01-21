@@ -29,7 +29,7 @@ public class Tag {
     public Tag() {}
 
     public Tag(String name) {
-        this.name = name.toLowerCase(); // Normalizacja do małych liter
+        this.name = name.toLowerCase();
     }
 
     public void setName(String name) {

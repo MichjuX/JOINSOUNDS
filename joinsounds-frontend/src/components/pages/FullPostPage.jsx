@@ -102,7 +102,7 @@ function FullPostPage() {
     return (
         <div className="full-post-container">
             <button onClick={() => navigate(-1)} className="back-button">
-                Wróć
+                Back to posts page
             </button>
             
             <div className="full-post-card">

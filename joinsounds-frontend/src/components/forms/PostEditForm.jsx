@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PostService from '../service/PostService';
-import './PostForm.css';
+import './PostForm.css'; // Importujemy ten sam CSS co w PostForm
+import '../common/Buttons.css';
 
 const PostEditForm = ({ post, onPostUpdated, token }) => {
     const [title, setTitle] = useState(post ? post.title : '');
@@ -28,7 +29,6 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
 
             // Jeśli użytkownik chce podmienić plik audio
             if (replaceAudio && audioFile) {
-                // Prześlij nowy plik
                 const fileName = await PostService.uploadFile(
                     audioFile, 
                     token,
@@ -45,16 +45,17 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
                 audioFilePath: replaceAudio ? audioFilePath : undefined
             }, token, replaceAudio);
 
-            alert('Post został zaktualizowany!');
+            // Opcjonalnie: Toast success tutaj
             
             if (onPostUpdated) {
                 onPostUpdated();
             }
         } catch (error) {
             if (error.response && error.response.data && error.response.data.includes("Only audio files are allowed")) {
-                alert('Proszę wybrać plik audio w poprawnym formacie (MP3, WAV, OGG, M4A)');
+                alert('Choose audio file (MP3, WAV, OGG, M4A)');
             } else {
-                alert(`Wystąpił błąd: ${error.response?.data?.message || error.message}`);
+                console.error(error);
+                alert(`An error occurred: ${error.response?.data?.message || error.message}`);
             }
         } finally {
             setIsSubmitting(false);
@@ -69,14 +70,6 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
         }
     };
 
-    const removeAudioSelection = () => {
-        setAudioFile(null);
-        setReplaceAudio(false);
-        if (fileInputRef.current) {
-            fileInputRef.current.value = '';
-        }
-    };
-
     const cancelAudioChange = () => {
         setAudioFile(null);
         setReplaceAudio(false);
@@ -86,47 +79,77 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
     };
 
     return (
-        <form onSubmit={handleSubmit}>
-            <input
-                className='form-input'
-                type="text"
-                placeholder="Tytuł"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                required
-                disabled={isSubmitting}
-            />
+        <form onSubmit={handleSubmit} className="post-form">
+            {/* Tytuł */}
+            <div className="form-group">
+                <label>Edit Title</label>
+                <input
+                    type="text"
+                    placeholder="Tytuł"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                />
+            </div>
             
-            <textarea
-                placeholder="Treść"
-                value={content}
-                onChange={(e) => setContent(e.target.value)}
-                required
-                disabled={isSubmitting}
-            />
+            {/* Treść */}
+            <div className="form-group">
+                <label>Edit Content</label>
+                <textarea
+                    placeholder="Treść"
+                    value={content}
+                    onChange={(e) => setContent(e.target.value)}
+                    required
+                    disabled={isSubmitting}
+                    rows={6}
+                />
+            </div>
             
-            {/* Sekcja zarządzania plikiem audio */}
-            <div className="audio-management">
+            {/* Sekcja Audio */}
+            <div className="form-group">
+                <label>Audio Management</label>
+                
+                {/* 1. Wyświetlanie obecnego audio (jeśli istnieje i nie zmieniamy) */}
                 {post.audioFilePath && !replaceAudio && (
-                    <div className="current-audio">
-                        <p>Aktualny plik audio: {post.audioFilePath}</p>
-                        <audio controls>
-                            <source src={PostService.getAuthorizedFileUrl(post.audioFilePath)} type="audio/mpeg" />
-                            Twoja przeglądarka nie obsługuje odtwarzacza audio.
+                    <div style={{ 
+                        backgroundColor: '#212121', 
+                        padding: '15px', 
+                        borderRadius: '8px', 
+                        border: '1px solid #313131',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px'
+                    }}>
+                        <div style={{ color: '#fff', fontSize: '0.9rem' }}>Current file loaded.</div>
+                        <audio controls style={{ width: '100%' }}>
+                            <source src={PostService.getAuthorizedFileUrl(post.audioFilePath, token)} type="audio/mpeg" />
+                            Your browser does not support the audio element.
                         </audio>
+                        
                         <button 
                             type="button" 
                             onClick={() => setReplaceAudio(true)}
                             disabled={isSubmitting}
-                            className="secondary-button"
+                            style={{
+                                background: 'transparent',
+                                border: '1px solid #ff5100',
+                                color: '#ff5100',
+                                padding: '8px 12px',
+                                borderRadius: '4px',
+                                cursor: 'pointer',
+                                alignSelf: 'flex-start',
+                                marginTop: '5px'
+                            }}
                         >
-                            Zmień plik audio
+                            Replace Audio File
                         </button>
                     </div>
                 )}
-                
-                {replaceAudio && (
-                    <div className="new-audio">
+
+                {/* 2. Brak audio w poście OR tryb zmiany audio */}
+                {(!post.audioFilePath || replaceAudio) && (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                         <input
                             type="file"
                             ref={fileInputRef}
@@ -134,23 +157,31 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
                             disabled={isSubmitting}
                             accept="audio/*"
                         />
-                        {audioFile && (
-                            <div className="audio-actions">
-                                <span>Wybrano: {audioFile.name}</span>
-                                <button 
-                                    type="button" 
-                                    onClick={cancelAudioChange}
-                                    disabled={isSubmitting}
-                                    className="secondary-button"
-                                >
-                                    Anuluj zmianę
-                                </button>
-                            </div>
+                        
+                        {/* Przycisk Anuluj tylko jeśli post miał wcześniej audio */}
+                        {post.audioFilePath && replaceAudio && (
+                            <button 
+                                type="button" 
+                                onClick={cancelAudioChange}
+                                disabled={isSubmitting}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: '#aaaaaa',
+                                    cursor: 'pointer',
+                                    textDecoration: 'underline',
+                                    alignSelf: 'flex-start',
+                                    fontSize: '0.9rem'
+                                }}
+                            >
+                                Cancel change (Keep original audio)
+                            </button>
                         )}
                     </div>
                 )}
             </div>
             
+            {/* Pasek postępu */}
             {isSubmitting && uploadProgress > 0 && (
                 <div className="progress-container">
                     <div 
@@ -163,13 +194,16 @@ const PostEditForm = ({ post, onPostUpdated, token }) => {
                 </div>
             )}
             
-            <button
-                type="submit"
-                disabled={isSubmitting}
-                className="primary-button"
-            >
-                {isSubmitting ? 'Zapisywanie...' : 'Zapisz zmiany'}
-            </button>
+            {/* Przyciski akcji */}
+            <div className="form-actions">
+                <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="submit-btn"
+                >
+                    {isSubmitting ? 'Saving...' : 'Update Post'}
+                </button>
+            </div>
         </form>
     );
 };

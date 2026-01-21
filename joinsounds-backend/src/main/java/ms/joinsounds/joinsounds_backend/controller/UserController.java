@@ -81,10 +81,9 @@ public class UserController {
 
         // Sprawdź, czy użytkownik jest zalogowany (nie jest "anonymousUser")
         if (authentication == null || !authentication.isAuthenticated() || authentication.getPrincipal() == null || "anonymousUser".equals(authentication.getPrincipal())) {
-            return ResponseEntity.ok(null);  // Zwraca HTTP 200 z null
+            return ResponseEntity.ok(null);
         }
 
-        // Jeśli użytkownik jest zalogowany, zwróć jego ID
         User user = (User) authentication.getPrincipal();
         return ResponseEntity.ok(user.getId());
     }

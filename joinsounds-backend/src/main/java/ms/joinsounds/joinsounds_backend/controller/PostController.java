@@ -136,7 +136,7 @@ public class PostController {
     @PutMapping("/authenticated/post/update/{id}")
     public ResponseEntity<Post> updatePost(
             @PathVariable UUID id,
-            @RequestBody PostRequest postRequest, // Zmieniamy na PostRequest
+            @RequestBody PostRequest postRequest,
             @RequestParam(value = "replaceAudio", required = false) Boolean replaceAudio) {
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();

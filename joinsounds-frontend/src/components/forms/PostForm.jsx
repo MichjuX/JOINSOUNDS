@@ -164,7 +164,7 @@ const PostForm = ({ token, onPostCreated }) => {
                 </div>
                 
                 <div className="form-group">
-                    <label>Plik audio</label>
+                    <label>Audio file</label>
                     <input
                         type="file"
                         ref={fileInputRef}

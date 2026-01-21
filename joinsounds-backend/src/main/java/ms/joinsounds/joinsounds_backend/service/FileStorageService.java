@@ -33,7 +33,6 @@ public class FileStorageService {
             throw new RuntimeException("Can't create directory for file storage", e);
         }
 
-        // Inicjalizacja FFmpeg (upewnij się, że jest zainstalowany w systemie)
         this.ffmpeg = new FFmpeg("ffmpeg");
         this.ffprobe = new FFprobe("ffprobe");
     }
@@ -61,21 +60,21 @@ public class FileStorageService {
                 throw new RuntimeException("Unsupported audio format. Allowed: .mp3, .wav, .ogg, .m4a, .flac, .aac");
             }
 
-            // Zapisz oryginalny plik tymczasowo
+            // Zapis oryginalnego plik tymczasowo
             String tempFileName = UUID.randomUUID() + fileExtension;
             Path tempFilePath = this._fileStorageLocation.resolve(tempFileName);
             Files.copy(file.getInputStream(), tempFilePath);
 
-            // Określ czy konwertować plik
+            // Określanie czy konwertować plik
             String finalExtension = shouldConvert(fileExtension, file.getSize()) ? ".opus" : fileExtension;
             String finalFileName = UUID.randomUUID() + finalExtension;
             Path finalFilePath = this._fileStorageLocation.resolve(finalFileName);
 
             if (shouldConvert(fileExtension, file.getSize())) {
                 convertAudio(tempFilePath.toString(), finalFilePath.toString(), finalExtension);
-                Files.delete(tempFilePath); // Usuń tymczasowy plik
+                Files.delete(tempFilePath);
             } else {
-                Files.move(tempFilePath, finalFilePath); // Po prostu zmień nazwę
+                Files.move(tempFilePath, finalFilePath); // Zmiana nazwy
             }
 
             return finalFileName;

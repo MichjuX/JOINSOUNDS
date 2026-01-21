@@ -51,7 +51,7 @@ function DailyPostPage() {
   return (
     <div className="home-page-container">
       <div className="posts-container">
-        <h2>🎵 Post of the Day</h2>
+        <h2>Post of the Day</h2>
 
         <PostList 
           posts={[post]} 

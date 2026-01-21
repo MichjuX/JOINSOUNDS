@@ -109,13 +109,13 @@ function Navbar() {
                                 {notificationsOpen && (
                                     <div className="notification-dropdown">
                                         <div className="notification-header">
-                                            <h3>Powiadomienia</h3>
+                                            <h3>Notifications</h3>
                                             {unreadCount > 0 && (
                                                 <button 
                                                     className="mark-all-read-btn"
                                                     onClick={markAllAsRead}
                                                 >
-                                                    Oznacz wszystkie jako przeczytane
+                                                    Mark all as read
                                                 </button>
                                             )}
                                         </div>

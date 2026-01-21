@@ -37,8 +37,6 @@ public class CommentController {
         User postOwner = _usersRepository.findById(post.getUser().getId())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-
-
         // Notyfikacje
         if(!user.getId().equals(postOwner.getId())) {
             _notificationService.createNotification(postOwner.getId(),

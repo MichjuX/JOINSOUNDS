@@ -1,0 +1,74 @@
+<mxfile host="Electron" agent="Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) draw.io/28.2.8 Chrome/140.0.7339.240 Electron/38.4.0 Safari/537.36" version="28.2.8">
+  <diagram name="Strona-1" id="cw5-Uzl58j6IaLIDmvlj">
+    <mxGraphModel dx="1178" dy="480" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="827" pageHeight="1169" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-15" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-1" target="ab8JRc_WDBGOouvDeuLJ-13" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="45" y="656" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-16" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-1" target="ab8JRc_WDBGOouvDeuLJ-14" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="102" y="740" />
+              <mxPoint x="102" y="765" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-1" value="Użytkownik" style="shape=umlActor;verticalLabelPosition=bottom;verticalAlign=top;html=1;" parent="1" vertex="1">
+          <mxGeometry x="30" y="690" width="30" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-5" value="Baza danych" style="image;html=1;image=img/lib/clip_art/computers/Database_128x128.png;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="460" y="610" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-20" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-6" target="ab8JRc_WDBGOouvDeuLJ-5" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="720" />
+              <mxPoint x="430" y="640" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-22" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-6" target="ab8JRc_WDBGOouvDeuLJ-21" edge="1">
+          <mxGeometry relative="1" as="geometry">
+            <Array as="points">
+              <mxPoint x="430" y="720" />
+              <mxPoint x="430" y="794" />
+            </Array>
+          </mxGeometry>
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-6" value="" style="image;aspect=fixed;perimeter=ellipsePerimeter;html=1;align=center;shadow=0;dashed=0;fontColor=light-dark(#4277BB,#000000);labelBackgroundColor=none;fontSize=12;spacingTop=0;image=img/lib/ibm/infrastructure/mobile_backend.svg;strokeWidth=1;" parent="1" vertex="1">
+          <mxGeometry x="353.5" y="690" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-19" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-9" target="ab8JRc_WDBGOouvDeuLJ-6" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-9" value="Frontend" style="shape=mxgraph.sap.icon;labelPosition=center;verticalLabelPosition=bottom;align=center;verticalAlign=top;strokeWidth=1;strokeColor=#D5DADD;fillColor=#EDEFF0;gradientColor=#FCFCFC;gradientDirection=west;aspect=fixed;SAPIcon=Application_Frontend_Service" parent="1" vertex="1">
+          <mxGeometry x="250" y="690" width="60" height="60" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-17" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-13" target="ab8JRc_WDBGOouvDeuLJ-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-13" value="&lt;span&gt;Przeglądarka &lt;br&gt;internetowa&lt;/span&gt;" style="image;aspect=fixed;html=1;points=[];align=center;fontSize=12;image=img/lib/azure2/general/Browser.svg;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="130" y="630" width="65" height="52" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-18" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" parent="1" source="ab8JRc_WDBGOouvDeuLJ-14" target="ab8JRc_WDBGOouvDeuLJ-9" edge="1">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-14" value="Urządzenie&lt;br&gt;mobilne" style="verticalLabelPosition=bottom;html=1;verticalAlign=top;align=center;strokeColor=none;fillColor=#00BEF2;shape=mxgraph.azure.mobile;pointerEvents=1;" parent="1" vertex="1">
+          <mxGeometry x="145" y="740" width="35" height="50" as="geometry" />
+        </mxCell>
+        <mxCell id="ab8JRc_WDBGOouvDeuLJ-21" value="Magazyn plików" style="image;points=[];aspect=fixed;html=1;align=center;shadow=0;dashed=0;image=img/lib/allied_telesis/storage/Datacenter_Server_Rack_Storage_Unit_Small.svg;labelBackgroundColor=none;" parent="1" vertex="1">
+          <mxGeometry x="451.3" y="760" width="77.4" height="67.2" as="geometry" />
+        </mxCell>
+        <mxCell id="m_2iVRl21K-vdIEysQ6_-1" value="Backend" style="text;html=1;whiteSpace=wrap;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;rounded=0;" vertex="1" parent="1">
+          <mxGeometry x="353.5" y="750" width="60" height="30" as="geometry" />
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

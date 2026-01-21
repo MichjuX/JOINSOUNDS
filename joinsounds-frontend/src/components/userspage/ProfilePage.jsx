@@ -62,6 +62,7 @@ function ProfilePage() {
             
             if (profileData.profilePictureUrl) {
                 profileData.profilePictureUrl = PostService.getAuthorizedFileUrl(profileData.profilePictureUrl);
+                console.log("profile picture url:", profileData.profilePictureUrl);
             }
             
             if (token) {
@@ -334,6 +335,8 @@ function ProfilePage() {
     const handlePostRedirect = () => {
         navigate(`/posts/user/${profile.id}`);
     };
+    console.log("test")
+    console.log(profile.getProfilePictureUrl);
 
     return (
         <div className="profile-container">

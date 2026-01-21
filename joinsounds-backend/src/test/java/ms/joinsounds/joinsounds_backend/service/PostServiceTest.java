@@ -1,86 +1,70 @@
 package ms.joinsounds.joinsounds_backend.service;
 
-import ms.joinsounds.joinsounds_backend.dto.PostDto;
-import ms.joinsounds.joinsounds_backend.dto.UserDto;
 import ms.joinsounds.joinsounds_backend.entity.Post;
+import ms.joinsounds.joinsounds_backend.entity.PostLike;
 import ms.joinsounds.joinsounds_backend.entity.User;
-import ms.joinsounds.joinsounds_backend.repository.PostRepository;
+import ms.joinsounds.joinsounds_backend.repository.PostLikeRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-import java.util.Collections;
+import java.util.Optional;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
-class PostServiceTest {
+@ExtendWith(MockitoExtension.class)
+public class PostServiceTest {
 
     @Mock
-    private PostRepository _postRepository;
-
-    @Mock
-    private UserService _userService;
-
-    @Mock
-    private FileStorageService _fileStorageService;
+    private PostLikeRepository postLikeRepository;
 
     @InjectMocks
-    private PostService _postService;
+    private PostService postService; // Wstrzykuje Mocki do tej klasy
+
+    private User testUser;
+    private Post testPost;
 
     @BeforeEach
     void setUp() {
-        MockitoAnnotations.openMocks(this);
+        testUser = new User();
+        testUser.setId(UUID.randomUUID());
+        testPost = new Post();
+        testPost.setId(UUID.randomUUID());
+    }
+
+    // --- TESTY JEDNOSTKOWE dla likePost ---
+
+    @Test
+    void shouldCreateLikeWhenPostIsNotLiked() {
+        // GIVEN: Użytkownik jeszcze nie polubił posta
+        when(postLikeRepository.findByPostAndUser(testPost, testUser)).thenReturn(Optional.empty());
+
+        // WHEN: Wywołanie metody likePost
+        postService.likePost(testUser, testPost);
+
+        // THEN: Weryfikacja, że metoda .save() została wywołana DOKŁADNIE raz
+        verify(postLikeRepository, times(1)).save(any(PostLike.class));
+        // Weryfikacja, że metoda .delete() nie została wywołana
+        verify(postLikeRepository, never()).delete(any(PostLike.class));
     }
 
     @Test
-    void getAllPosts() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Post post = new Post();
-        post.setId(UUID.randomUUID());
-        post.setTitle("Test Title");
-        post.setContent("Test Content");
-        post.setAudioFilePath("test/path/to/audio.mp3");
-        post.setCreatedAt(LocalDateTime.now());
-        var testuser = new User();
-        when(_userService.convertToDto(post.getUser())).thenReturn(new UserDto());
-        var testDtoUser = _userService.convertToDto(testuser);
-        post.setUser(testuser);
+    void shouldDeleteLikeWhenPostIsAlreadyLiked() {
+        // GIVEN: Użytkownik już polubił posta
+        PostLike existingLike = new PostLike();
+        when(postLikeRepository.findByPostAndUser(testPost, testUser)).thenReturn(Optional.of(existingLike));
 
-        Page<Post> singlePostPage = new PageImpl<>(Collections.singletonList(post), pageable, 1);
+        // WHEN: Wywołanie metody likePost
+        postService.likePost(testUser, testPost);
 
-        when(_postRepository.findAll(pageable)).thenReturn(singlePostPage);
-
-        Page<PostDto> result = _postService.getAllPosts(pageable);
-
-        assertNotNull(result);
-        assertTrue(result.hasContent());
-        assertEquals(1, result.getTotalElements());
-        assertEquals("Test Title", result.getContent().getFirst().getTitle());
-        assertEquals("Test Content", result.getContent().getFirst().getContent());
-        assertEquals("test/path/to/audio.mp3", result.getContent().getFirst().getAudioFilePath());
-        assertEquals(testDtoUser, result.getContent().getFirst().getUser());
-        assertNotNull(result.getContent().getFirst().getCreatedAt());
-
-        verify(_postRepository, times(1)).findAll(pageable);
-        verify(_userService, times(2)).convertToDto(post.getUser());
-        verifyNoMoreInteractions(_postRepository, _userService);
-
-    }
-
-    @Test
-    void getPostById() {
-    }
-
-    @Test
-    void deletePostByModerator() {
+        // THEN: Weryfikacja, że metoda .delete() została wywołana DOKŁADNIE raz
+        verify(postLikeRepository, times(1)).delete(existingLike);
+        // Weryfikacja, że metoda .save() nie została wywołana
+        verify(postLikeRepository, never()).save(any(PostLike.class));
     }
 }

@@ -122,6 +122,7 @@ public class PostService {
             post.setTitle("Post removed by " + role.toLowerCase());
             post.setContent("");
             post.setAudioFilePath(null);
+            post.setIsFinished(false);
             _postRepository.save(post);
             String audioFilePath = post.getAudioFilePath();
             if (audioFilePath != null && !audioFilePath.isEmpty()) {

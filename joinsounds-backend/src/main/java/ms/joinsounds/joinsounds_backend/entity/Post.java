@@ -46,19 +46,16 @@ public class Post {
     @JsonIgnore
     private Set<Tag> tags = new HashSet<>();
 
-    // Nowa relacja dla like'ów
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     @EqualsAndHashCode.Exclude
     @JsonIgnore
     private Set<PostLike> likes = new HashSet<>();
 
-    // Metoda pomocnicza do pobierania liczby like'ów
     @Transient
     public int getLikeCount() {
         return likes.size();
     }
 
-    // Metoda pomocnicza do sprawdzania czy użytkownik polubił post
     @Transient
     public boolean isLikedByUser(User user) {
         if (user == null) return false;

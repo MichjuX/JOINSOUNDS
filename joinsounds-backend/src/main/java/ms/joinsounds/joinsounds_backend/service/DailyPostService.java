@@ -1,5 +1,6 @@
 package ms.joinsounds.joinsounds_backend.service;
 
+import jakarta.annotation.PostConstruct;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import ms.joinsounds.joinsounds_backend.entity.Post;
@@ -18,9 +19,19 @@ public class DailyPostService {
     @Getter
     private Post currentPostOfTheDay;
 
-    // 🔸 Uruchamia się co 24 godziny (o północy)
+    @PostConstruct
+    public void initializePostOfTheDay() {
+        System.out.println("[PostOfTheDay] Initializing daily post upon application startup.");
+        pickRandomPostLogic();
+    }
+
     @Scheduled(cron = "0 0 0 * * *") // 0:00 każdego dnia
-    public void pickRandomFinishedPost() {
+    public void scheduleRandomFinishedPost() {
+        System.out.println("[PostOfTheDay] Running scheduled task for daily post.");
+        pickRandomPostLogic();
+    }
+
+    private void pickRandomPostLogic() {
         List<Post> finishedPosts = postRepository.findByIsFinishedTrue();
 
         if (finishedPosts.isEmpty()) {

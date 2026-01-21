@@ -36,10 +36,10 @@ public class ChatWebSocketController {
 
         _chatMessageRepository.save(msg);
 
-        // 🔹 Wysyłamy TYLKO do odbiorcy
+        // Wysyłamy TYLKO do odbiorcy
         _messagingTemplate.convertAndSend("/topic/chat." + dto.receiverId(), msg);
 
-        // 🔹 Opcjonalnie wysyłamy też do nadawcy (żeby zobaczył swoją wiadomość)
+        // Opcjonalnie wysyłamy też do nadawcy (żeby zobaczył swoją wiadomość)
         _messagingTemplate.convertAndSend("/topic/chat." + dto.senderId(), msg);
 
         if(!dto.senderId().equals(dto.receiverId())) {
